@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependOnMe.VsExtension", "DependOnMe.VsExtension\DependOnMe.VsExtension.csproj", "{E31867F0-93F3-43D6-8246-0569A86712BF}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DependOnMe.Dsl.Compiler", "DependOnMe.Dsl.Compiler\DependOnMe.Dsl.Compiler.fsproj", "{A5993AA2-81B3-44BC-85D5-DD4763527817}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DependOnMe.Dsl.Compiler", "DependOnMe.Dsl.Compiler\DependOnMe.Dsl.Compiler.fsproj", "{2FA74115-DBF8-4D11-9004-EA91452FAEA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{E31867F0-93F3-43D6-8246-0569A86712BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E31867F0-93F3-43D6-8246-0569A86712BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E31867F0-93F3-43D6-8246-0569A86712BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5993AA2-81B3-44BC-85D5-DD4763527817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5993AA2-81B3-44BC-85D5-DD4763527817}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5993AA2-81B3-44BC-85D5-DD4763527817}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5993AA2-81B3-44BC-85D5-DD4763527817}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FA74115-DBF8-4D11-9004-EA91452FAEA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FA74115-DBF8-4D11-9004-EA91452FAEA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FA74115-DBF8-4D11-9004-EA91452FAEA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FA74115-DBF8-4D11-9004-EA91452FAEA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

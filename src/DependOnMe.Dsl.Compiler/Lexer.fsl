@@ -1,1 +1,38 @@
-﻿
+﻿{
+
+}
+
+let space = " "
+let tab = "\t"
+let arrow = "->"
+let quot = "\""
+let module = "module"
+let dependencies = "dependencies"
+let dot = "."
+let true = "true"
+let false = "false"
+let equals = "="
+let char = ['a'-'z' 'A'-'Z']
+let digit = ['0'-'9']
+let num = digit+
+let fullyQualifiedName = char((char|num)+ dot char(char|num)*)
+let name = char(char|num)*
+let boolFlag1 = "boolFlag1"
+let boolFlag2 = "boolFlag2"
+
+
+rule lex = parse
+  | space { SPACE }
+  | tab { ERROR }  
+  | arrow { ARROW }
+  | equals { EQ }
+  | boolFlag1 { BF1 }
+  | boolFlag2 { BF2 }
+  | true { TRUE }
+  | false { FALSE }
+  | quot { QUOT }
+  | module { MODULE }
+  | dependencies { DEPENDENCIES }
+  | fullyQualifiedName { FQN }
+  | name { SNAME }
+  | eof { EOF }

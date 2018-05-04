@@ -19,9 +19,9 @@ open DslAst
 %token EOF
 
 %start start
-%type <DslAst.Ast> start
+%type <DslAst.DependencyTest> start
 
 %%
 
 start:
-    | EOF { DslAst.Ast.Test }
+    | EOF { Test(Flag1(false), Flag2(true), []) }

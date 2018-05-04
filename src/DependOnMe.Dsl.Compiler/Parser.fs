@@ -145,7 +145,7 @@ let _fsyacc_immediateActions = [|65535us; 49152us; 16385us; |]
 let _fsyacc_reductions ()  =    [| 
 # 146 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : DslAst.Ast)) in
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : DslAst.DependencyTest)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
@@ -158,10 +158,10 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 27 "Parser.fsy"
-                                 DslAst.Ast.Test 
+                                 Test(Flag1(false), Flag2(true), []) 
                    )
 # 27 "Parser.fsy"
-                 : DslAst.Ast));
+                 : DslAst.DependencyTest));
 |]
 # 166 "Parser.fs"
 let tables () : Microsoft.FSharp.Text.Parsing.Tables<_> = 
@@ -185,5 +185,5 @@ let tables () : Microsoft.FSharp.Text.Parsing.Tables<_> =
     numTerminals = 17;
     productionToNonTerminalTable = _fsyacc_productionToNonTerminalTable  }
 let engine lexer lexbuf startState = (tables ()).Interpret(lexer, lexbuf, startState)
-let start lexer lexbuf : DslAst.Ast =
+let start lexer lexbuf : DslAst.DependencyTest =
     Microsoft.FSharp.Core.Operators.unbox ((tables ()).Interpret(lexer, lexbuf, 0))

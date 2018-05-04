@@ -1,5 +1,7 @@
 ﻿{
+module Lexer
 
+open Parser
 }
 
 let space = " "

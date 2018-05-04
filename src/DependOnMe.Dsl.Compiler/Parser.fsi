@@ -2,112 +2,39 @@
 module Parser
 type token = 
   | EOF
-  | PI
-  | EULERNUM
-  | FRAC
-  | SQRT
-  | SUM
-  | PROD
-  | INTEGRAL
-  | TIMES
-  | INFTY
-  | TO
-  | LIM
-  | BMOD
-  | TEXT
-  | SIN
-  | COS
-  | PLUS
-  | SUB
-  | MUL
-  | DIV
-  | LPAREN
-  | RPAREN
-  | LCURLY
-  | RCURLY
-  | EXCL
-  | CARET
+  | SNAME
+  | FQN
+  | DEPENDENCIES
+  | MODULE
+  | QUOT
+  | FALSE
+  | TRUE
+  | BF2
+  | BF1
   | EQ
-  | UNDERSCORE
-  | SLASH
-  | COMMA
-  | MREFVAL of ((string*int) list)
-  | SREFVAL of (string*int)
-  | ID of (string)
-  | DIFF of (string)
-  | FLOAT of (float)
-  | INT of (int)
+  | ARROW
+  | ERROR
+  | SPACE
 type tokenId = 
     | TOKEN_EOF
-    | TOKEN_PI
-    | TOKEN_EULERNUM
-    | TOKEN_FRAC
-    | TOKEN_SQRT
-    | TOKEN_SUM
-    | TOKEN_PROD
-    | TOKEN_INTEGRAL
-    | TOKEN_TIMES
-    | TOKEN_INFTY
-    | TOKEN_TO
-    | TOKEN_LIM
-    | TOKEN_BMOD
-    | TOKEN_TEXT
-    | TOKEN_SIN
-    | TOKEN_COS
-    | TOKEN_PLUS
-    | TOKEN_SUB
-    | TOKEN_MUL
-    | TOKEN_DIV
-    | TOKEN_LPAREN
-    | TOKEN_RPAREN
-    | TOKEN_LCURLY
-    | TOKEN_RCURLY
-    | TOKEN_EXCL
-    | TOKEN_CARET
+    | TOKEN_SNAME
+    | TOKEN_FQN
+    | TOKEN_DEPENDENCIES
+    | TOKEN_MODULE
+    | TOKEN_QUOT
+    | TOKEN_FALSE
+    | TOKEN_TRUE
+    | TOKEN_BF2
+    | TOKEN_BF1
     | TOKEN_EQ
-    | TOKEN_UNDERSCORE
-    | TOKEN_SLASH
-    | TOKEN_COMMA
-    | TOKEN_MREFVAL
-    | TOKEN_SREFVAL
-    | TOKEN_ID
-    | TOKEN_DIFF
-    | TOKEN_FLOAT
-    | TOKEN_INT
+    | TOKEN_ARROW
+    | TOKEN_ERROR
+    | TOKEN_SPACE
     | TOKEN_end_of_input
     | TOKEN_error
 type nonTerminalId = 
     | NONTERM__startstart
     | NONTERM_start
-    | NONTERM_expression
-    | NONTERM_constant
-    | NONTERM_sumPrefix
-    | NONTERM_sum
-    | NONTERM_prodPrefix
-    | NONTERM_prod
-    | NONTERM_fact
-    | NONTERM_power
-    | NONTERM_fracPrefix
-    | NONTERM_frac
-    | NONTERM_integralPrefix
-    | NONTERM_integral
-    | NONTERM_intDiff
-    | NONTERM_intCaret
-    | NONTERM_intUnderscore
-    | NONTERM_refPattern
-    | NONTERM_refValue
-    | NONTERM_highPriorityFunction
-    | NONTERM_sinPrefix
-    | NONTERM_cosPrefix
-    | NONTERM_trigonometry
-    | NONTERM_binaryExpression
-    | NONTERM_binaryOperator
-    | NONTERM_arguments
-    | NONTERM_argumentSet
-    | NONTERM_expr
-    | NONTERM_recover
-    | NONTERM_parens
-    | NONTERM_errorRule
 /// This function maps tokens to integer indexes
 val tagOfToken: token -> int
 
@@ -119,4 +46,4 @@ val prodIdxToNonTerminal: int -> nonTerminalId
 
 /// This function gets the name of a token as a string
 val token_to_string: token -> string
-val start : (Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> token) -> Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> (TexAst.Expr) 
+val start : (Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> token) -> Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> (DslAst.Ast) 

@@ -1,1 +1,27 @@
-﻿
+﻿%{
+open System
+open DslAst
+%}
+
+%token SPACE
+%token ERROR
+%token ARROW
+%token EQ
+%token BF1
+%token BF2
+%token TRUE
+%token FALSE
+%token QUOT
+%token MODULE
+%token DEPENDENCIES
+%token FQN
+%token SNAME
+%token EOF
+
+%start start
+%type <DslAst.Ast> start
+
+%%
+
+start:
+    | EOF { DslAst.Ast.Test }

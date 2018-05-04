@@ -24,4 +24,4 @@ open DslAst
 %%
 
 start:
-    | EOF { Test(Flag1(false), Flag2(true), []) }
+    | EOF { Test("", Flag1(false), Flag2(true), []) }

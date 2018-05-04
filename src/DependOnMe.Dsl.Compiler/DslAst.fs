@@ -8,4 +8,4 @@ type Registration =
     | Class of string
     | Module of string
 
-type DependencyTest = Test of BoolFlag * BoolFlag * Registration list
+type DependencyTest = Test of string * BoolFlag * BoolFlag * Registration list

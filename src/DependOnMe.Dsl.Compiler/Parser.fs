@@ -158,7 +158,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 27 "Parser.fsy"
-                                 Test(Flag1(false), Flag2(true), []) 
+                                 Test("", Flag1(false), Flag2(true), []) 
                    )
 # 27 "Parser.fsy"
                  : DslAst.DependencyTest));

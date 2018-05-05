@@ -4,5 +4,5 @@ DependencyTest Test_1
   
   Namespace1.Interface1 -> Namespace2.Class1
   Namespace1.Interface2 -> Namespace2.Class2
-  Module DependencyModule1
+  Module Namespace3.DependencyModule1
   

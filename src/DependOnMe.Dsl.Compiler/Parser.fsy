@@ -4,7 +4,6 @@ open DslAst
 %}
 
 %token TESTHEADER
-%token SPACE
 %token ERROR
 %token ARROW
 %token EQ
@@ -40,9 +39,9 @@ registrationSet:
 	| registrationSet registration { $2::$1 |> List.rev }
 
 boolFlag1:
-    | BF1 TRUE  { Flag1(true)  }
-	| BF1 FALSE { Flag1(false) }
+    | BF1 EQ TRUE  { Flag1(true)  }
+	| BF1 EQ FALSE { Flag1(false) }
 
 boolFlag2:
-    | BF2 TRUE  { Flag2(true)  }
-	| BF2 FALSE { Flag2(false) }
+    | BF2 EQ TRUE  { Flag2(true)  }
+	| BF2 EQ FALSE { Flag2(false) }

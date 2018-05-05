@@ -12,11 +12,11 @@ let space = " "
 let tab = "\t"
 let arrow = "->"
 let quot = "\""
-let module = "module"
+let module = "Module"
 let dependencies = "dependencies"
 let dot = "."
-let true = "true"
-let false = "false"
+let true = "True"
+let false = "False"
 let equals = "="
 let char = ['a'-'z' 'A'-'Z']
 let digit = ['0'-'9']
@@ -24,13 +24,14 @@ let num = digit+
 let underscore = "_"
 let fullyQualifiedName = char((char|num)+ dot char(char|num)*)
 let name = char(char|num|underscore)*
-let boolFlag1 = "boolFlag1"
-let boolFlag2 = "boolFlag2"
+let boolFlag1 = "BoolFlag1"
+let boolFlag2 = "BoolFlag2"
+let ignore = " " | "\r\n"
 
 
 rule lex = parse
+  | ignore { lex lexbuf }
   | testHeader { TESTHEADER }
-  | space { SPACE }
   | tab { ERROR }  
   | arrow { ARROW }
   | equals { EQ }

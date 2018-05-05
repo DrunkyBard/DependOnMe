@@ -14,7 +14,6 @@ type token =
   | EQ
   | ARROW
   | ERROR
-  | SPACE
   | TESTHEADER
 type tokenId = 
     | TOKEN_EOF
@@ -30,7 +29,6 @@ type tokenId =
     | TOKEN_EQ
     | TOKEN_ARROW
     | TOKEN_ERROR
-    | TOKEN_SPACE
     | TOKEN_TESTHEADER
     | TOKEN_end_of_input
     | TOKEN_error

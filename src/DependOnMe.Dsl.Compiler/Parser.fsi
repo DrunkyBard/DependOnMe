@@ -2,8 +2,8 @@
 module Parser
 type token = 
   | EOF
-  | SNAME
-  | FQN
+  | SNAME of (string)
+  | FQN of (string)
   | DEPENDENCIES
   | MODULE
   | QUOT
@@ -15,6 +15,7 @@ type token =
   | ARROW
   | ERROR
   | SPACE
+  | TESTHEADER
 type tokenId = 
     | TOKEN_EOF
     | TOKEN_SNAME
@@ -30,11 +31,17 @@ type tokenId =
     | TOKEN_ARROW
     | TOKEN_ERROR
     | TOKEN_SPACE
+    | TOKEN_TESTHEADER
     | TOKEN_end_of_input
     | TOKEN_error
 type nonTerminalId = 
     | NONTERM__startstart
     | NONTERM_start
+    | NONTERM_testDeclaration
+    | NONTERM_registration
+    | NONTERM_registrationSet
+    | NONTERM_boolFlag1
+    | NONTERM_boolFlag2
 /// This function maps tokens to integer indexes
 val tagOfToken: token -> int
 

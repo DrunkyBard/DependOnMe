@@ -5,7 +5,7 @@ type BoolFlag =
     | Flag2 of bool
 
 type Registration = 
-    | Class of string
+    | Class of string * string
     | Module of string
 
 type DependencyTest = Test of string * BoolFlag * BoolFlag * Registration list

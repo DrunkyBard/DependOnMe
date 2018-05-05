@@ -2,8 +2,12 @@
 module Lexer
 
 open Parser
+open Microsoft.FSharp.Text.Lexing
+
+let lexeme = LexBuffer<_>.LexemeString
 }
 
+let testHeader = "DependencyTest"
 let space = " "
 let tab = "\t"
 let arrow = "->"
@@ -17,13 +21,15 @@ let equals = "="
 let char = ['a'-'z' 'A'-'Z']
 let digit = ['0'-'9']
 let num = digit+
+let underscore = "_"
 let fullyQualifiedName = char((char|num)+ dot char(char|num)*)
-let name = char(char|num)*
+let name = char(char|num|underscore)*
 let boolFlag1 = "boolFlag1"
 let boolFlag2 = "boolFlag2"
 
 
 rule lex = parse
+  | testHeader { TESTHEADER }
   | space { SPACE }
   | tab { ERROR }  
   | arrow { ARROW }
@@ -35,6 +41,6 @@ rule lex = parse
   | quot { QUOT }
   | module { MODULE }
   | dependencies { DEPENDENCIES }
-  | fullyQualifiedName { FQN }
-  | name { SNAME }
+  | fullyQualifiedName { FQN(lexeme lexbuf) }
+  | name { SNAME(lexeme lexbuf) }
   | eof { EOF }

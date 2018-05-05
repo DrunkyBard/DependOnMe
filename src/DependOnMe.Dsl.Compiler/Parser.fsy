@@ -3,6 +3,7 @@ open System
 open DslAst
 %}
 
+%token TESTHEADER
 %token SPACE
 %token ERROR
 %token ARROW
@@ -14,8 +15,8 @@ open DslAst
 %token QUOT
 %token MODULE
 %token DEPENDENCIES
-%token FQN
-%token SNAME
+%token <string> FQN
+%token <string> SNAME
 %token EOF
 
 %start start
@@ -24,4 +25,24 @@ open DslAst
 %%
 
 start:
-    | EOF { Test("", Flag1(false), Flag2(true), []) }
+    | testDeclaration EOF { $1 }
+
+testDeclaration:
+    | TESTHEADER SNAME boolFlag1 boolFlag2 registrationSet { Test($2, $3, $4, $5) }
+    | TESTHEADER SNAME boolFlag2 boolFlag1 registrationSet { Test($2, $4, $3, $5) }
+
+registration:
+    | FQN ARROW FQN { Class($1, $3) }
+	| MODULE FQN    { Module($2) }
+
+registrationSet:
+    | registration                 { [$1] }
+	| registrationSet registration { $2::$1 |> List.rev }
+
+boolFlag1:
+    | BF1 TRUE  { Flag1(true)  }
+	| BF1 FALSE { Flag1(false) }
+
+boolFlag2:
+    | BF2 TRUE  { Flag2(true)  }
+	| BF2 FALSE { Flag2(false) }

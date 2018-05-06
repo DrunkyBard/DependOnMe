@@ -35,7 +35,9 @@ type tokenId =
 type nonTerminalId = 
     | NONTERM__startstart
     | NONTERM_start
-    | NONTERM_testDeclaration
+    | NONTERM_testBody
+    | NONTERM_expressionSet
+    | NONTERM_bodyExpression
     | NONTERM_registration
     | NONTERM_registrationSet
     | NONTERM_boolFlag1

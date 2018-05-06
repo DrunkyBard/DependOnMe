@@ -1,6 +1,22 @@
 ﻿%{
 open System
 open DslAst
+
+let (||||>) (x1, x2, x3, x4) f = f x1 x2 x3 x4
+
+let testInnerDeclaration lexems = 
+    let testPresense presense = function
+        | Some(Flag1(_)) -> failwith "Presense of Flag1 is detected"
+        | Some(Flag2(_)) -> failwith "Presense of Flag1 is detected"
+        | None           -> Some(presense)
+
+    let rec innerTest (boolFlag1Presence: BoolFlag option) (boolFlag2Presence: BoolFlag option) (registrations:  Registration list) = function
+        | BoolFlag(Flag1(_) as b)::t -> (testPresense b boolFlag1Presence, boolFlag2Presence, registrations, t) ||||> innerTest
+        | BoolFlag(Flag2(_) as b)::t -> (boolFlag1Presence, testPresense b boolFlag2Presence, registrations, t) ||||> innerTest
+        | Registration(r)::t         -> (boolFlag1Presence, boolFlag2Presence, registrations @ r, t) ||||> innerTest
+        | []                         -> (boolFlag1Presence, boolFlag2Presence, registrations)
+
+    innerTest None None [] lexems
 %}
 
 %token TESTHEADER
@@ -24,24 +40,36 @@ open DslAst
 %%
 
 start:
-    | testDeclaration EOF { $1 }
+    | testBody EOF { $1 }
 
-testDeclaration:
-    | TESTHEADER SNAME boolFlag1 boolFlag2 registrationSet { Test($2, $3, $4, $5) }
-    | TESTHEADER SNAME boolFlag2 boolFlag1 registrationSet { Test($2, $4, $3, $5) }
+testBody:
+    | TESTHEADER SNAME expressionSet
+        {
+            let boolFlag1, boolFlag2, registrations = testInnerDeclaration $3
+            Test($2, boolFlag1.Value, boolFlag2.Value, registrations)
+        }
+
+expressionSet:
+    | expressionSet bodyExpression { $2::$1 |> List.rev }
+    | bodyExpression { [$1] }
+
+bodyExpression:
+    | boolFlag1       { BoolFlag($1) }
+    | boolFlag2       { BoolFlag($1) }
+    | registrationSet { Registration($1) }
 
 registration:
     | FQN ARROW FQN { Class($1, $3) }
-	| MODULE FQN    { Module($2) }
+    | MODULE FQN    { Module($2) }
 
 registrationSet:
     | registration                 { [$1] }
-	| registrationSet registration { $2::$1 |> List.rev }
+    | registrationSet registration { $2::$1 |> List.rev }
 
 boolFlag1:
     | BF1 EQ TRUE  { Flag1(true)  }
-	| BF1 EQ FALSE { Flag1(false) }
+    | BF1 EQ FALSE { Flag1(false) }
 
 boolFlag2:
     | BF2 EQ TRUE  { Flag2(true)  }
-	| BF2 EQ FALSE { Flag2(false) }
+    | BF2 EQ FALSE { Flag2(false) }

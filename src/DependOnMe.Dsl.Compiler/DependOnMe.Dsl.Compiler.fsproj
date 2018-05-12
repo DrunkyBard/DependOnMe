@@ -62,6 +62,7 @@
     <None Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="DslAst.fs" />
+    <Compile Include="TextUtilities.fs" />
     <FsYacc Include="Parser.fsy">
       <OtherFlags>--module Parser</OtherFlags>
     </FsYacc>

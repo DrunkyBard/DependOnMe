@@ -1,6 +1,7 @@
 ﻿%{
 open System
 open DslAst
+open TextUtilities
 
 let (||||>) (x1, x2, x3, x4) f = f x1 x2 x3 x4
 
@@ -56,15 +57,15 @@ expressionSet:
 bodyExpression:
     | boolFlag1       { BoolFlag($1) }
     | boolFlag2       { BoolFlag($1) }
-    | registrationSet { Registration($1) }
+    | registrationSet { Registration($1 |> List.rev) }
 
 registration:
-    | FQN ARROW FQN { Class($1, $3) }
-    | MODULE FQN    { Module($2) }
+    | FQN ARROW FQN { Class($1, $3, posRange parseState 1, posRange parseState 3) }
+    | MODULE FQN    { Module($2, posRange parseState 1, posRange parseState 2) }
 
 registrationSet:
     | registration                 { [$1] }
-    | registrationSet registration { $2::$1 |> List.rev }
+    | registrationSet registration { $2::$1 }
 
 boolFlag1:
     | BF1 EQ TRUE  { Flag1(true)  }

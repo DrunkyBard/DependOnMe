@@ -3,8 +3,10 @@ module Lexer
 
 open Parser
 open Microsoft.FSharp.Text.Lexing
+open TextUtilities
 
 let lexeme = LexBuffer<_>.LexemeString
+
 }
 
 let testHeader = "DependencyTest"
@@ -26,11 +28,13 @@ let fullyQualifiedName = char((char|num)+ dot char(char|num)*)
 let name = char(char|num|underscore)*
 let boolFlag1 = "BoolFlag1"
 let boolFlag2 = "BoolFlag2"
-let ignore = " " | "\r\n"
+let ignore = [' ' '\t' ]
+let newLine = '\n' | '\r' '\n'
 
 
 rule lex = parse
   | ignore { lex lexbuf }
+  | newLine { newLine lexbuf; lex lexbuf }
   | testHeader { TESTHEADER }
   | tab { ERROR }  
   | arrow { ARROW }

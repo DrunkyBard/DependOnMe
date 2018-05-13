@@ -8,7 +8,7 @@ let isInRange i j rad = abs(i-j) <= rad
 
 let commonChars (s1: string) (s2: string) (radius: int) =
     let rec charContains (c: char) (cIdx: int) (s: string) (sIdx: int) (toIdx: int) (rad: int) = 
-        if isInRange cIdx sIdx rad && sIdx <= toIdx then
+        if sIdx <= toIdx then
             if s.[sIdx] = c then true
             else charContains c cIdx s (sIdx + 1) toIdx rad
         else false
@@ -21,7 +21,6 @@ let commonChars (s1: string) (s2: string) (radius: int) =
         let toIdx = Math.Min(s2.Length-1, i+radius)
 
         if charContains c i s2 fromIdx toIdx radius then common.Add(c)
-        else ()
         
     common
 

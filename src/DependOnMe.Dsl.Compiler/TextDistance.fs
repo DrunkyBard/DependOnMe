@@ -45,14 +45,15 @@ let jaroDistance (s1: string) (s2: string) =
     let mL = Math.Max(m1, m2)
     let t = float(transpositions common1 common2)
 
-    (m1/s1L + m2/s2L + (mL - t)/mL) / 3.0
+    if mL = 0. then 0.
+    else (m1/s1L + m2/s2L + (mL - t)/mL) / 3.0
     
 let jaroWinklerDistance (s1: string) (s2: string) = 
     let rec computeCommonPrefix idx toIdx l = 
         if l = idx && idx <= toIdx && s1.[idx] = s2.[idx] then computeCommonPrefix (idx+1) toIdx (l+1)
         else l
 
-    let toIdx = Math.Min(Math.Min(s1.Length, s2.Length), 4)
+    let toIdx = Math.Min(Math.Min(s1.Length-1, s2.Length-1), 4)
     let l = computeCommonPrefix 0 toIdx 0
     let jaroDistance = jaroDistance s1 s2
     let p = 0.1

@@ -2,6 +2,7 @@
 
 open Microsoft.FSharp.Text.Parsing
 open Microsoft.FSharp.Text.Lexing
+open System
 
 let setInitialPos (lexbuf: LexBuffer<char>) filename =
      lexbuf.EndPos <- { pos_bol = 0;

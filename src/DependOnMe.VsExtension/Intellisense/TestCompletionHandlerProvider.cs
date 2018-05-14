@@ -6,6 +6,8 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Utilities;
 using System.ComponentModel.Composition;
 
+#pragma warning disable CS0649
+
 namespace DependOnMe.VsExtension.Intellisense
 {
     [Export(typeof(IVsTextViewCreationListener))]

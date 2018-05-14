@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.Utilities;
 using System.ComponentModel.Composition;
 
+#pragma warning disable CS0649
+
 namespace DependOnMe.VsExtension.ContentType
 {
     internal static class FileAndContentTypeDefinitions
@@ -13,6 +15,6 @@ namespace DependOnMe.VsExtension.ContentType
 		[Export]
 		[FileExtension(".drt")]
 		[ContentType("drt")]
-		internal static FileExtensionToContentTypeDefinition HiddenFileExtensionDefinition;
+        internal static FileExtensionToContentTypeDefinition HiddenFileExtensionDefinition;
 	}
 }

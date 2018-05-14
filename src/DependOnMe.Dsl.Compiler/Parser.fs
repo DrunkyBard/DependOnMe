@@ -211,7 +211,7 @@ let _fsyacc_reductions ()  =    [|
 # 48 "Parser.fsy"
                               
                                  let boolFlag1, boolFlag2, registrations = testInnerDeclaration _3
-                                 Test(_2, boolFlag1.Value, boolFlag2.Value, registrations)
+                                 Test(_2, boolFlag1.Value, boolFlag2.Value, registrations, posRangeExt parseState 1 3)
                              
                    )
 # 48 "Parser.fsy"
@@ -324,7 +324,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 71 "Parser.fsy"
-                                          Flag1(true)  
+                                          Flag1(true, posRangeExt parseState 1 3)  
                    )
 # 71 "Parser.fsy"
                  : 'boolFlag1));
@@ -334,7 +334,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 72 "Parser.fsy"
-                                          Flag1(false) 
+                                          Flag1(false, posRangeExt parseState 1 3) 
                    )
 # 72 "Parser.fsy"
                  : 'boolFlag1));
@@ -344,7 +344,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 75 "Parser.fsy"
-                                          Flag2(true)  
+                                          Flag2(true, posRangeExt parseState 1 3)  
                    )
 # 75 "Parser.fsy"
                  : 'boolFlag2));
@@ -354,7 +354,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 76 "Parser.fsy"
-                                          Flag2(false) 
+                                          Flag2(false, posRangeExt parseState 1 3) 
                    )
 # 76 "Parser.fsy"
                  : 'boolFlag2));

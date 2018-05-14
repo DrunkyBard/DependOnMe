@@ -21,3 +21,5 @@ let posRange (parseState: IParseState) productionNumber = parseState.InputRange 
 let startPos (parseState: IParseState) productionNumber = parseState.InputStartPosition productionNumber
 
 let endPos (parseState: IParseState) productionNumber = parseState.InputEndPosition productionNumber
+
+let posRangeExt (parseState: IParseState) productionNumber1 productionNumber2 = (startPos parseState productionNumber1, endPos parseState productionNumber2)

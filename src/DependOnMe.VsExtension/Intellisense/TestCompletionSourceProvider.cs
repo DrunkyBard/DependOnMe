@@ -7,7 +7,7 @@ using System.ComponentModel.Composition;
 namespace DependOnMe.VsExtension.Intellisense
 {
     [Export(typeof(ICompletionSourceProvider))]
-	[ContentType("hid")]
+	[ContentType("drt")]
 	[Name("token completion")]
 	public sealed class TestCompletionSourceProvider : ICompletionSourceProvider
 	{

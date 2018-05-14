@@ -9,7 +9,7 @@ using System.ComponentModel.Composition;
 namespace DependOnMe.VsExtension.Intellisense
 {
     [Export(typeof(IVsTextViewCreationListener))]
-	[ContentType("hid")]
+	[ContentType("drt")]
 	[TextViewRole(PredefinedTextViewRoles.Editable)]
 	public sealed class TestCompletionHandlerProvider : IVsTextViewCreationListener
 	{

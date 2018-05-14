@@ -6,13 +6,13 @@ namespace DependOnMe.VsExtension.ContentType
     internal static class FileAndContentTypeDefinitions
 	{
 		[Export]
-		[Name("hid")]
+		[Name("drt")]
 		[BaseDefinition("text")]
 		internal static ContentTypeDefinition HidingContentTypeDefinition;
 
 		[Export]
-		[FileExtension(".hid")]
-		[ContentType("hid")]
+		[FileExtension(".drt")]
+		[ContentType("drt")]
 		internal static FileExtensionToContentTypeDefinition HiddenFileExtensionDefinition;
 	}
 }

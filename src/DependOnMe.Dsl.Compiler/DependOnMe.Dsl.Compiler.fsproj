@@ -61,6 +61,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <Compile Include="Heap.fs" />
     <Compile Include="DslAst.fs" />
     <Compile Include="TextUtilities.fs" />
     <Compile Include="TextDistance.fs" />
@@ -73,10 +74,10 @@
     <Compile Include="Parser.fs" />
     <Compile Include="Lexer.fs" />
     <Compile Include="Intellisense.fs" />
-    <Compile Include="Program.fs" />
     <None Include="TestDslFile.drt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

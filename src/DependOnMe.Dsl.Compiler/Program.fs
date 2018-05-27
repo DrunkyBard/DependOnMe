@@ -12,6 +12,33 @@ let readLexems lexbuf =
     
     readLexemsInternal [] (lex lexbuf) |> List.rev
 
+let renderAst (DependencyTest.Test(name, boolFlag1, boolFlag2, regList, (startPos, endPos), testRange)) (source: string[]) = 
+    printf "Test name: %A. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" name startPos.Line startPos.Column endPos.Line endPos.Column
+
+    match boolFlag1 with
+        | BoolFlag1.Flag(v, (startPos, endPos)) -> 
+            printf "Bool flag 1: %A. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" v startPos.Line startPos.Column endPos.Line endPos.Column
+        | BoolFlag1.Error(missing, errPos, (startPos, endPos)) -> 
+            printf "Bool flag 1. Missing part: %A. Error pos: {Line: %A, Column: %A}. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" missing errPos.Line errPos.Column startPos.Line startPos.Column endPos.Line endPos.Column
+
+    match boolFlag2 with
+        | BoolFlag2.Flag(v, (startPos, endPos)) -> 
+            printf "Bool flag 2: %A. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" v startPos.Line startPos.Column endPos.Line endPos.Column
+        | BoolFlag2.Error(missing, errPos, (startPos, endPos)) -> 
+            printf "Bool flag 2. Missing part: %A. Error pos: {Line: %A, Column: %A}. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" missing errPos.Line errPos.Column startPos.Line startPos.Column endPos.Line endPos.Column
+    
+    let printReg = function
+        | Class(dep, imp, depPos, impPos) -> 
+            printf "Class registration. From %A to %A. Dep pos: %A. Imp pos: %A\r\n" dep imp depPos impPos
+        | Module(modName, termPos, modPos) -> 
+            printf "Module registration: %A. Mod term pos: %A. Mod name pos: %A\r\n" modName termPos modPos
+        | ClassError(missing, errPos, regPos) ->
+            printf "Class error: %A. Error pos: %A. Reg pos: %A" missing errPos regPos
+        | ModuleError(missing, errPos, regPos) -> 
+            printf "Module error: %A. Error pos: %A. Reg pos: %A" missing errPos regPos
+
+    (printReg, regList) ||> List.iter
+
 [<EntryPoint>]
 let main argv =  
     let d2 = TextDistance.jaroDistance "MARTHA" "MARHTA"
@@ -26,9 +53,10 @@ let main argv =
 
     let file = "TestDslFile.drt"
     let testContent = File.ReadAllText file
+    let testContentArr = File.ReadAllLines file
     let lexbuf = LexBuffer<char>.FromString testContent
     setInitialPos lexbuf file
     //let lexems = readLexems lexbuf
     let ast = (lex, lexbuf) ||> start
-    printfn "%A" argv
+    renderAst ast testContentArr
     0

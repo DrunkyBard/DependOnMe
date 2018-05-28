@@ -1,7 +1,7 @@
 DependencyTest Test_1
-  BoolFlag1 = True
+  BoolFlag1 True
   BoolFlag2 = False
   
-  Namespace1.Interface1 -> Namespace2.Class1
-  Namespace1.Interface2 -> Namespace2.Class2
+  Namespace1.Interface1 Namespace2.Class1
+  Namespace1.Interface2 ->
   Module Namespace3.DependencyModule1

@@ -68,7 +68,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
-    <EmbeddedResource Include="ErrorMsg.resx" />
+    <Compile Include="ErrMsg.fs" />
     <Compile Include="Heap.fs" />
     <Compile Include="TextUtilities.fs" />
     <Compile Include="TextDistance.fs" />
@@ -89,9 +89,6 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Configuration">
-      <HintPath>..\packages\FSharp.Configuration.2.0.0-alpha1\lib\net45\FSharp.Configuration.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.Core">
       <Name>FSharp.Core</Name>
       <AssemblyName>FSharp.Core.dll</AssemblyName>
@@ -106,9 +103,6 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.ValueTuple">
       <Private>True</Private>
-    </Reference>
-    <Reference Include="YamlDotNet">
-      <HintPath>..\packages\FSharp.Configuration.2.0.0-alpha1\lib\net45\YamlDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

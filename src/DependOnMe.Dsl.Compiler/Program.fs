@@ -4,6 +4,9 @@ open Lexer
 open Parser
 open DslAst
 open TextUtilities
+open Errors
+open System
+
 
 let readLexems lexbuf =
     let rec readLexemsInternal state = function
@@ -39,8 +42,22 @@ let renderAst (DependencyTest.Test(name, boolFlag1, boolFlag2, regList, (startPo
 
     (printReg, regList) ||> List.iter
 
+let renderErrors diagnostics = 
+    let rec renderRec = function
+        | Range(e)::t -> 
+            printfn "(%A, %A)-(%A, %A): %A\r\n" e.StartPos.Line e.StartPos.Column e.EndPos.Line e.EndPos.Column e.Message
+            renderRec t
+        | Point(e)::t -> 
+            printfn "(%A, %A): %A\r\n" e.Pos.Line e.Pos.Column e.Message
+            renderRec t
+        |[] -> ()
+    
+    printfn "ERRORS:\r\n"
+    renderRec diagnostics
+
+
 [<EntryPoint>]
-let main argv =  
+let main argv = 
     let d2 = TextDistance.jaroDistance "MARTHA" "MARHTA"
     
     let d4 = TextDistance.jaroDistance "DIXON" "DICKSONX"
@@ -50,7 +67,7 @@ let main argv =
     let dd1 = TextDistance.jaroWinklerDistance "DIXON" "DICKSONX"
     let dd2 = TextDistance.jaroWinklerDistance "MARTHA" "MARHTA"
     let dd3 = TextDistance.jaroWinklerDistance "DWAYNE" "DUANE"
-
+    let errorLogger = ErrorLogger()
     let file = "TestDslFile.drt"
     let testContent = File.ReadAllText file
     let testContentArr = File.ReadAllLines file
@@ -58,5 +75,7 @@ let main argv =
     setInitialPos lexbuf file
     //let lexems = readLexems lexbuf
     let ast = (lex, lexbuf) ||> start
+    let logger = Parser.errorLogger
+    logger.Diagnostics |> renderErrors
     renderAst ast testContentArr
     0

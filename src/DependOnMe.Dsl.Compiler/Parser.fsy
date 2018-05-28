@@ -108,50 +108,50 @@ boolFlag2:
 
 errorBoolFlag1:
     | BF1       { 
-                    (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
                     BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 1) 
                 }
     | BF1 EQ    { 
-                    (endPos parseState 2, ResX.BoolMissing) ||> reportPoint
+                    (endPos parseState 2, ErrMsg.BoolMissing) ||> reportPoint
                     BoolFlag1.Error(BoolFlagMissingPart.Value, endPos parseState 2, posRangeExt parseState 1 2) 
                 }
     | BF1 TRUE  { 
-                    (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
                     BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
                 }
     | BF1 FALSE { 
-                    (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
                     BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
                 }
 
 errorBoolFlag2:
     | BF2       { 
-                    (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
                     BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 1) 
                 }
     | BF2 EQ    { 
-                    (endPos parseState 2, ResX.BoolMissing) ||> reportPoint
+                    (endPos parseState 2, ErrMsg.BoolMissing) ||> reportPoint
                     BoolFlag2.Error(BoolFlagMissingPart.Value, endPos parseState 1, posRangeExt parseState 1 2) 
                 }
 	| BF2 TRUE  { 
-                    (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
                     BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
                 }
     | BF2 FALSE { 
-                    (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
                     BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
                 }
 
 errorRegistration:
 	| FQN FQN   { 
-                    (endPos parseState 1, ResX.ArrowMissing) ||> reportPoint
+                    (endPos parseState 1, ErrMsg.ArrowMissing) ||> reportPoint
                     ClassError(ClassRegMissingPart.Arrow,  endPos parseState 1, posRangeExt parseState 1 2) 
                 }
 	| FQN ARROW { 
-                    (endPos parseState 2, ResX.FqnMissing) ||> reportPoint
+                    (endPos parseState 2, ErrMsg.FqnMissing) ||> reportPoint
                     ClassError(ClassRegMissingPart.Name,   endPos parseState 2, posRangeExt parseState 1 2) 
                 }
 	| MODULE    { 
-                    (endPos parseState 1, ResX.FqnMissing) ||> reportPoint
+                    (endPos parseState 1, ErrMsg.FqnMissing) ||> reportPoint
                     ModuleError(ModuleRegMissingPart.Name, endPos parseState 1, posRangeExt parseState 1 1) 
                 }

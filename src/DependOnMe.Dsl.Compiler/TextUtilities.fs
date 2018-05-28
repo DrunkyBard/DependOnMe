@@ -2,7 +2,11 @@
 
 open Microsoft.FSharp.Text.Parsing
 open Microsoft.FSharp.Text.Lexing
-open System
+open FSharp.Configuration
+
+type PosRange = (Position * Position)
+
+type ResX = ResXProvider<file="ErrorMsg.resx">
 
 let setInitialPos (lexbuf: LexBuffer<char>) filename =
      lexbuf.EndPos <- { pos_bol = 0;

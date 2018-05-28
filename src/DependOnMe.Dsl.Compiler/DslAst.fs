@@ -1,7 +1,7 @@
 ﻿module DslAst
 
 open Microsoft.FSharp.Text.Lexing
-type PosRange = (Position * Position)
+open TextUtilities
 
 type BoolFlagMissingPart =
     | Equal

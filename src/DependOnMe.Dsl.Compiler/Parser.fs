@@ -8,6 +8,13 @@ open Microsoft.FSharp.Text.Parsing.ParseHelpers
 open System
 open DslAst
 open TextUtilities
+open Errors
+
+let errorLogger = ErrorLogger()
+
+let reportRange ((startPos, endPos): PosRange) msg = (startPos, endPos, msg) |> ProdError |> Range |> errorLogger.Report
+
+let reportPoint pos msg = (pos, msg) |> TermError |> Point |> errorLogger.Report
 
 let (||||>) (x1, x2, x3, x4) f = f x1 x2 x3 x4
 
@@ -46,7 +53,7 @@ let testInnerDeclaration lexems =
 
     innerTest None None [] lexems
 
-# 49 "Parser.fs"
+# 56 "Parser.fs"
 // This type is the type of tokens accepted by the parser
 type token = 
   | EOF
@@ -219,7 +226,7 @@ let _fsyacc_reductionSymbolCounts = [|1us; 2us; 3us; 2us; 1us; 1us; 1us; 1us; 3u
 let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 3us; 3us; 4us; 4us; 4us; 5us; 5us; 5us; 6us; 6us; 7us; 7us; 7us; 8us; 8us; 8us; 9us; 9us; 9us; 9us; 10us; 10us; 10us; 10us; 11us; 11us; 11us; |]
 let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 16385us; 65535us; 65535us; 65535us; 16387us; 16388us; 16389us; 16390us; 65535us; 65535us; 65535us; 16392us; 65535us; 16393us; 16394us; 16395us; 16396us; 65535us; 65535us; 16397us; 16398us; 16399us; 65535us; 65535us; 16400us; 16401us; 16402us; 16405us; 16406us; 16409us; 16410us; 16411us; |]
 let _fsyacc_reductions ()  =    [| 
-# 222 "Parser.fs"
+# 229 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : DslAst.DependencyTest)) in
             Microsoft.FSharp.Core.Operators.box
@@ -228,322 +235,355 @@ let _fsyacc_reductions ()  =    [|
                       raise (Microsoft.FSharp.Text.Parsing.Accept(Microsoft.FSharp.Core.Operators.box _1))
                    )
                  : '_startstart));
-# 231 "Parser.fs"
+# 238 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'testBody)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 65 "Parser.fsy"
+# 72 "Parser.fsy"
                                           _1 
                    )
-# 65 "Parser.fsy"
+# 72 "Parser.fsy"
                  : DslAst.DependencyTest));
-# 242 "Parser.fs"
+# 249 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : 'expressionSet)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 69 "Parser.fsy"
+# 76 "Parser.fsy"
                               
                                  let boolFlag1, boolFlag2, registrations = testInnerDeclaration _3
                                  Test(_2, boolFlag1.Value, boolFlag2.Value, registrations, posRangeExt parseState 1 2, posRangeExt parseState 1 3)
                              
                    )
-# 69 "Parser.fsy"
+# 76 "Parser.fsy"
                  : 'testBody));
-# 257 "Parser.fs"
+# 264 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'expressionSet)) in
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : 'bodyExpression)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 75 "Parser.fsy"
+# 82 "Parser.fsy"
                                                           _2::_1 |> List.rev 
                    )
-# 75 "Parser.fsy"
+# 82 "Parser.fsy"
                  : 'expressionSet));
-# 269 "Parser.fs"
+# 276 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'bodyExpression)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 76 "Parser.fsy"
+# 83 "Parser.fsy"
                                             [_1] 
                    )
-# 76 "Parser.fsy"
+# 83 "Parser.fsy"
                  : 'expressionSet));
-# 280 "Parser.fs"
+# 287 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'boolFlag1)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 79 "Parser.fsy"
+# 86 "Parser.fsy"
                                              BoolFlag1(_1) 
                    )
-# 79 "Parser.fsy"
+# 86 "Parser.fsy"
                  : 'bodyExpression));
-# 291 "Parser.fs"
+# 298 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'boolFlag2)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 80 "Parser.fsy"
+# 87 "Parser.fsy"
                                              BoolFlag2(_1) 
                    )
-# 80 "Parser.fsy"
+# 87 "Parser.fsy"
                  : 'bodyExpression));
-# 302 "Parser.fs"
+# 309 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'registrationSet)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 81 "Parser.fsy"
+# 88 "Parser.fsy"
                                              Registration(_1 |> List.rev) 
                    )
-# 81 "Parser.fsy"
+# 88 "Parser.fsy"
                  : 'bodyExpression));
-# 313 "Parser.fs"
+# 320 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 84 "Parser.fsy"
+# 91 "Parser.fsy"
                                                Class(_1, _3, posRange parseState 1, posRange parseState 3) 
                    )
-# 84 "Parser.fsy"
+# 91 "Parser.fsy"
                  : 'registration));
-# 325 "Parser.fs"
+# 332 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 85 "Parser.fsy"
+# 92 "Parser.fsy"
                                                Module(_2, posRange parseState 1, posRange parseState 2) 
                    )
-# 85 "Parser.fsy"
+# 92 "Parser.fsy"
                  : 'registration));
-# 336 "Parser.fs"
+# 343 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'errorRegistration)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 86 "Parser.fsy"
+# 93 "Parser.fsy"
                                             _1 
                    )
-# 86 "Parser.fsy"
+# 93 "Parser.fsy"
                  : 'registration));
-# 347 "Parser.fs"
+# 354 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'registration)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 89 "Parser.fsy"
+# 96 "Parser.fsy"
                                                           [_1] 
                    )
-# 89 "Parser.fsy"
+# 96 "Parser.fsy"
                  : 'registrationSet));
-# 358 "Parser.fs"
+# 365 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'registrationSet)) in
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : 'registration)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 90 "Parser.fsy"
+# 97 "Parser.fsy"
                                                           _2::_1 
                    )
-# 90 "Parser.fsy"
+# 97 "Parser.fsy"
                  : 'registrationSet));
-# 370 "Parser.fs"
+# 377 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 93 "Parser.fsy"
-                                            BoolFlag1.Flag(true,  posRangeExt parseState 1 3)  
+# 100 "Parser.fsy"
+                                            BoolFlag1.Flag(true,  posRangeExt parseState 1 3) 
                    )
-# 93 "Parser.fsy"
+# 100 "Parser.fsy"
                  : 'boolFlag1));
-# 380 "Parser.fs"
+# 387 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 94 "Parser.fsy"
+# 101 "Parser.fsy"
                                             BoolFlag1.Flag(false, posRangeExt parseState 1 3) 
                    )
-# 94 "Parser.fsy"
+# 101 "Parser.fsy"
                  : 'boolFlag1));
-# 390 "Parser.fs"
+# 397 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'errorBoolFlag1)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 95 "Parser.fsy"
+# 102 "Parser.fsy"
                                             _1 
                    )
-# 95 "Parser.fsy"
+# 102 "Parser.fsy"
                  : 'boolFlag1));
-# 401 "Parser.fs"
+# 408 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 98 "Parser.fsy"
+# 105 "Parser.fsy"
                                             BoolFlag2.Flag(true,  posRangeExt parseState 1 3) 
                    )
-# 98 "Parser.fsy"
+# 105 "Parser.fsy"
                  : 'boolFlag2));
-# 411 "Parser.fs"
+# 418 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 99 "Parser.fsy"
+# 106 "Parser.fsy"
                                             BoolFlag2.Flag(false, posRangeExt parseState 1 3) 
                    )
-# 99 "Parser.fsy"
+# 106 "Parser.fsy"
                  : 'boolFlag2));
-# 421 "Parser.fs"
+# 428 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'errorBoolFlag2)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 100 "Parser.fsy"
+# 107 "Parser.fsy"
                                             _1 
                    )
-# 100 "Parser.fsy"
+# 107 "Parser.fsy"
                  : 'boolFlag2));
-# 432 "Parser.fs"
+# 439 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 103 "Parser.fsy"
-                                       BoolFlag1.Error(BoolFlagMissingPart.Equal,  endPos parseState 1, posRangeExt parseState 1 1) 
+# 110 "Parser.fsy"
+                                       
+                                         (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                                         BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 1) 
+                                     
                    )
-# 103 "Parser.fsy"
-                 : 'errorBoolFlag1));
-# 442 "Parser.fs"
-        (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 104 "Parser.fsy"
-                                       BoolFlag1.Error(BoolFlagMissingPart.Value,  endPos parseState 2, posRangeExt parseState 1 2) 
-                   )
-# 104 "Parser.fsy"
+# 110 "Parser.fsy"
                  : 'errorBoolFlag1));
 # 452 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 105 "Parser.fsy"
-                                       BoolFlag1.Error(BoolFlagMissingPart.Equal,  endPos parseState 1, posRangeExt parseState 1 2) 
+# 114 "Parser.fsy"
+                                       
+                                         (endPos parseState 2, ResX.BoolMissing) ||> reportPoint
+                                         BoolFlag1.Error(BoolFlagMissingPart.Value, endPos parseState 2, posRangeExt parseState 1 2) 
+                                     
                    )
-# 105 "Parser.fsy"
+# 114 "Parser.fsy"
                  : 'errorBoolFlag1));
-# 462 "Parser.fs"
+# 465 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 106 "Parser.fsy"
-                                       BoolFlag1.Error(BoolFlagMissingPart.Equal,  endPos parseState 1, posRangeExt parseState 1 2) 
+# 118 "Parser.fsy"
+                                       
+                                         (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                                         BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
+                                     
                    )
-# 106 "Parser.fsy"
+# 118 "Parser.fsy"
                  : 'errorBoolFlag1));
-# 472 "Parser.fs"
+# 478 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 109 "Parser.fsy"
-                                       BoolFlag2.Error(BoolFlagMissingPart.Equal,  endPos parseState 1, posRangeExt parseState 1 1) 
+# 122 "Parser.fsy"
+                                       
+                                         (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                                         BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
+                                     
                    )
-# 109 "Parser.fsy"
-                 : 'errorBoolFlag2));
-# 482 "Parser.fs"
+# 122 "Parser.fsy"
+                 : 'errorBoolFlag1));
+# 491 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 110 "Parser.fsy"
-                                       BoolFlag2.Error(BoolFlagMissingPart.Value,  endPos parseState 1, posRangeExt parseState 1 2) 
+# 128 "Parser.fsy"
+                                       
+                                         (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                                         BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 1) 
+                                     
                    )
-# 110 "Parser.fsy"
+# 128 "Parser.fsy"
                  : 'errorBoolFlag2));
-# 492 "Parser.fs"
+# 504 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 111 "Parser.fsy"
-                                    BoolFlag2.Error(BoolFlagMissingPart.Equal,  endPos parseState 1, posRangeExt parseState 1 2) 
+# 132 "Parser.fsy"
+                                       
+                                         (endPos parseState 2, ResX.BoolMissing) ||> reportPoint
+                                         BoolFlag2.Error(BoolFlagMissingPart.Value, endPos parseState 1, posRangeExt parseState 1 2) 
+                                     
                    )
-# 111 "Parser.fsy"
+# 132 "Parser.fsy"
                  : 'errorBoolFlag2));
-# 502 "Parser.fs"
+# 517 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 112 "Parser.fsy"
-                                       BoolFlag2.Error(BoolFlagMissingPart.Equal,  endPos parseState 1, posRangeExt parseState 1 2) 
+# 136 "Parser.fsy"
+                                    
+                                         (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                                         BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
+                                     
                    )
-# 112 "Parser.fsy"
+# 136 "Parser.fsy"
                  : 'errorBoolFlag2));
-# 512 "Parser.fs"
+# 530 "Parser.fs"
+        (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 140 "Parser.fsy"
+                                       
+                                         (endPos parseState 1, ResX.EqMissing) ||> reportPoint
+                                         BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
+                                     
+                   )
+# 140 "Parser.fsy"
+                 : 'errorBoolFlag2));
+# 543 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 115 "Parser.fsy"
-                                    ClassError(ClassRegMissingPart.Arrow, endPos parseState 1, posRangeExt parseState 1 2) 
+# 146 "Parser.fsy"
+                                    
+                                         (endPos parseState 1, ResX.ArrowMissing) ||> reportPoint
+                                         ClassError(ClassRegMissingPart.Arrow,  endPos parseState 1, posRangeExt parseState 1 2) 
+                                     
                    )
-# 115 "Parser.fsy"
+# 146 "Parser.fsy"
                  : 'errorRegistration));
-# 524 "Parser.fs"
+# 558 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 116 "Parser.fsy"
-                                    ClassError(ClassRegMissingPart.Name, endPos parseState 2, posRangeExt parseState 1 2) 
+# 150 "Parser.fsy"
+                                    
+                                         (endPos parseState 2, ResX.FqnMissing) ||> reportPoint
+                                         ClassError(ClassRegMissingPart.Name,   endPos parseState 2, posRangeExt parseState 1 2) 
+                                     
                    )
-# 116 "Parser.fsy"
+# 150 "Parser.fsy"
                  : 'errorRegistration));
-# 535 "Parser.fs"
+# 572 "Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 117 "Parser.fsy"
-                                    ModuleError(ModuleRegMissingPart.Name, endPos parseState 1, posRangeExt parseState 1 1) 
+# 154 "Parser.fsy"
+                                    
+                                         (endPos parseState 1, ResX.FqnMissing) ||> reportPoint
+                                         ModuleError(ModuleRegMissingPart.Name, endPos parseState 1, posRangeExt parseState 1 1) 
+                                     
                    )
-# 117 "Parser.fsy"
+# 154 "Parser.fsy"
                  : 'errorRegistration));
 |]
-# 546 "Parser.fs"
+# 586 "Parser.fs"
 let tables () : Microsoft.FSharp.Text.Parsing.Tables<_> = 
   { reductions= _fsyacc_reductions ();
     endOfInputTag = _fsyacc_endOfInputTag;

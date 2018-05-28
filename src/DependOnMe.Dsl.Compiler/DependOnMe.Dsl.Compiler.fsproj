@@ -57,14 +57,23 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
+  <Import Project="..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets" Condition="Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets'))" />
+  </Target>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <EmbeddedResource Include="ErrorMsg.resx" />
     <Compile Include="Heap.fs" />
-    <Compile Include="DslAst.fs" />
     <Compile Include="TextUtilities.fs" />
     <Compile Include="TextDistance.fs" />
+    <Compile Include="DslAst.fs" />
+    <Compile Include="Errors.fs" />
     <FsYacc Include="Parser.fsy">
       <OtherFlags>--module Parser</OtherFlags>
     </FsYacc>
@@ -80,6 +89,9 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Configuration">
+      <HintPath>..\packages\FSharp.Configuration.2.0.0-alpha1\lib\net45\FSharp.Configuration.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.Core">
       <Name>FSharp.Core</Name>
       <AssemblyName>FSharp.Core.dll</AssemblyName>
@@ -95,14 +107,10 @@
     <Reference Include="System.ValueTuple">
       <Private>True</Private>
     </Reference>
+    <Reference Include="YamlDotNet">
+      <HintPath>..\packages\FSharp.Configuration.2.0.0-alpha1\lib\net45\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  <Import Project="..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets" Condition="Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

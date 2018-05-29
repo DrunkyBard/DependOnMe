@@ -12,14 +12,14 @@ let reportRange ((startPos, endPos): PosRange) msg = (startPos, endPos, msg) |> 
 let reportPoint pos msg = (pos, msg) |> TermError |> Point |> errorLogger.Report
 
 let separate lexems = 
-    let rec innerTest (boolFlags1: BoolFlag1 list) (boolFlags2: BoolFlag2 list) (registrations:  Registration list) = function
+    let rec separateRec (boolFlags1: BoolFlag1 list) (boolFlags2: BoolFlag2 list) (registrations:  Registration list) = function
         | (BoolFlag1(BoolFlag1.Flag(_) as b))::t -> (b::boolFlags1, boolFlags2, registrations, t) ||||> innerTest 
         | (BoolFlag2(BoolFlag2.Flag(_) as b))::t -> (boolFlags1, b::boolFlags2, registrations, t) ||||> innerTest 
         | Registration(r)::t           -> (boolFlags1, boolFlags2, List.append registrations r, t) ||||> innerTest
         | any::t                       -> (boolFlags1, boolFlags2, registrations, t) ||||> innerTest
         | []                           -> (boolFlags1 |> List.rev, boolFlags2 |> List.rev, registrations)
 
-    innerTest [] [] [] lexems
+    separateRec [] [] [] lexems
 %}
 
 %token TESTHEADER

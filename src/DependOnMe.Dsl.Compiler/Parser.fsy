@@ -3,6 +3,7 @@ open System
 open DslAst
 open TextUtilities
 open Errors
+open Common
 
 let errorLogger = ErrorLogger()
 
@@ -10,42 +11,15 @@ let reportRange ((startPos, endPos): PosRange) msg = (startPos, endPos, msg) |> 
 
 let reportPoint pos msg = (pos, msg) |> TermError |> Point |> errorLogger.Report
 
-let (||||>) (x1, x2, x3, x4) f = f x1 x2 x3 x4
+let separate lexems = 
+    let rec innerTest (boolFlags1: BoolFlag1 list) (boolFlags2: BoolFlag2 list) (registrations:  Registration list) = function
+        | (BoolFlag1(BoolFlag1.Flag(_) as b))::t -> (b::boolFlags1, boolFlags2, registrations, t) ||||> innerTest 
+        | (BoolFlag2(BoolFlag2.Flag(_) as b))::t -> (boolFlags1, b::boolFlags2, registrations, t) ||||> innerTest 
+        | Registration(r)::t           -> (boolFlags1, boolFlags2, List.append registrations r, t) ||||> innerTest
+        | any::t                       -> (boolFlags1, boolFlags2, registrations, t) ||||> innerTest
+        | []                           -> (boolFlags1 |> List.rev, boolFlags2 |> List.rev, registrations)
 
-let (|Bf1Presense|Bf1Unique|) (boolFlag1Presence: BoolFlag1 option, lexeme) = 
-    match lexeme with
-        | BoolFlag1(b) when boolFlag1Presence.IsNone     -> Bf1Unique(b)
-        | BoolFlag1(_) when not boolFlag1Presence.IsNone -> Bf1Presense
-        | t -> failwithf "Incorrect node: %A" t
-
-let (|Bf2Presense|Bf2Unique|) (boolFlag2Presence: BoolFlag2 option, lexeme) = 
-    match lexeme with
-        | BoolFlag2(b) when boolFlag2Presence.IsNone     -> Bf2Unique(b)
-        | BoolFlag2(_) when not boolFlag2Presence.IsNone -> Bf2Presense
-        | t -> failwithf "Incorrect node: %A" t
-
-let testBoolFlag1 boolFlag1Presence lexeme = 
-    match (boolFlag1Presence, lexeme) with
-        | Bf1Presense  -> false
-        | Bf1Unique(b) -> true
-        
-let testBoolFlag2 boolFlag2Presence lexeme = 
-    match (boolFlag2Presence, lexeme) with
-        | Bf2Presense  -> false
-        | Bf2Unique(b) -> true
-
-let testInnerDeclaration lexems = 
-    let rec innerTest (boolFlag1Presence: BoolFlag1 option) (boolFlag2Presence: BoolFlag2 option) (registrations:  Registration list) = function
-        | (BoolFlag1(v) as b)::t -> if testBoolFlag1 boolFlag1Presence b then 
-                                        (Some v, boolFlag2Presence, registrations, t) ||||> innerTest 
-                                    else failwith "Presense of Flag1 is detected"
-        | (BoolFlag2(v) as b)::t -> if testBoolFlag2 boolFlag2Presence b then 
-                                        (boolFlag1Presence, Some v, registrations, t) ||||> innerTest 
-                                    else failwith "Presense of Flag2 is detected"
-        | Registration(r)::t     -> (boolFlag1Presence, boolFlag2Presence, registrations @ r, t) ||||> innerTest
-        | []                     -> (boolFlag1Presence, boolFlag2Presence, registrations)
-
-    innerTest None None [] lexems
+    innerTest [] [] [] lexems
 %}
 
 %token TESTHEADER
@@ -74,8 +48,8 @@ start:
 testBody:
     | TESTHEADER SNAME expressionSet
         {
-            let boolFlag1, boolFlag2, registrations = testInnerDeclaration $3
-            Test($2, boolFlag1.Value, boolFlag2.Value, registrations, posRangeExt parseState 1 2, posRangeExt parseState 1 3)
+            let boolFlags1, boolFlags2, registrations = separate $3
+            Test($2, boolFlags1, boolFlags2, registrations, posRangeExt parseState 1 2, posRangeExt parseState 1 3)
         }
 
 expressionSet:

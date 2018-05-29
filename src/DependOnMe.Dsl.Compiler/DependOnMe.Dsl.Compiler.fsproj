@@ -68,6 +68,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <Compile Include="Common.fs" />
     <Compile Include="ErrMsg.fs" />
     <Compile Include="Heap.fs" />
     <Compile Include="TextUtilities.fs" />

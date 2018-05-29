@@ -15,21 +15,21 @@ let readLexems lexbuf =
     
     readLexemsInternal [] (lex lexbuf) |> List.rev
 
-let renderAst (DependencyTest.Test(name, boolFlag1, boolFlag2, regList, (startPos, endPos), testRange)) (source: string[]) = 
+let renderAst (DependencyTest.Test(name, boolFlags1, boolFlags2, regList, (startPos, endPos), testRange)) (source: string[]) = 
     printf "Test name: %A. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" name startPos.Line startPos.Column endPos.Line endPos.Column
 
-    match boolFlag1 with
+    let rec printBoolFlag1 = function
         | BoolFlag1.Flag(v, (startPos, endPos)) -> 
             printf "Bool flag 1: %A. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" v startPos.Line startPos.Column endPos.Line endPos.Column
         | BoolFlag1.Error(missing, errPos, (startPos, endPos)) -> 
             printf "Bool flag 1. Missing part: %A. Error pos: {Line: %A, Column: %A}. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" missing errPos.Line errPos.Column startPos.Line startPos.Column endPos.Line endPos.Column
-
-    match boolFlag2 with
+            
+    let rec printBoolFlag2 = function
         | BoolFlag2.Flag(v, (startPos, endPos)) -> 
             printf "Bool flag 2: %A. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" v startPos.Line startPos.Column endPos.Line endPos.Column
         | BoolFlag2.Error(missing, errPos, (startPos, endPos)) -> 
             printf "Bool flag 2. Missing part: %A. Error pos: {Line: %A, Column: %A}. StartPos: {Line: %A, Column: %A}. EndPos: {Line: %A, Column: %A}\r\n" missing errPos.Line errPos.Column startPos.Line startPos.Column endPos.Line endPos.Column
-    
+
     let printReg = function
         | Class(dep, imp, depPos, impPos) -> 
             printf "Class registration. From %A to %A. Dep pos: %A. Imp pos: %A\r\n" dep imp depPos impPos
@@ -39,7 +39,9 @@ let renderAst (DependencyTest.Test(name, boolFlag1, boolFlag2, regList, (startPo
             printf "Class error: %A. Error pos: %A. Reg pos: %A" missing errPos regPos
         | ModuleError(missing, errPos, regPos) -> 
             printf "Module error: %A. Error pos: %A. Reg pos: %A" missing errPos regPos
-
+    
+    (printBoolFlag1, boolFlags1) ||> List.iter
+    (printBoolFlag2, boolFlags2) ||> List.iter
     (printReg, regList) ||> List.iter
 
 let renderErrors diagnostics = 

@@ -36,5 +36,5 @@ type Declaration =
     | BoolFlag1    of BoolFlag1
     | BoolFlag2    of BoolFlag2
 
-type DependencyTest = Test of string * BoolFlag1 * BoolFlag2 * Registration list * PosRange * PosRange // test declaration non-terminal range X whole test pos range
+type DependencyTest = Test of string * BoolFlag1 list * BoolFlag2 list * Registration list * PosRange * PosRange // test declaration non-terminal range X whole test pos range
 

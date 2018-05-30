@@ -2,12 +2,16 @@
 
 open System.Collections.Generic
 
-type Heap<'a when 'a: equality>(comparer: IComparer<'a>) =
+type Order = Asc | Desc
+
+type Heap<'a when 'a: equality>(comparer: IComparer<'a>, order) =
     let internalList = ResizeArray()
 
     let parent = function
         | 0 -> internalList.[0]
         | i -> internalList.[(i-1)/2]
+
+    let ordering = if order = Asc then 1 else -1
 
     let nodeOpt = function
         | j when j < internalList.Count -> (j, Some(internalList.[j]))
@@ -23,7 +27,7 @@ type Heap<'a when 'a: equality>(comparer: IComparer<'a>) =
         internalList.[j] <- t
         
     let increaseKey i node =
-        if comparer.Compare(node, internalList.[i]) = -1 then failwith ""
+        if comparer.Compare(node, internalList.[i]) = ordering then failwith ""
 
         let rec increaseKeyInternal j =
             if j = 0 || comparer.Compare(parent j, current j) = 1 then ()
@@ -45,5 +49,4 @@ type Heap<'a when 'a: equality>(comparer: IComparer<'a>) =
         let size = __.Size
         internalList.Add key
         increaseKey size key
-
 

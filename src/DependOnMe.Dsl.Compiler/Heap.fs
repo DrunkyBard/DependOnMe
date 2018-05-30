@@ -2,14 +2,12 @@
 
 open System.Collections.Generic
 
-type HeapNode<'a, 'b> = { key: 'a; value: 'b}
-
 type Heap<'a when 'a: equality>(comparer: IComparer<'a>) =
     let internalList = ResizeArray()
 
     let parent = function
         | 0 -> internalList.[0]
-        | i -> internalList.[i/2]
+        | i -> internalList.[(i-1)/2]
 
     let nodeOpt = function
         | j when j < internalList.Count -> (j, Some(internalList.[j]))
@@ -28,11 +26,11 @@ type Heap<'a when 'a: equality>(comparer: IComparer<'a>) =
         if comparer.Compare(node, internalList.[i]) = -1 then failwith ""
 
         let rec increaseKeyInternal j =
-            if j <= 1 || comparer.Compare(parent j, current j) > -1 then ()
+            if j = 0 || comparer.Compare(parent j, current j) = 1 then ()
             else 
                 let parentIdx = j/2
-                swap (parentIdx) j
-                increaseKeyInternal (parentIdx)
+                swap parentIdx j
+                increaseKeyInternal parentIdx
 
         internalList.[i] <- node
         increaseKeyInternal i
@@ -47,22 +45,5 @@ type Heap<'a when 'a: equality>(comparer: IComparer<'a>) =
         let size = __.Size
         internalList.Add key
         increaseKey size key
-
-    member __.Find key =
-        let rec getInternal parent =
-            match nodeOpt(parent) with
-                | (_, None) -> None
-                | (_, Some(node)) -> 
-                    if comparer.Compare(node, key) = 0 then Some(node)
-                    else
-                        let leftIdx,  left  = leftChild parent
-                        let rightIdx, right = rightChild parent
-
-                        if   left.IsSome  && comparer.Compare(left.Value, key)  >= 0 then getInternal leftIdx
-                        elif right.IsSome && comparer.Compare(right.Value, key) >= 0 then getInternal rightIdx
-                        else None
-        
-        if __.Root = None then None
-        else getInternal 0
 
 

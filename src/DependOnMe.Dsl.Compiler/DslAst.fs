@@ -2,6 +2,7 @@
 
 open Microsoft.FSharp.Text.Lexing
 open TextUtilities
+open System.Collections.Generic
 
 type BoolFlagMissingPart =
     | Equal
@@ -54,13 +55,13 @@ type DependencyTest = Test of TestDeclaration * BoolFlag1 list * BoolFlag2 list 
 
 // ---------------------
 
-type IndexValue =
-    | DeclarationValue of Declaration * PosRange
-    | BoolFlag1Value   of BoolFlag1 * PosRange
-    | BoolFlag2Value   of BoolFlag2 * PosRange
-    | TestDeclaration  of TestDeclaration * PosRange
+type IndexTerm =
+    | RegistrationTerm    of Registration
+    | BoolFlag1Term       of BoolFlag1
+    | BoolFlag2Term       of BoolFlag2
+    | TestDeclarationTerm of TestDeclaration
 
-type PositionIndex(posRange: PosRange, term: IndexValue) =
+type PositionIndex(posRange: PosRange, term: IndexTerm) =
 
     member __.Range = posRange
 

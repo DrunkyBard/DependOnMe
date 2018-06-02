@@ -10,6 +10,10 @@ open Errors
 
 let errorLogger = ErrorLogger()
 
+let index = SortedSet<PositionIndex>(PositionComparer.Instance)
+
+let addIdx idx = index.Add(idx)
+
 let separate lexems = 
     let rec separateRec (boolFlags1: BoolFlag1 list) (boolFlags2: BoolFlag2 list) (registrations:  Registration list) = function
         | (BoolFlag1(BoolFlag1.Flag(_) as b))::t -> 
@@ -50,6 +54,7 @@ start:
 testBody:
     | testHeader expressionSet
         {
+            PositionIndex(posRange parseState 1, $1 |> TestDeclarationTerm) |> addIdx |> ignore
             let boolFlags1, boolFlags2, registrations = separate $2
             Test($1, boolFlags1, boolFlags2, registrations, posRangeExt parseState 1 2)
         }
@@ -67,8 +72,16 @@ expressionSet:
     | bodyExpression { [$1] }
 
 bodyExpression:
-    | boolFlag1       { BoolFlag1($1) }
-    | boolFlag2       { BoolFlag2($1) }
+    | boolFlag1       
+                { 
+                    PositionIndex(posRange parseState 1, $1 |> BoolFlag1Term) |> addIdx |> ignore
+                    BoolFlag1($1)
+                }
+    | boolFlag2       
+                { 
+                    PositionIndex(posRange parseState 1, $1 |> BoolFlag2Term) |> addIdx |> ignore
+                    BoolFlag2($1)
+                }
     | registrationSet { Registration($1 |> List.rev) }
 
 registration:
@@ -77,8 +90,15 @@ registration:
 	| errorRegistration { $1 }
 
 registrationSet:
-    | registration                 { [$1] }
-    | registrationSet registration { $2::$1 }
+    | registration {
+                       PositionIndex(posRange parseState 1, $1 |> RegistrationTerm) |> addIdx |> ignore
+                       [$1]
+                   }
+    | registrationSet registration 
+                   { 
+                       PositionIndex(posRange parseState 2, $2 |> RegistrationTerm) |> addIdx |> ignore
+                       $2::$1 
+                   }
 
 boolFlag1:
     | BF1 EQ TRUE    { BoolFlag1.Flag(true,  posRange parseState 1, startPos parseState 2, posRange parseState 3) }

@@ -36,6 +36,7 @@ type nonTerminalId =
     | NONTERM__startstart
     | NONTERM_start
     | NONTERM_testBody
+    | NONTERM_testHeader
     | NONTERM_expressionSet
     | NONTERM_bodyExpression
     | NONTERM_registration

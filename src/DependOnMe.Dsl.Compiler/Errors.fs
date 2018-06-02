@@ -35,3 +35,7 @@ type ErrorLogger() =
             | i -> (diagnostics.[i]) |> out
         
         flushRec 0
+
+let reportRange ((startPos, endPos): PosRange) msg (logger: ErrorLogger) = (startPos, endPos, msg) |> ProdError |> Range |> logger.Report
+
+let reportPoint pos msg (logger: ErrorLogger) = (pos, msg) |> TermError |> Point |> logger.Report 

@@ -68,13 +68,14 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <Compile Include="Extensions.fs" />
     <Compile Include="Common.fs" />
     <Compile Include="ErrMsg.fs" />
-    <Compile Include="Heap.fs" />
     <Compile Include="TextUtilities.fs" />
     <Compile Include="TextDistance.fs" />
     <Compile Include="DslAst.fs" />
     <Compile Include="Errors.fs" />
+    <Compile Include="Compilation.fs" />
     <FsYacc Include="Parser.fsy">
       <OtherFlags>--module Parser</OtherFlags>
     </FsYacc>

@@ -2,22 +2,24 @@
 open System
 open DslAst
 open TextUtilities
-open Errors
 open Common
+open Compilation
+open System.Collections.Generic
+open Extensions
+open Errors
 
 let errorLogger = ErrorLogger()
 
-let reportRange ((startPos, endPos): PosRange) msg = (startPos, endPos, msg) |> ProdError |> Range |> errorLogger.Report
-
-let reportPoint pos msg = (pos, msg) |> TermError |> Point |> errorLogger.Report
-
 let separate lexems = 
     let rec separateRec (boolFlags1: BoolFlag1 list) (boolFlags2: BoolFlag2 list) (registrations:  Registration list) = function
-        | (BoolFlag1(BoolFlag1.Flag(_) as b))::t -> (b::boolFlags1, boolFlags2, registrations, t) ||||> innerTest 
-        | (BoolFlag2(BoolFlag2.Flag(_) as b))::t -> (boolFlags1, b::boolFlags2, registrations, t) ||||> innerTest 
-        | Registration(r)::t           -> (boolFlags1, boolFlags2, List.append registrations r, t) ||||> innerTest
-        | any::t                       -> (boolFlags1, boolFlags2, registrations, t) ||||> innerTest
-        | []                           -> (boolFlags1 |> List.rev, boolFlags2 |> List.rev, registrations)
+        | (BoolFlag1(BoolFlag1.Flag(_) as b))::t -> 
+            (b::boolFlags1, boolFlags2, registrations, t)  ||||> separateRec 
+        | (BoolFlag2(BoolFlag2.Flag(_) as b))::t -> 
+            (boolFlags1, b::boolFlags2, registrations, t)  ||||> separateRec
+        | Registration(r)::t           -> 
+            (boolFlags1, boolFlags2, List.append registrations r, t) ||||> separateRec
+        | any::t -> (boolFlags1, boolFlags2, registrations, t) ||||> separateRec
+        | []     -> (boolFlags1 |> List.rev, boolFlags2 |> List.rev, registrations)
 
     separateRec [] [] [] lexems
 %}
@@ -46,10 +48,18 @@ start:
     | testBody EOF { $1 }
 
 testBody:
-    | TESTHEADER SNAME expressionSet
+    | testHeader expressionSet
         {
-            let boolFlags1, boolFlags2, registrations = separate $3
-            Test($2, boolFlags1, boolFlags2, registrations, posRangeExt parseState 1 2, posRangeExt parseState 1 3)
+            let boolFlags1, boolFlags2, registrations = separate $2
+            Test($1, boolFlags1, boolFlags2, registrations, posRangeExt parseState 1 2)
+        }
+
+testHeader:
+    | TESTHEADER SNAME { TestDeclaration.Full($2, posRange parseState 1, posRange parseState 2) }
+    | TESTHEADER       
+        { 
+            (endPos parseState 1, ErrMsg.TestNameIsNotDefined, errorLogger) |||> reportPoint
+            TestDeclaration.Partial(posRange parseState 1)
         }
 
 expressionSet:
@@ -62,7 +72,7 @@ bodyExpression:
     | registrationSet { Registration($1 |> List.rev) }
 
 registration:
-    | FQN ARROW FQN     { Class($1, $3, posRange parseState 1, posRange parseState 3) }
+    | FQN ARROW FQN     { Class($1, $3, posRange parseState 1, posRange parseState 2, posRange parseState 3) }
     | MODULE FQN        { Module($2, posRange parseState 1, posRange parseState 2) }
 	| errorRegistration { $1 }
 
@@ -71,61 +81,61 @@ registrationSet:
     | registrationSet registration { $2::$1 }
 
 boolFlag1:
-    | BF1 EQ TRUE    { BoolFlag1.Flag(true,  posRangeExt parseState 1 3) }
-    | BF1 EQ FALSE   { BoolFlag1.Flag(false, posRangeExt parseState 1 3) }
+    | BF1 EQ TRUE    { BoolFlag1.Flag(true,  posRange parseState 1, startPos parseState 2, posRange parseState 3) }
+    | BF1 EQ FALSE   { BoolFlag1.Flag(false, posRange parseState 1, startPos parseState 2, posRange parseState 3) }
     | errorBoolFlag1 { $1 }
 
 boolFlag2:
-    | BF2 EQ TRUE    { BoolFlag2.Flag(true,  posRangeExt parseState 1 3) }
-    | BF2 EQ FALSE   { BoolFlag2.Flag(false, posRangeExt parseState 1 3) }
+    | BF2 EQ TRUE    { BoolFlag2.Flag(true,  posRange parseState 1, startPos parseState 2, posRange parseState 3) }
+    | BF2 EQ FALSE   { BoolFlag2.Flag(false, posRange parseState 1, startPos parseState 2, posRange parseState 3) }
     | errorBoolFlag2 { $1 }
 
 errorBoolFlag1:
     | BF1       { 
-                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
-                    BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 1) 
+                    (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
+                    BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
                 }
     | BF1 EQ    { 
-                    (endPos parseState 2, ErrMsg.BoolMissing) ||> reportPoint
-                    BoolFlag1.Error(BoolFlagMissingPart.Value, endPos parseState 2, posRangeExt parseState 1 2) 
+                    (endPos parseState 2, ErrMsg.BoolMissing, errorLogger) |||> reportPoint
+                    BoolFlag1.Error(BoolFlagMissingPart.Value, endPos parseState 2) 
                 }
     | BF1 TRUE  { 
-                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
-                    BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
+                    (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
+                    BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
                 }
     | BF1 FALSE { 
-                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
-                    BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
+                    (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
+                    BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
                 }
 
 errorBoolFlag2:
     | BF2       { 
-                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
-                    BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 1) 
+                    (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
+                    BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
                 }
     | BF2 EQ    { 
-                    (endPos parseState 2, ErrMsg.BoolMissing) ||> reportPoint
-                    BoolFlag2.Error(BoolFlagMissingPart.Value, endPos parseState 1, posRangeExt parseState 1 2) 
+                    (endPos parseState 2, ErrMsg.BoolMissing, errorLogger) |||> reportPoint
+                    BoolFlag2.Error(BoolFlagMissingPart.Value, endPos parseState 1) 
                 }
 	| BF2 TRUE  { 
-                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
-                    BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
+                    (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
+                    BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
                 }
     | BF2 FALSE { 
-                    (endPos parseState 1, ErrMsg.EqMissing) ||> reportPoint
-                    BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1, posRangeExt parseState 1 2) 
+                    (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
+                    BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
                 }
 
 errorRegistration:
 	| FQN FQN   { 
-                    (endPos parseState 1, ErrMsg.ArrowMissing) ||> reportPoint
-                    ClassError(ClassRegMissingPart.Arrow,  endPos parseState 1, posRangeExt parseState 1 2) 
+                    (endPos parseState 1, ErrMsg.ArrowMissing, errorLogger) |||> reportPoint
+                    ClassError(ClassRegMissingPart.Arrow, endPos parseState 1) 
                 }
 	| FQN ARROW { 
-                    (endPos parseState 2, ErrMsg.FqnMissing) ||> reportPoint
-                    ClassError(ClassRegMissingPart.Name,   endPos parseState 2, posRangeExt parseState 1 2) 
+                    (endPos parseState 2, ErrMsg.FqnMissing, errorLogger) |||> reportPoint
+                    ClassError(ClassRegMissingPart.Name, endPos parseState 2) 
                 }
 	| MODULE    { 
-                    (endPos parseState 1, ErrMsg.FqnMissing) ||> reportPoint
-                    ModuleError(ModuleRegMissingPart.Name, endPos parseState 1, posRangeExt parseState 1 1) 
+                    (endPos parseState 1, ErrMsg.FqnMissing, errorLogger) |||> reportPoint
+                    ModuleError(ModuleRegMissingPart.Name, endPos parseState 1) 
                 }

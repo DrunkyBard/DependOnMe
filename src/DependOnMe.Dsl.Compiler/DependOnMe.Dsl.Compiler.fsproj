@@ -68,13 +68,13 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
-    <Compile Include="Extensions.fs" />
     <Compile Include="Common.fs" />
     <Compile Include="DataStructures\RedBlackTree.fs" />
     <Compile Include="ErrMsg.fs" />
     <Compile Include="TextUtilities.fs" />
     <Compile Include="TextDistance.fs" />
     <Compile Include="DslAst.fs" />
+    <Compile Include="Positioning.fs" />
     <Compile Include="Compilation.fs" />
     <Compile Include="Errors.fs" />
     <FsYacc Include="Parser.fsy">

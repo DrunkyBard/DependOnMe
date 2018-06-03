@@ -3,7 +3,6 @@ namespace DataStructures
 
 open System.Collections.Generic
 open Common
-open System
 
 type color = Red | Black    
 
@@ -31,6 +30,8 @@ type RedBlackTree<'a, 'b>(comparer: IComparer<'a>) =
             -> T(Red, T(Black, a, b, x), T(Black, c, d, z), y)
         | c, l, r, x -> T(c, l, r, x)
 
+    member __.Root with get() = root
+
     member __.TryGetValue key = tryGetValue key root
     
     member __.Insert (key, value) = 
@@ -57,8 +58,3 @@ type RedBlackTree<'a, 'b>(comparer: IComparer<'a>) =
         
         print 0 root
     
-    
-    //member __.Print() = Tree.print 0 inner
-    
-    //static member Empty comparer = BinaryTree(E, comparer)
-

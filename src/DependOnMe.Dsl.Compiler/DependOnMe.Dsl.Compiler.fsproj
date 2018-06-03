@@ -70,6 +70,7 @@
     <Content Include="packages.config" />
     <Compile Include="Extensions.fs" />
     <Compile Include="Common.fs" />
+    <Compile Include="DataStructures\RedBlackTree.fs" />
     <Compile Include="ErrMsg.fs" />
     <Compile Include="TextUtilities.fs" />
     <Compile Include="TextDistance.fs" />
@@ -88,6 +89,7 @@
     <None Include="TestDslFile.drt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="PositionIndex.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -8,12 +8,15 @@ open System.Collections.Generic
 open Errors
 open Positioning
 open DataStructures
+open Navigation
 
 let errorLogger = ErrorLogger()
 
 let index = RedBlackTree<PosRange, IndexTerm>(PositionComparer.Instance)
+let testIndex = PositionSet()
 
 let addIdx posRange term = index.Insert(posRange, term)
+let addTestIdx posRange term = testIndex.Insert(PositionIndex(posRange, term))
 
 let separate lexems = 
     let rec separateRec (boolFlags1: BoolFlag1 list) (boolFlags2: BoolFlag2 list) (registrations:  Registration list) = function
@@ -51,11 +54,13 @@ let separate lexems =
 
 start:
     | testBody EOF { $1 }
+    | EOF { DependencyTest.Empty }
 
 testBody:
     | testHeader expressionSet
         {
             (posRange parseState 1, $1 |> TestDeclarationTerm) ||> addIdx
+            (posRange parseState 1, $1 |> TestDeclarationTerm) ||> addTestIdx
             let boolFlags1, boolFlags2, registrations = separate $2
             Test($1, boolFlags1, boolFlags2, registrations, posRangeExt parseState 1 2)
         }
@@ -67,6 +72,7 @@ testHeader:
             (endPos parseState 1, ErrMsg.TestNameIsNotDefined, errorLogger) |||> reportPoint
             TestDeclaration.Partial(posRange parseState 1)
         }
+    | recover { TestDeclaration.Error }
 
 expressionSet:
     | expressionSet bodyExpression { $2::$1 |> List.rev }
@@ -76,14 +82,17 @@ bodyExpression:
     | boolFlag1       
                 { 
                     (posRange parseState 1, $1 |> BoolFlag1Term) ||> addIdx
+                    (posRange parseState 1, $1 |> BoolFlag1Term) ||> addTestIdx
                     BoolFlag1($1)
                 }
     | boolFlag2       
                 { 
                     (posRange parseState 1, $1 |> BoolFlag2Term) ||> addIdx
+                    (posRange parseState 1, $1 |> BoolFlag2Term) ||> addTestIdx
                     BoolFlag2($1)
                 }
     | registrationSet { Registration($1 |> List.rev) }
+    | recover         { Declaration.Error }
 
 registration:
     | FQN ARROW FQN     { Class($1, $3, posRange parseState 1, posRange parseState 2, posRange parseState 3) }
@@ -93,11 +102,13 @@ registration:
 registrationSet:
     | registration {
                        (posRange parseState 1, $1 |> RegistrationTerm) ||> addIdx
+                       (posRange parseState 1, $1 |> RegistrationTerm) ||> addTestIdx
                        [$1]
                    }
     | registrationSet registration 
                    { 
                        (posRange parseState 2, $2 |> RegistrationTerm) ||> addIdx
+                       (posRange parseState 2, $2 |> RegistrationTerm) ||> addTestIdx
                        $2::$1 
                    }
 
@@ -160,3 +171,12 @@ errorRegistration:
                     (endPos parseState 1, ErrMsg.FqnMissing, errorLogger) |||> reportPoint
                     ModuleError(ModuleRegMissingPart.Name, endPos parseState 1) 
                 }
+
+recover:
+    | error 
+        {
+            let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+            let posRange = (lexbuf.StartPos, lexbuf.EndPos)
+            let errToken = new string(lexbuf.Lexeme)
+            (posRange, ErrMsg.UnexpectedToken errToken, errorLogger) |||>reportRange
+        }

@@ -7,3 +7,4 @@ let FqnMissing = "Fully qualified type name is missing"
 let DuplicateBf1Declaration = "BoolFlag1 is already defined"
 let DuplicateBf2Declaration = "BoolFlag2 is already defined"
 let TestNameIsNotDefined = "Test name is not defined"
+let UnexpectedToken token = sprintf "Unexpected token: %s" token

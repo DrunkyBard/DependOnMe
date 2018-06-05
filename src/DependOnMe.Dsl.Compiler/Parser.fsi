@@ -46,6 +46,7 @@ type nonTerminalId =
     | NONTERM_errorBoolFlag1
     | NONTERM_errorBoolFlag2
     | NONTERM_errorRegistration
+    | NONTERM_recover
 /// This function maps tokens to integer indexes
 val tagOfToken: token -> int
 

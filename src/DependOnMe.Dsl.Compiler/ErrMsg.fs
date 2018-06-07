@@ -8,3 +8,5 @@ let DuplicateBf1Declaration = "BoolFlag1 is already defined"
 let DuplicateBf2Declaration = "BoolFlag2 is already defined"
 let TestNameIsNotDefined = "Test name is not defined"
 let UnexpectedToken token = sprintf "Unexpected token: %s" token
+let TestHeaderExpected = "TestHeader token expected"
+let BoolFlagTokenExpected = "BoolFlag1 or BoolFlag2 token expected"

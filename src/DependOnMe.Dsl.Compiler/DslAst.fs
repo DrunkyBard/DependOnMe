@@ -8,6 +8,7 @@ type BoolFlagMissingPart =
     | Equal
     | Value
     | BoolTerm
+    | BoolFlagTerm
 
 type ClassRegMissingPart =
     | Arrow
@@ -52,7 +53,7 @@ type Declaration =
 type TestDeclaration = 
     | Full    of string * PosRange * PosRange // Test terminal range X test name range
     | Partial of PosRange // Term terminal range
-    | Error
+    | Error   of PosRange
 
 type DependencyTest = 
     | Test of TestDeclaration * BoolFlag1 list * BoolFlag2 list * Registration list * PosRange // whole test pos range

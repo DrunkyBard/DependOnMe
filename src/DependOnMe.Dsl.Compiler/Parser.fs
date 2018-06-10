@@ -18,7 +18,7 @@ open Navigation
 
 let errorLogger = ErrorLogger()
 
-let index = RedBlackTree<PosRange, IndexTerm>(PositionComparer.Instance)
+let index = RedBlackTree<PosRange, IndexTerm>(PosRangeComparer.Instance)
 let testIndex = PositionSet()
 
 let addIdx posRange term = index.Insert(posRange, term)
@@ -275,7 +275,7 @@ let _fsyacc_reductions ()  =    [|
                                  (posRange parseState 1, _1 |> TestDeclarationTerm) ||> addIdx
                                  (posRange parseState 1, _1 |> TestDeclarationTerm) ||> addTestIdx
                                  let boolFlags1, boolFlags2, registrations = separate _2
-                                 Test(_1, boolFlags1, boolFlags2, registrations, posRangeExt parseState 1 2)
+                                 Test(_1, boolFlags1, boolFlags2, registrations, posRangeOut parseState 1 2)
                              
                    )
 # 61 "Parser.fsy"
@@ -531,7 +531,7 @@ let _fsyacc_reductions ()  =    [|
 # 133 "Parser.fsy"
                                             
                                               (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
-                                              BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
+                                              BoolFlag1.Error(BoolFlagMissingPart.EqualAfter(endPos parseState 1))
                                           
                    )
 # 133 "Parser.fsy"
@@ -544,7 +544,7 @@ let _fsyacc_reductions ()  =    [|
 # 137 "Parser.fsy"
                                             
                                               (endPos parseState 2, ErrMsg.BoolMissing, errorLogger) |||> reportPoint
-                                              BoolFlag1.Error(BoolFlagMissingPart.Value, endPos parseState 2) 
+                                              BoolFlag1.Error(BoolFlagMissingPart.Value(endPos parseState 2))
                                           
                    )
 # 137 "Parser.fsy"
@@ -558,7 +558,7 @@ let _fsyacc_reductions ()  =    [|
 # 141 "Parser.fsy"
                                             
                                              (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
-                                             BoolFlag1.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
+                                             BoolFlag1.Error(BoolFlagMissingPart.EqualBetween(posRangeIn parseState 1 2))
                                           
                    )
 # 141 "Parser.fsy"
@@ -572,7 +572,7 @@ let _fsyacc_reductions ()  =    [|
 # 145 "Parser.fsy"
                                            
                                              (startPos parseState 1, ErrMsg.BoolFlagTokenExpected, errorLogger) |||> reportPoint
-                                             BoolFlag1.Error(BoolFlagMissingPart.BoolFlagTerm, startPos parseState 1) 
+                                             BoolFlag1.Error(BoolFlagMissingPart.BoolFlagTerm(startPos parseState 1)) 
                                           
                    )
 # 145 "Parser.fsy"
@@ -586,7 +586,7 @@ let _fsyacc_reductions ()  =    [|
 # 149 "Parser.fsy"
                                            
                                              (startPos parseState 1, ErrMsg.BoolFlagTokenExpected, errorLogger) |||> reportPoint
-                                             BoolFlag1.Error(BoolFlagMissingPart.BoolFlagTerm, startPos parseState 1) 
+                                             BoolFlag1.Error(BoolFlagMissingPart.BoolFlagTerm(startPos parseState 1))
                                           
                    )
 # 149 "Parser.fsy"
@@ -599,7 +599,7 @@ let _fsyacc_reductions ()  =    [|
 # 155 "Parser.fsy"
                                             
                                               (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
-                                              BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
+                                              BoolFlag2.Error(BoolFlagMissingPart.EqualAfter(endPos parseState 1))
                                           
                    )
 # 155 "Parser.fsy"
@@ -612,7 +612,7 @@ let _fsyacc_reductions ()  =    [|
 # 159 "Parser.fsy"
                                             
                                               (endPos parseState 2, ErrMsg.BoolMissing, errorLogger) |||> reportPoint
-                                              BoolFlag2.Error(BoolFlagMissingPart.Value, endPos parseState 1) 
+                                              BoolFlag2.Error(BoolFlagMissingPart.Value(endPos parseState 1))
                                           
                    )
 # 159 "Parser.fsy"
@@ -626,7 +626,7 @@ let _fsyacc_reductions ()  =    [|
 # 163 "Parser.fsy"
                                          
                                              (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
-                                             BoolFlag2.Error(BoolFlagMissingPart.Equal, endPos parseState 1) 
+                                             BoolFlag2.Error(BoolFlagMissingPart.EqualBetween(posRangeIn parseState 1 2))
                                           
                    )
 # 163 "Parser.fsy"
@@ -641,7 +641,7 @@ let _fsyacc_reductions ()  =    [|
 # 169 "Parser.fsy"
                                     
                                          (endPos parseState 1, ErrMsg.ArrowMissing, errorLogger) |||> reportPoint
-                                         ClassError(ClassRegMissingPart.Arrow, endPos parseState 1) 
+                                         ClassError(ClassRegMissingPart.Arrow(posRangeIn parseState 1 2)) 
                                      
                    )
 # 169 "Parser.fsy"
@@ -655,7 +655,7 @@ let _fsyacc_reductions ()  =    [|
 # 173 "Parser.fsy"
                                     
                                          (endPos parseState 2, ErrMsg.FqnMissing, errorLogger) |||> reportPoint
-                                         ClassError(ClassRegMissingPart.Name, endPos parseState 2) 
+                                         ClassError(ClassRegMissingPart.ImplName(endPos parseState 2))
                                      
                    )
 # 173 "Parser.fsy"
@@ -668,7 +668,7 @@ let _fsyacc_reductions ()  =    [|
 # 177 "Parser.fsy"
                                     
                                          (endPos parseState 1, ErrMsg.FqnMissing, errorLogger) |||> reportPoint
-                                         ModuleError(ModuleRegMissingPart.Name, endPos parseState 1) 
+                                         ModuleError(ModuleRegMissingPart.Name(endPos parseState 1))
                                      
                    )
 # 177 "Parser.fsy"

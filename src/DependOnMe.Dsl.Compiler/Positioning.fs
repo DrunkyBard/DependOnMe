@@ -14,9 +14,9 @@ let (|Earlier|Later|Intersection|Same|Inside|) (s1: Position, e1: Position, s2: 
         elif e1.AbsoluteOffset > s2.AbsoluteOffset then Later
         else Intersection
 
-type PositionComparer() =
+type PosRangeComparer() =
 
-    static member Instance = PositionComparer()
+    static member Instance = PosRangeComparer()
 
     interface IComparer<PosRange> with
         member __.Compare((startPos1, endPos1), (startPos2, endPos2)) =
@@ -26,6 +26,19 @@ type PositionComparer() =
             if startPos2.Line = endPos2.Line && startPos2.Column > endPos2.Column then failwith "StartPos2.Line and EndPos2.Line are equal, but StartPos2.Column is greater than EndPos2.Column"
             
             match (startPos1, endPos1, startPos2, endPos2) with 
+                | Earlier -> -1
+                | Same    -> 0
+                | Later   -> 1
+                | Intersection -> failwith "Ranges intersection"
+                | Inside -> failwith "Range lies inside"
+
+type PositionComparer() =
+
+    static member Instance = PositionComparer() :> IComparer<Position>
+
+    interface IComparer<Position> with
+        member __.Compare(pos1, pos2) =
+            match (pos1, pos1, pos2, pos2) with 
                 | Earlier -> -1
                 | Same    -> 0
                 | Later   -> 1
@@ -72,3 +85,4 @@ type RbTreeExtensions =
 
     [<Extension>]
     static member TryFindTermPosition(tree: RedBlackTree<PosRange, IndexTerm>, position: Position) = tree.TryFindTermPosition((position, position))
+

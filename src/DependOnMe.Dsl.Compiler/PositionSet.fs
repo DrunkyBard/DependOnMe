@@ -35,7 +35,7 @@ type PositionSet() =
 
     member __.Positions with get() = positions
 
-    member __.Find(pos) = 
+    member __.Find(pos) = //TODO: handle empty index
         let sortedPositions = Array.sortWith (fun i j -> PosIndexComparer.Instance.Compare(i, j)) (positions.ToArray()) 
 
         let choose (idx1: PositionIndex) (idx2: PositionIndex) =
@@ -48,9 +48,11 @@ type PositionSet() =
                 | Between      -> CaretTermPosition.Between(idx1.Term, idx2.Term)
 
         let rec matchPosition min max =
+
             let mid = (min + max)/2
 
-            match mid with                
+            match mid with
+                | mid when mid = 0 -> CaretTermPosition.Inside(sortedPositions.[0].Term)
                 | mid when mid = sortedPositions.Length - 1 -> CaretTermPosition.Inside(sortedPositions.[mid].Term)
                 | mid -> 
                     let midStart, _ = sortedPositions.[mid].Range

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.Language.Intellisense;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Utilities;
@@ -14,6 +15,9 @@ namespace DependOnMe.VsExtension.Intellisense
 		[Import]
 		public ITextStructureNavigatorSelectorService NavigatorService { get; set; }
 
-		public ICompletionSource TryCreateCompletionSource(ITextBuffer textBuffer) => new TestCompletionSource(this, textBuffer);
+        [Import]
+        public SVsServiceProvider ServiceProvider;
+
+        public ICompletionSource TryCreateCompletionSource(ITextBuffer textBuffer) => new TestCompletionSource(this, textBuffer, ServiceProvider);
 	}
 }

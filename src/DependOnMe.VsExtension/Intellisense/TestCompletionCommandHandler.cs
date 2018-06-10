@@ -76,13 +76,13 @@ namespace DependOnMe.VsExtension.Intellisense
 			//pass along the command so the char is added to the buffer
 			int retVal = _nextCommandHandler.Exec(ref pguidCmdGroup, nCmdId, nCmdexecopt, pvaIn, pvaOut);
 			bool handled = false;
-			if (!typedChar.Equals(char.MinValue) && char.IsLetterOrDigit(typedChar))
+			if (!typedChar.Equals(char.MinValue) && (char.IsLetterOrDigit(typedChar) || char.IsWhiteSpace(typedChar) || true))
 			{
 				if (_session == null || _session.IsDismissed) // If there is no active session, bring up completion
 				{
 					TriggerCompletion();
-					_session.Filter();
-				}
+                    _session.Filter();
+                }
 				else    //the completion session is already active, so just filter
 				{
 					_session.Filter();

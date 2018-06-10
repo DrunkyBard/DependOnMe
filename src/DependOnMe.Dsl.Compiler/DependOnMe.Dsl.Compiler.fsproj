@@ -87,7 +87,7 @@
     <Compile Include="Parser.fs" />
     <Compile Include="Lexer.fs" />
     <Compile Include="SuggestionText.fs" />
-    <Compile Include="Intellisense.fs" />
+    <Compile Include="DslCompletion.fs" />
     <None Include="TestDslFile.drt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

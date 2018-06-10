@@ -2,7 +2,7 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
         <Identity Id="DependOnMe.VsExtension.164e0703-2d1d-449c-b07b-5fef1f950fb9" Version="1.0" Language="en-US" Publisher="Sattar Imamov" />
-        <DisplayName>DependOnMe.VsExtension</DisplayName>
+        <DisplayName>DependOnMe1.VsExtension</DisplayName>
         <Description>Empty VSIX Project.</Description>
     </Metadata>
     <Installation>

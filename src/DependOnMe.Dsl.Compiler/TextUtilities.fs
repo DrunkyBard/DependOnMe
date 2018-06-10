@@ -23,7 +23,9 @@ let startPos (parseState: IParseState) productionNumber = parseState.InputStartP
 
 let endPos (parseState: IParseState) productionNumber = parseState.InputEndPosition productionNumber
 
-let posRangeExt (parseState: IParseState) productionNumber1 productionNumber2 = (startPos parseState productionNumber1, endPos parseState productionNumber2)
+let posRangeIn  (parseState: IParseState) productionNumber1 productionNumber2 = (endPos parseState productionNumber1, startPos parseState productionNumber2)
+
+let posRangeOut (parseState: IParseState) productionNumber1 productionNumber2 = (startPos parseState productionNumber1, endPos parseState productionNumber2)
 
 let posRangeAndToken (parseState: IParseState) = 
     let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
@@ -31,3 +33,7 @@ let posRangeAndToken (parseState: IParseState) =
     let token = new string(lexbuf.Lexeme)
 
     (posRange, token)
+
+let (<=>) (pos: Position) ((startPos, endPos): PosRange) = startPos <= pos && pos <= endPos
+
+let (<~>) (pos: Position) ((startPos, endPos): PosRange) = startPos < pos && pos < endPos

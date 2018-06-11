@@ -35,6 +35,8 @@ type PositionSet() =
 
     member __.Positions with get() = positions
 
+    member __.Clear() = positions.Clear()
+
     member __.Find(pos) = //TODO: handle empty index
         let sortedPositions = Array.sortWith (fun i j -> PosIndexComparer.Instance.Compare(i, j)) (positions.ToArray()) 
 

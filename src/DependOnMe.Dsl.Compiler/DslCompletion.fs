@@ -12,35 +12,36 @@ open Navigation
 open Positioning
 open SuggestionText
 
-let suggestBoolFlag pos = function
-    | BoolFlagMissingPart.EqualBetween(posRange) when pos <~> posRange -> SuggestionText.equal
-    | BoolFlagMissingPart.Value(errPos)          when errPos < pos     -> SuggestionText.boolValue
-    | BoolFlagMissingPart.BoolTerm(errPos)       when pos < errPos     -> SuggestionText.boolTerm
-    | _ -> SuggestionText.allBody
+let suggestBoolFlag pos term = 
+    match term with
+        | BoolFlagMissingPart.EqualBetween(startPos, endPos) when less startPos pos && less pos endPos -> SuggestionText.equal
+        | BoolFlagMissingPart.Value(errPos)          when less errPos pos     -> SuggestionText.boolValue
+        | BoolFlagMissingPart.BoolTerm(errPos)       when less pos errPos     -> SuggestionText.boolTerm
+        | _ -> SuggestionText.allBody
 
 let suggestBoolFlag1 pos = function
-    | BoolFlag1.Flag(_, _, _, (_, endPos)) when endPos < pos -> SuggestionText.allBody 
+    | BoolFlag1.Flag(_, _, _, (_, endPos)) when less endPos pos -> SuggestionText.allBody 
     | BoolFlag1.Error(err) -> suggestBoolFlag pos err
     | _ -> SuggestionText.None
 
 let suggestBoolFlag2 pos = function
-    | BoolFlag2.Flag(_, _, _, (_, endPos)) when endPos < pos -> SuggestionText.allBody 
+    | BoolFlag2.Flag(_, _, _, (_, endPos)) when less endPos pos -> SuggestionText.allBody 
     | BoolFlag2.Error(err) -> suggestBoolFlag pos err
     | _ -> SuggestionText.None
 
 let suggestRegistration pos = function
     | Class(_, _, _, _, (_, endPos)) 
-    | Module(_, _, (_, endPos))    when endPos < pos     -> SuggestionText.allBody
+    | Module(_, _, (_, endPos))    when less endPos pos     -> SuggestionText.allBody
     | ClassError(Arrow(posRange))  when pos <=> posRange -> SuggestionText.arrow
-    | ClassError(DepName(errPos))  when pos <= errPos    -> SuggestionText.depName
-    | ClassError(ImplName(errPos)) when errPos <= pos    -> SuggestionText.implName
-    | ModuleError(Name(errPos))    when errPos < pos     -> SuggestionText.moduleName
+    | ClassError(DepName(errPos))  when lessEq pos errPos    -> SuggestionText.depName
+    | ClassError(ImplName(errPos)) when lessEq errPos pos    -> SuggestionText.implName
+    | ModuleError(Name(errPos))    when less errPos pos     -> SuggestionText.moduleName
     | _ -> SuggestionText.None
 
 let suggestTestDeclaration pos = function
-    | Full(_, _, (_, endPos))            when endPos < pos   -> SuggestionText.allBody
-    | Partial(_, endPos)                 when endPos < pos   -> SuggestionText.testName
-    | TestDeclaration.Error(startPos, _) when pos < startPos -> SuggestionText.testHeader
+    | Full(_, _, (_, endPos))            when less endPos pos   -> SuggestionText.allBody
+    | Partial(_, endPos)                 when less endPos pos   -> SuggestionText.testName
+    | TestDeclaration.Error(startPos, _) when less pos startPos -> SuggestionText.testHeader
     | _ -> SuggestionText.None
 
 let suggest pos = function
@@ -75,6 +76,8 @@ let checkSuggestion suggestion writtenText =
         else false
 
 let suggestFrom fileName writtenText pos = 
+    Parser.index.Clear()
+    Parser.testIndex.Clear()
     let testContent = File.ReadAllText fileName
     let lexbuf = LexBuffer<char>.FromString testContent
     setInitialPos lexbuf fileName

@@ -31,9 +31,19 @@ let posRangeAndToken (parseState: IParseState) =
     let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
     let posRange = (lexbuf.StartPos, lexbuf.EndPos)
     let token = new string(lexbuf.Lexeme)
-
+    
     (posRange, token)
 
-let (<=>) (pos: Position) ((startPos, endPos): PosRange) = startPos <= pos && pos <= endPos
+let less (pos1: Position) (pos2: Position) = pos1.Line < pos2.Line || pos1.Column < pos2.Column // TODO: need to introduce plain operator
 
-let (<~>) (pos: Position) ((startPos, endPos): PosRange) = startPos < pos && pos < endPos
+let more (pos1: Position) (pos2: Position) = pos1.Line > pos2.Line || pos1.Column > pos2.Column
+
+let (==) (pos1: Position) (pos2: Position) = pos1.Line = pos2.Line && pos1.Column = pos2.Column
+
+let lessEq (pos1: Position) (pos2: Position) = less pos1 pos2 || pos1 == pos2
+
+let moreEq (pos1: Position) (pos2: Position) = more pos1 pos2 || pos1 == pos2
+
+let (<=>) (pos: Position) ((startPos, endPos): PosRange) = lessEq startPos pos && lessEq pos endPos
+
+let (<~>) (pos: Position) ((startPos, endPos): PosRange) = less startPos pos && less pos endPos

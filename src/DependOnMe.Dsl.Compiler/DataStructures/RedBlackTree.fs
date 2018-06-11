@@ -33,6 +33,8 @@ type RedBlackTree<'a, 'b>(comparer: IComparer<'a>) =
     member __.Root with get() = root
 
     member __.TryGetValue key = tryGetValue key root
+
+    member __.Clear() = root <- E
     
     member __.Insert (key, value) = 
         let rec ins cont = function

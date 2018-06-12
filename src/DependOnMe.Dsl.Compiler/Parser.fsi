@@ -13,7 +13,6 @@ type token =
   | BF1
   | EQ
   | ARROW
-  | ERROR
   | TESTHEADER
 type tokenId = 
     | TOKEN_EOF
@@ -28,15 +27,14 @@ type tokenId =
     | TOKEN_BF1
     | TOKEN_EQ
     | TOKEN_ARROW
-    | TOKEN_ERROR
     | TOKEN_TESTHEADER
     | TOKEN_end_of_input
     | TOKEN_error
 type nonTerminalId = 
     | NONTERM__startstart
     | NONTERM_start
-    | NONTERM_testBody
     | NONTERM_testHeader
+    | NONTERM_testBody
     | NONTERM_expressionSet
     | NONTERM_bodyExpression
     | NONTERM_registration
@@ -47,6 +45,7 @@ type nonTerminalId =
     | NONTERM_errorBoolFlag1
     | NONTERM_errorBoolFlag2
     | NONTERM_errorRegistration
+    | NONTERM_errorExprBody
     | NONTERM_recover
     | NONTERM_any
 /// This function maps tokens to integer indexes

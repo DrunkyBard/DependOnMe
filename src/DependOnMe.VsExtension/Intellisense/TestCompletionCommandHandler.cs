@@ -81,7 +81,7 @@ namespace DependOnMe.VsExtension.Intellisense
 				if (_session == null || _session.IsDismissed) // If there is no active session, bring up completion
 				{
 					TriggerCompletion();
-                    _session.Filter();
+                    _session?.Filter();
                 }
 				else    //the completion session is already active, so just filter
 				{

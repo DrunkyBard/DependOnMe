@@ -16,7 +16,7 @@ type ClassRegMissingPart =
     | DepName  of Position // Interval before arrow term
     | ImplName of Position // Interval after arrow term
 
-type ErrorPosion =
+type ErrorPosition =
     | Range          of PosRange
     | IntervalAfter  of Position
     | IntervalBefore of Position
@@ -26,6 +26,8 @@ type ModuleRegMissingPart = Name of Position // Interval after MODULE term
 type BoolFlagType =
     | First
     | Second
+
+type ErrorTerm = Error of PosRange
 
 type BoolFlag1 = 
     | Flag  of bool * PosRange * Position * PosRange // boolean value X bool flag term position X equal term position X boolean value position
@@ -45,7 +47,7 @@ type Declaration =
     | Registration of Registration list
     | BoolFlag1    of BoolFlag1
     | BoolFlag2    of BoolFlag2
-    | Error
+    | Error        of ErrorTerm
 
 //type DependencyTest = 
 //    {
@@ -73,6 +75,7 @@ type IndexTerm =
     | BoolFlag1Term       of BoolFlag1
     | BoolFlag2Term       of BoolFlag2
     | TestDeclarationTerm of TestDeclaration
+    | Error               of ErrorTerm
 
 type PositionIndex(posRange: PosRange, term: IndexTerm) =
 

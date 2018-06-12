@@ -27,6 +27,8 @@ namespace DependOnMe.VsExtension.Intellisense
 		    var fileName = GetFileName();
             var dte = (EnvDTE.DTE)_provider.GetService(typeof(EnvDTE.DTE));
             var ts = dte.ActiveWindow.Selection as EnvDTE.TextSelection;
+		    var src = session.TextView.TextSnapshot.GetText();
+            
             var suggestions = DslCompletion.suggestFrom(fileName, "", new Position(fileName, ts.CurrentLine, 0, ts.CurrentColumn));
 		    var s = suggestions.Select(x => new Completion(x, x, x, null, null));
 		    completions.AddRange(s);
@@ -59,8 +61,11 @@ namespace DependOnMe.VsExtension.Intellisense
 			var currentPoint = session.TextView.Caret.Position.BufferPosition - 1;
             var navigator = _sourceProvider.NavigatorService.GetTextStructureNavigator(_textBuffer);
 			var extent = navigator.GetExtentOfWord(currentPoint);
-
-			return currentPoint.Snapshot.CreateTrackingSpan(extent.Span, SpanTrackingMode.EdgeInclusive);
+		    var findTokenSpanAtPosition = currentPoint.Snapshot.CreateTrackingSpan(extent.Span, SpanTrackingMode.EdgeInclusive);
+		    var line = session.TextView.TextSnapshot.GetLineFromPosition(extent.Span.Start.Position);
+		    var g = extent.Span.Span.Start - line.Start.Position;
+		    System.IO.File.AppendAllText(@"E:\Tes.txt", extent.Span.ToString());
+            return findTokenSpanAtPosition;
 		}
 
 		public void Dispose()

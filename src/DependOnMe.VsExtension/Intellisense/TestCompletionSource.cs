@@ -29,19 +29,34 @@ namespace DependOnMe.VsExtension.Intellisense
             var ts = dte.ActiveWindow.Selection as EnvDTE.TextSelection;
 		    var src = session.TextView.TextSnapshot.GetText();
             
-            var suggestions = DslCompletion.suggestFrom(fileName, "", new Position(fileName, ts.CurrentLine, 0, ts.CurrentColumn));
+            var suggestions = DslCompletion.suggestFrom(fileName, src, new Position(fileName, ts.CurrentLine, 0, ts.CurrentColumn));
 		    var s = suggestions.Select(x => new Completion(x, x, x, null, null));
 		    completions.AddRange(s);
 
-   //         foreach (string str in new []{ "addition", "adaptation", "subtraction", "summation" })
-			//{
-			//	completions.Add(new Completion(str, str, str, null, null));
-			//}
+		    ITextSnapshot snapshot = _textBuffer.CurrentSnapshot;
+            var triggerPoint = (SnapshotPoint)session.GetTriggerPoint(snapshot);
+		    var line  = triggerPoint.GetContainingLine();
+		    var start = triggerPoint;
 
-			completionSets.Add(new CompletionSet(
+		    while (start > line.Start && !char.IsWhiteSpace((start - 1).GetChar()))
+		    {
+		        start -= 1;
+		    }
+
+            var applicableTo = snapshot.CreateTrackingSpan(new SnapshotSpan(start, triggerPoint), SpanTrackingMode.EdgeInclusive);
+
+
+
+            //         foreach (string str in new []{ "addition", "adaptation", "subtraction", "summation" })
+            //{
+            //	completions.Add(new Completion(str, str, str, null, null));
+            //}
+
+            completionSets.Add(new CompletionSet(
 				"Tokens",    //the non-localized title of the tab
 				"Tokens",    //the display title of the tab
-				FindTokenSpanAtPosition(session.GetTriggerPoint(_textBuffer), session),
+				//FindTokenSpanAtPosition(session.GetTriggerPoint(_textBuffer), session),
+				applicableTo,
 				completions,
 				null));
 		}
@@ -64,7 +79,6 @@ namespace DependOnMe.VsExtension.Intellisense
 		    var findTokenSpanAtPosition = currentPoint.Snapshot.CreateTrackingSpan(extent.Span, SpanTrackingMode.EdgeInclusive);
 		    var line = session.TextView.TextSnapshot.GetLineFromPosition(extent.Span.Start.Position);
 		    var g = extent.Span.Span.Start - line.Start.Position;
-		    System.IO.File.AppendAllText(@"E:\Tes.txt", extent.Span.ToString());
             return findTokenSpanAtPosition;
 		}
 

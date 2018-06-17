@@ -50,20 +50,22 @@ type PositionSet() =
                 | Between      -> CaretTermPosition.Between(idx1.Term, idx2.Term)
 
         let rec matchPosition min max =
+            if   max < 0 then CaretTermPosition.Inside(sortedPositions.[0].Term) // spaces before first term
+            elif max = sortedPositions.Length then CaretTermPosition.Inside(sortedPositions.[max-1].Term) // spaces after last term
+            else
+                let mid = (min + max)/2
 
-            let mid = (min + max)/2
+                match mid with
+                    //| mid when mid = 0 -> CaretTermPosition.Inside(sortedPositions.[0].Term)
+                    | mid when mid = sortedPositions.Length - 1 -> CaretTermPosition.Inside(sortedPositions.[mid].Term)
+                    | mid -> 
+                        let midStart, _ = sortedPositions.[mid].Range
+                        let _, nextEnd = sortedPositions.[mid+1].Range
 
-            match mid with
-                | mid when mid = 0 -> CaretTermPosition.Inside(sortedPositions.[0].Term)
-                | mid when mid = sortedPositions.Length - 1 -> CaretTermPosition.Inside(sortedPositions.[mid].Term)
-                | mid -> 
-                    let midStart, _ = sortedPositions.[mid].Range
-                    let _, nextEnd = sortedPositions.[mid+1].Range
-
-                    match pos, midStart, nextEnd with
-                        | Earlier -> matchPosition min (mid-1)
-                        | Later   -> matchPosition (mid+1) max
-                        | Inside  -> choose sortedPositions.[mid] sortedPositions.[mid+1]
+                        match pos, midStart, nextEnd with
+                            | Earlier -> matchPosition min (mid-1)
+                            | Later   -> matchPosition (mid+1) max
+                            | Inside  -> choose sortedPositions.[mid] sortedPositions.[mid+1]
 
         matchPosition 0 (sortedPositions.Length - 1)
 

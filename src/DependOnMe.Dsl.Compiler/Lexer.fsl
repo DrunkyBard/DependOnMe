@@ -1,11 +1,16 @@
 ﻿{
 module Lexer
 
+open System
 open Parser
 open Microsoft.FSharp.Text.Lexing
 open TextUtilities
+open Errors
 
 let lexeme = LexBuffer<_>.LexemeString
+let mutable errorLogger = Unchecked.defaultof<ErrorLogger>
+
+let report (lexbuf: LexBuffer<char>) msg = reportRange (lexbuf.StartPos, lexbuf.EndPos) msg errorLogger
 
 }
 
@@ -21,9 +26,11 @@ let false = "False"
 let equals = "="
 let char = ['a'-'z' 'A'-'Z']
 let digit = ['0'-'9']
+let charOrDigit = ['a'-'z' 'A'-'Z' '0'-'9']
 let num = digit+
 let underscore = "_"
-let fullyQualifiedName = char((char|num)+ dot char(char|num)*)
+let fqn = char((char|num)+ dot char(char|num)*)
+let iqn = (dot|charOrDigit)* dot
 let name = char(char|num|underscore)*
 let boolFlag1 = "BoolFlag1"
 let boolFlag2 = "BoolFlag2"
@@ -32,18 +39,24 @@ let newLine = '\n' | '\r' '\n'
 
 
 rule lex = parse
-  | ignore { lex lexbuf }
-  | newLine { newLine lexbuf; lex lexbuf }
-  | testHeader { TESTHEADER }
-  | arrow { ARROW }
-  | equals { EQ }
-  | boolFlag1 { BF1 }
-  | boolFlag2 { BF2 }
-  | true { TRUE }
-  | false { FALSE }
-  | quot { QUOT }
-  | module { MODULE }
-  | dependencies { DEPENDENCIES }
-  | fullyQualifiedName { FQN(lexeme lexbuf) }
-  | name { SNAME(lexeme lexbuf) }
-  | eof { EOF }
+    | ignore       { lex lexbuf }
+    | newLine      { newLine lexbuf; lex lexbuf }
+    | testHeader   { TESTHEADER }
+    | arrow        { ARROW }
+    | equals       { EQ }
+    | boolFlag1    { BF1 }
+    | boolFlag2    { BF2 }
+    | true         { TRUE }
+    | false        { FALSE }
+    | quot         { QUOT }
+    | module       { MODULE }
+    | dependencies { DEPENDENCIES }
+    | fqn          { FQN(lexeme lexbuf) }
+    | iqn          { IQN(lexeme lexbuf) }
+    | name         { SNAME(lexeme lexbuf) }
+    | eof          { EOF }
+    | _            { 
+                       report lexbuf (ErrMsg.UnexpectedToken (new string(lexbuf.Lexeme)))
+                       lex lexbuf
+                   }
+    

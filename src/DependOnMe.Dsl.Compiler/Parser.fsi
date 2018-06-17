@@ -3,6 +3,7 @@ module Parser
 type token = 
   | EOF
   | SNAME of (string)
+  | IQN of (string)
   | FQN of (string)
   | DEPENDENCIES
   | MODULE
@@ -17,6 +18,7 @@ type token =
 type tokenId = 
     | TOKEN_EOF
     | TOKEN_SNAME
+    | TOKEN_IQN
     | TOKEN_FQN
     | TOKEN_DEPENDENCIES
     | TOKEN_MODULE
@@ -37,15 +39,17 @@ type nonTerminalId =
     | NONTERM_testBody
     | NONTERM_expressionSet
     | NONTERM_bodyExpression
-    | NONTERM_registration
     | NONTERM_registrationSet
-    | NONTERM_boolValue
+    | NONTERM_registration
+    | NONTERM_name
     | NONTERM_boolFlag1
     | NONTERM_boolFlag2
+    | NONTERM_boolValue
     | NONTERM_errorBoolFlag1
     | NONTERM_errorBoolFlag2
     | NONTERM_errorRegistration
     | NONTERM_errorExprBody
+    | NONTERM_errToken
     | NONTERM_recover
     | NONTERM_any
 /// This function maps tokens to integer indexes

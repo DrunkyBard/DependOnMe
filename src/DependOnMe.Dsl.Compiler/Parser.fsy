@@ -10,7 +10,11 @@ open Positioning
 open DataStructures
 open Navigation
 
-let errorLogger = ErrorLogger()
+let mutable errorLogger = Unchecked.defaultof<ErrorLogger>
+
+let reportRangeI posRange msg = reportRange posRange msg errorLogger
+
+let reportPointI pos msg = reportPoint pos msg errorLogger
 
 let index = RedBlackTree<PosRange, IndexTerm>(PosRangeComparer.Instance)
 let testIndex = PositionSet()
@@ -43,6 +47,7 @@ let separate lexems =
 %token MODULE
 %token DEPENDENCIES
 %token <string> FQN
+%token <string> IQN
 %token <string> SNAME
 %token EOF
 
@@ -60,15 +65,19 @@ testHeader:
     | TESTHEADER SNAME { TestDeclaration.Full($2, posRange parseState 1, posRange parseState 2) }
     | TESTHEADER       
         { 
-            (endPos parseState 1, ErrMsg.TestNameIsNotDefined, errorLogger) |||> reportPoint
+            (endPos parseState 1, ErrMsg.TestNameIsNotDefined) ||> reportPointI
             TestDeclaration.Partial(posRange parseState 1)
         }
     | any 
         { 
             let errPos, errToken = $1
-            (errPos, ErrMsg.TestHeaderExpected, errorLogger) |||> reportRange
-            TestDeclaration.Error(errPos)
+            let term = TestDeclaration.Error(errPos, errToken)
+            (errPos, ErrMsg.TestHeaderExpected) ||> reportRangeI
+            (errPos, TestDeclarationTerm term) ||> addTestIdx
+            
+            term
         }
+   
 
 testBody:
     | testHeader expressionSet
@@ -100,15 +109,10 @@ bodyExpression:
     | errorExprBody   { 
                           let pos  = posRange parseState 1
                           let term = pos |> ErrorTerm.Error
-                          (pos, term |> IndexTerm.Error) ||> addIdx
-                          (pos, term |> IndexTerm.Error) ||> addTestIdx
+                          (pos, (term, $1) |> IndexTerm.Error) ||> addIdx
+                          (pos, (term, $1) |> IndexTerm.Error) ||> addTestIdx
                           term |> Declaration.Error
                       }
-
-registration:
-    | FQN ARROW FQN     { Class($1, $3, posRange parseState 1, posRange parseState 2, posRange parseState 3) }
-    | MODULE FQN        { Module($2, posRange parseState 1, posRange parseState 2) }
-	| errorRegistration { $1 }
 
 registrationSet:
     | registration {
@@ -123,9 +127,19 @@ registrationSet:
                        $2::$1 
                    }
 
-boolValue:
-    | TRUE  { true }
-    | FALSE { false }
+registration:
+    | name ARROW name   { Class($1, $3, posRange parseState 1, posRange parseState 2, posRange parseState 3) }
+    | MODULE SNAME      { Module($2, posRange parseState 1, posRange parseState 2) }
+	| errorRegistration { $1 }
+
+name:
+    | SNAME { $1 }
+    | FQN { $1 } 
+    | IQN { 
+            let lexbuf = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+            (posRange parseState 1, ErrMsg.IncompleteName (new string(lexbuf.Lexeme))) ||> reportRangeI
+            $1
+          }
 
 boolFlag1:
     | BF1 EQ boolValue { BoolFlag1.Flag($3,  posRange parseState 1, startPos parseState 2, posRange parseState 3) }
@@ -135,73 +149,98 @@ boolFlag2:
     | BF2 EQ boolValue { BoolFlag2.Flag($3,  posRange parseState 1, startPos parseState 2, posRange parseState 3) }
     | errorBoolFlag2   { $1 }
 
+boolValue:
+    | TRUE  { true  }
+    | FALSE { false }
+
 errorBoolFlag1:
-    | BF1 error     { 
-                        (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
-                        BoolFlag1.Error(BoolFlagMissingPart.EqualAfter(endPos parseState 1))
-                    }
     | BF1 EQ        { 
-                        (endPos parseState 2, ErrMsg.BoolMissing, errorLogger) |||> reportPoint
-                        BoolFlag1.Error(BoolFlagMissingPart.Value(endPos parseState 2))
+                        (endPos parseState 2, ErrMsg.BoolMissing) ||> reportPointI
+                        BoolFlag1.Error(BoolFlagMissingPart.Value(endPos parseState 2, startPos parseState 1))
+                    }
+    | BF1 EQ SNAME  { 
+                        let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+                        let errToken = new string(lexbuf.Lexeme)
+                        let errPos   = posRange parseState 3
+                        (errPos, ErrMsg.UnexpectedToken errToken) ||> reportRangeI
+                        BoolFlag1.Error(BoolFlagMissingPart.IncompleteValue(errPos, errToken))
                     }
     | BF1 boolValue { 
-                       (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
+                       (endPos parseState 1, ErrMsg.EqMissing) ||> reportPointI
                        BoolFlag1.Error(BoolFlagMissingPart.EqualBetween(posRangeIn parseState 1 2))
                     }
     | BF1           { 
-                        (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
-                        BoolFlag1.Error(BoolFlagMissingPart.EqualBetween(posRangeIn parseState 1 2))
+                        (endPos parseState 1, ErrMsg.EqMissing) ||> reportPointI
+                        BoolFlag1.Error(BoolFlagMissingPart.EqualAfter(endPos parseState 1))
                     }
     | EQ boolValue  {
-                       (startPos parseState 1, ErrMsg.BoolFlagTokenExpected, errorLogger) |||> reportPoint
+                       (startPos parseState 1, ErrMsg.BoolFlagTokenExpected) ||> reportPointI
                        BoolFlag1.Error(BoolFlagMissingPart.BoolFlagTerm(startPos parseState 1)) 
                     }
     | boolValue     {
-                       (startPos parseState 1, ErrMsg.BoolFlagTokenExpected, errorLogger) |||> reportPoint
+                       (startPos parseState 1, ErrMsg.BoolFlagTokenExpected) ||> reportPointI
                        BoolFlag1.Error(BoolFlagMissingPart.BoolFlagTerm(startPos parseState 1))
                     }
 
 errorBoolFlag2:
     | BF2 EQ        { 
-                        (endPos parseState 2, ErrMsg.BoolMissing, errorLogger) |||> reportPoint
-                        BoolFlag2.Error(BoolFlagMissingPart.Value(endPos parseState 1))
+                        (endPos parseState 2, ErrMsg.BoolMissing) ||> reportPointI
+                        BoolFlag2.Error(BoolFlagMissingPart.Value(endPos parseState 2, startPos parseState 1))
+                    }
+    | BF2 EQ SNAME  { 
+                        let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+                        let errToken = new string(lexbuf.Lexeme)
+                        let errPos   = posRange parseState 3
+                        (errPos, ErrMsg.UnexpectedToken errToken) ||> reportRangeI
+                        BoolFlag2.Error(BoolFlagMissingPart.IncompleteValue(errPos, errToken))
                     }
 	| BF2 boolValue {      
-                        (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
+                        (endPos parseState 1, ErrMsg.EqMissing) ||> reportPointI
                         BoolFlag2.Error(BoolFlagMissingPart.EqualBetween(posRangeIn parseState 1 2))
                     }
     | BF2           { 
-                        (endPos parseState 1, ErrMsg.EqMissing, errorLogger) |||> reportPoint
-                        BoolFlag2.Error(BoolFlagMissingPart.EqualBetween(posRangeIn parseState 1 2))
+                        (endPos parseState 1, ErrMsg.EqMissing) ||> reportPointI
+                        BoolFlag2.Error(BoolFlagMissingPart.EqualAfter(endPos parseState 1))
                     }
 
 errorRegistration:
-	| FQN FQN   { 
-                    (endPos parseState 1, ErrMsg.ArrowMissing, errorLogger) |||> reportPoint
-                    ClassError(ClassRegMissingPart.Arrow(posRangeIn parseState 1 2)) 
-                }
-	| FQN ARROW { 
-                    (endPos parseState 2, ErrMsg.FqnMissing, errorLogger) |||> reportPoint
-                    ClassError(ClassRegMissingPart.ImplName(endPos parseState 2))
-                }
-	| MODULE    { 
-                    (endPos parseState 1, ErrMsg.FqnMissing, errorLogger) |||> reportPoint
-                    ModuleError(ModuleRegMissingPart.Name(endPos parseState 1))
-                }
+    | name       {
+                   (endPos parseState 1, ErrMsg.ArrowMissing) ||> reportPointI
+                   ClassError(ClassRegMissingPart.ArrowAfter(endPos parseState 1)) 
+                 }
+	| name name  { 
+                   (endPos parseState 1, ErrMsg.ArrowMissing) ||> reportPointI
+                   ClassError(ClassRegMissingPart.ArrowBetween(posRangeIn parseState 1 2)) 
+                 }
+	| name ARROW { 
+                   (endPos parseState 2, ErrMsg.FqnMissing) ||> reportPointI
+                   ClassError(ClassRegMissingPart.ImplName(endPos parseState 2))
+                 }
+    | ARROW name { 
+                   (endPos parseState 1, ErrMsg.FqnMissing) ||> reportPointI
+                   ClassError(ClassRegMissingPart.DepName(posRangeOut parseState 1 2))
+                 }
+    | ARROW  {
+                 (startPos parseState 1, ErrMsg.OrphanArrow) ||> reportPointI
+                 ClassError(ClassRegMissingPart.OrphanArrow(posRange parseState 1))
+             }    
+	| MODULE { 
+                 (endPos parseState 1, ErrMsg.FqnMissing) ||> reportPointI
+                 ModuleError(ModuleRegMissingPart.Name(endPos parseState 1))
+             }
 
 errorExprBody:
-    | errorExprBody SNAME {
-                              let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
-                              let posRange = (lexbuf.StartPos, lexbuf.EndPos)
-                              let errToken = new string(lexbuf.Lexeme)
-                              (posRange, ErrMsg.UnexpectedToken errToken, errorLogger) |||>reportRange
-                          }
-    | SNAME               { 
-                              let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
-                              let posRange = (lexbuf.StartPos, lexbuf.EndPos)
-                              let errToken = new string(lexbuf.Lexeme)
-                              (posRange, ErrMsg.UnexpectedToken errToken, errorLogger) |||>reportRange
-                          }
+    | errorExprBody recover { $2::$1 }
+    | recover               { [ $1 ] }
+
+errToken:
+    | SNAME { 
+                let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+                let posRange = (lexbuf.StartPos, lexbuf.EndPos)
+                let errToken = new string(lexbuf.Lexeme)
+                (posRange, ErrMsg.UnexpectedToken errToken) ||>reportRangeI
+                (posRange, errToken)
+            }    
 
 recover:
     | error
@@ -209,7 +248,8 @@ recover:
             let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
             let posRange = (lexbuf.StartPos, lexbuf.EndPos)
             let errToken = new string(lexbuf.Lexeme)
-            (posRange, ErrMsg.UnexpectedToken errToken, errorLogger) |||>reportRange
+            (posRange, ErrMsg.UnexpectedToken errToken) ||>reportRangeI
+            (posRange, errToken)
         }
 
 any:
@@ -224,5 +264,6 @@ any:
     | MODULE       { posRangeAndToken parseState }
     | DEPENDENCIES { posRangeAndToken parseState }
     | FQN          { posRangeAndToken parseState }
+    | IQN          { posRangeAndToken parseState }
     | SNAME        { posRangeAndToken parseState }
 

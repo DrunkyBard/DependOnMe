@@ -34,9 +34,9 @@ let posRangeAndToken (parseState: IParseState) =
     
     (posRange, token)
 
-let less (pos1: Position) (pos2: Position) = pos1.Line < pos2.Line || pos1.Column < pos2.Column // TODO: need to introduce plain operator
+let less (pos1: Position) (pos2: Position) = pos1.Line < pos2.Line || pos1.Line = pos2.Line && pos1.Column < pos2.Column // TODO: need to introduce plain operator
 
-let more (pos1: Position) (pos2: Position) = pos1.Line > pos2.Line || pos1.Column > pos2.Column
+let more (pos1: Position) (pos2: Position) = pos1.Line > pos2.Line || pos1.Line = pos2.Line && pos1.Column > pos2.Column
 
 let (==) (pos1: Position) (pos2: Position) = pos1.Line = pos2.Line && pos1.Column = pos2.Column
 

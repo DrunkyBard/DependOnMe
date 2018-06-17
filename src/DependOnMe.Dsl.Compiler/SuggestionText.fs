@@ -7,27 +7,32 @@ type Suggestion =
 
 let depNameStr = "\"DependencyName\""
 
-let depName = One depNameStr
+let depName    = One depNameStr
 
-let implName = One "\"ImplementationName\""
+let implName   = One "\"ImplementationName\""
 
 let moduleName = One "\"ModuleName\""
 
-let testHeader = One "TestHeader"
+let testHeaderStr = "DependencyTest"
 
-let boolValue = Many ["TRUE"; "FALSE"]
+let testHeader = One testHeaderStr
 
-let boolTerm = Many ["BoolFlag1"; "BoolFlag2"]
+let arrow      = One "->"
 
-let arrow = One "->"
+let equal      = One "="
 
-let equal = One "="
+let boolFlag1  = "BoolFlag1"
 
-let testName = Many [ "\"TEST_NAME\""; "TEST_NAME" ]
+let boolFlag2  = "BoolFlag2"
 
-let allBody = Many [
-                    "BoolFlag1";
-                    "BoolFlag2";
-                    "Module";
-                    depNameStr
-                   ]
+let boolValueStr = [ "True"; "False" ]
+
+let boolValue  = Many boolValueStr
+
+let boolTerm   = Many [boolFlag1; boolFlag2]
+
+let testName   = Many [ "\"TEST_NAME\""; "TEST_NAME" ]
+
+let allBodyStr = [boolFlag1; boolFlag2; "Module"; depNameStr] 
+
+let allBody    = Many allBodyStr

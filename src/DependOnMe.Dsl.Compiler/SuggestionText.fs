@@ -17,6 +17,8 @@ let testHeaderStr = "DependencyTest"
 
 let testHeader = One testHeaderStr
 
+let using      = One "using"
+
 let arrow      = One "->"
 
 let equal      = One "="

@@ -34,6 +34,15 @@ let separate lexems =
         | []     -> (boolFlags1 |> List.rev, boolFlags2 |> List.rev, registrations)
 
     separateRec [] [] [] lexems
+
+let useValidUsings usings =
+    let rec useValid usings acc = 
+        match usings with 
+            | Using.Fqn(s, _)::t -> (t, s::acc) ||> useValid
+            | Using.Iqn(_)::t 
+            | Using.Orphan(_)::t -> (t, acc) ||> useValid
+            | [] -> acc
+    useValid usings []
 %}
 
 %token TESTHEADER
@@ -49,17 +58,17 @@ let separate lexems =
 %token <string> FQN
 %token <string> IQN
 %token <string> SNAME
+%token USING
 %token EOF
 
 %start start
-%type <DslAst.DependencyTest> start
+%type <CompilationUnit> start
 
 %%
 
 start:
-    | testBody EOF { $1 }
-    | EOF { DependencyTest.Empty }
-
+    | compilationUnit EOF { $1 }
+    | EOF { {Usings = []; Declarations = []; } }
 
 testHeader:
     | TESTHEADER SNAME { TestDeclaration.Full($2, posRange parseState 1, posRange parseState 2) }
@@ -73,12 +82,51 @@ testHeader:
             let errPos, errToken = $1
             let term = TestDeclaration.Error(errPos, errToken)
             (errPos, ErrMsg.TestHeaderExpected) ||> reportRangeI
-            (errPos, TestDeclarationTerm term) ||> addTestIdx
+            (errPos, TestDeclarationTerm term)  ||> addTestIdx
             
             term
         }
-   
 
+usings:
+    | using usings { $1::$2 }
+    | using        { [ $1 ] }
+
+using:
+    | USING SNAME { 
+                    let term = Using.Fqn($2, posRangeOut parseState 1 2)
+                    (posRangeOut parseState 1 2, UsingTerm term) ||> addTestIdx
+                    term
+                  }
+    | USING IQN   {
+                    let term = Using.Iqn($2, posRangeOut parseState 1 2)
+                    (posRangeOut parseState 1 2, UsingTerm term) ||> addTestIdx
+                    term
+                  }
+    | USING FQN   {
+                    let term = Using.Fqn($2, posRangeOut parseState 1 2)
+                    (posRangeOut parseState 1 2, UsingTerm term) ||> addTestIdx
+                    (posRange parseState 2, ErrMsg.IncompleteName $2) ||> reportRangeI
+                    term
+                  }
+    | USING       {
+                    let term = Using.Orphan(posRange parseState 1)
+                    (posRange parseState 1, UsingTerm term) ||> addTestIdx
+                    (endPos parseState 1, ErrMsg.MissingNamespace) ||> reportPointI
+                    term
+                  }
+
+compilationUnit:
+    | usings tests {
+                    {Usings = useValidUsings $1; Declarations = $2; }
+                   }
+    | tests        {
+                    {Usings = []; Declarations = $1; } 
+                   }
+
+tests:
+    | testBody tests { $1::$2 }
+    | testBody       { [$1] }
+   
 testBody:
     | testHeader expressionSet
         {
@@ -134,12 +182,12 @@ registration:
 
 name:
     | SNAME { $1 }
-    | FQN { $1 } 
-    | IQN { 
-            let lexbuf = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
-            (posRange parseState 1, ErrMsg.IncompleteName (new string(lexbuf.Lexeme))) ||> reportRangeI
-            $1
-          }
+    | FQN   { $1 } 
+    | IQN   { 
+              let lexbuf = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+              (posRange parseState 1, ErrMsg.IncompleteName (new string(lexbuf.Lexeme))) ||> reportRangeI
+              $1
+            }
 
 boolFlag1:
     | BF1 EQ boolValue { BoolFlag1.Flag($3,  posRange parseState 1, startPos parseState 2, posRange parseState 3) }

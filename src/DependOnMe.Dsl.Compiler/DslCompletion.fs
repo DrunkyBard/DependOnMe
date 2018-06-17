@@ -67,6 +67,14 @@ let rec suggestForErrorDeclaration pos = function
     | _::t -> suggestForErrorDeclaration pos t
     | []   -> SuggestionText.None
 
+let suggestUsing pos = function
+    | Orphan(startPos, _) 
+    | Fqn(_, (startPos, _)) 
+    | Iqn(_, (startPos, _)) when less pos startPos -> SuggestionText.using
+    | Fqn(_, (_, endPos)) 
+    | Iqn(_, (_, endPos))   when less endPos pos   -> SuggestionText.testHeader
+    | _ -> SuggestionText.None
+
 let suggestBetween pos firstTerm secondTerm = 
     match firstTerm, secondTerm with
         | RegistrationTerm(ClassError(_) as t),   _ 
@@ -101,6 +109,7 @@ let suggestFrom fileName src pos =
             | CaretTermPosition.Inside(BoolFlag1Term(t))       -> suggestBoolFlag1 pos t
             | CaretTermPosition.Inside(BoolFlag2Term(t))       -> suggestBoolFlag2 pos t
             | CaretTermPosition.Inside(TestDeclarationTerm(t)) -> suggestTestDeclaration pos t
+            | CaretTermPosition.Inside(UsingTerm(t))           -> suggestUsing pos t
             | CaretTermPosition.Inside(Error(_, errors))       -> suggestForErrorDeclaration pos errors
             | CaretTermPosition.Between(firstTerm, secondTerm) -> suggestBetween pos firstTerm secondTerm
 

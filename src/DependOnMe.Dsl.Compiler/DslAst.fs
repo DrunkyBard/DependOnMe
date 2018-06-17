@@ -62,6 +62,11 @@ type Declaration =
 //        TestRange: PosRange;
 //    }
 
+type Using = 
+    | Fqn    of string * PosRange
+    | Iqn    of string * PosRange
+    | Orphan of PosRange
+
 type TestDeclaration = 
     | Full    of string * PosRange * PosRange // Test terminal range X test name range
     | Partial of PosRange // Term terminal range
@@ -78,6 +83,7 @@ type IndexTerm =
     | BoolFlag1Term       of BoolFlag1
     | BoolFlag2Term       of BoolFlag2
     | TestDeclarationTerm of TestDeclaration
+    | UsingTerm           of Using
     | Error               of ErrorTerm * ((PosRange * string) list)
 
 type PositionIndex(posRange: PosRange, term: IndexTerm) =

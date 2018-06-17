@@ -10,6 +10,7 @@ let TestNameIsNotDefined = "Test name is not defined"
 let UnexpectedToken token = sprintf "Unexpected token: %s" token
 let InvalidModuleName token = sprintf "Invalid module name: %s. Module name cannot contains dots" token
 let IncompleteName token = sprintf "Incomplete fully qualified name: %s" token
+let MissingNamespace = "Using token was declared, but namespace is not"
 let TestHeaderExpected = "TestHeader token expected"
 let BoolFlagTokenExpected = "BoolFlag1 or BoolFlag2 token expected"
 let OrphanArrow = "Unexpected '->' token"

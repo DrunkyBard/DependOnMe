@@ -15,6 +15,7 @@ let report (lexbuf: LexBuffer<char>) msg = reportRange (lexbuf.StartPos, lexbuf.
 }
 
 let testHeader = "DependencyTest"
+let using = "using"
 let space = " "
 let arrow = "->"
 let quot = "\""
@@ -51,6 +52,7 @@ rule lex = parse
     | quot         { QUOT }
     | module       { MODULE }
     | dependencies { DEPENDENCIES }
+    | using        { USING }
     | fqn          { FQN(lexeme lexbuf) }
     | iqn          { IQN(lexeme lexbuf) }
     | name         { SNAME(lexeme lexbuf) }

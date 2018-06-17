@@ -2,6 +2,7 @@
 module Parser
 type token = 
   | EOF
+  | USING
   | SNAME of (string)
   | IQN of (string)
   | FQN of (string)
@@ -17,6 +18,7 @@ type token =
   | TESTHEADER
 type tokenId = 
     | TOKEN_EOF
+    | TOKEN_USING
     | TOKEN_SNAME
     | TOKEN_IQN
     | TOKEN_FQN
@@ -36,6 +38,10 @@ type nonTerminalId =
     | NONTERM__startstart
     | NONTERM_start
     | NONTERM_testHeader
+    | NONTERM_usings
+    | NONTERM_using
+    | NONTERM_compilationUnit
+    | NONTERM_tests
     | NONTERM_testBody
     | NONTERM_expressionSet
     | NONTERM_bodyExpression
@@ -63,4 +69,4 @@ val prodIdxToNonTerminal: int -> nonTerminalId
 
 /// This function gets the name of a token as a string
 val token_to_string: token -> string
-val start : (Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> token) -> Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> (DslAst.DependencyTest) 
+val start : (Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> token) -> Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> (CompilationUnit) 

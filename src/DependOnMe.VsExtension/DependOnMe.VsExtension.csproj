@@ -50,10 +50,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ContentType\FileAndContentTypeDefinitions.cs" />
-    <Compile Include="Intellisense\TestCompletionCommandHandler.cs" />
-    <Compile Include="Intellisense\TestCompletionHandlerProvider.cs" />
-    <Compile Include="Intellisense\TestCompletionSource.cs" />
-    <Compile Include="Intellisense\TestCompletionSourceProvider.cs" />
+    <Compile Include="Completion\TestCompletionCommandHandler.cs" />
+    <Compile Include="Completion\TestCompletionHandlerProvider.cs" />
+    <Compile Include="Completion\TestCompletionSource.cs" />
+    <Compile Include="Completion\TestCompletionSourceProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

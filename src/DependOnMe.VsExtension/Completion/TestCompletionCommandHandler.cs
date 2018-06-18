@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using System;
 using System.Runtime.InteropServices;
 
-namespace DependOnMe.VsExtension.Intellisense
+namespace DependOnMe.VsExtension.Completion
 {
     public sealed class TestCompletionCommandHandler : IOleCommandTarget
 	{

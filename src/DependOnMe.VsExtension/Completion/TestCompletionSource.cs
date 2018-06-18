@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.Text;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DependOnMe.VsExtension.Intellisense
+namespace DependOnMe.VsExtension.Completion
 {
     public sealed class TestCompletionSource : ICompletionSource
 	{
@@ -22,7 +22,7 @@ namespace DependOnMe.VsExtension.Intellisense
 
 		public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
 		{
-	        var completions = new List<Completion>(4);
+	        var completions = new List<Microsoft.VisualStudio.Language.Intellisense.Completion>(4);
 		    var navigator = _sourceProvider.NavigatorService.GetTextStructureNavigator(_textBuffer);
 		    var fileName = GetFileName();
             var dte = (EnvDTE.DTE)_provider.GetService(typeof(EnvDTE.DTE));
@@ -30,7 +30,7 @@ namespace DependOnMe.VsExtension.Intellisense
 		    var src = session.TextView.TextSnapshot.GetText();
             
             var suggestions = DslCompletion.suggestFrom(fileName, src, new Position(fileName, ts.CurrentLine, 0, ts.CurrentColumn));
-		    var s = suggestions.Select(x => new Completion(x, x, x, null, null));
+		    var s = suggestions.Select(x => new Microsoft.VisualStudio.Language.Intellisense.Completion(x, x, x, null, null));
 		    completions.AddRange(s);
 
 		    ITextSnapshot snapshot = _textBuffer.CurrentSnapshot;

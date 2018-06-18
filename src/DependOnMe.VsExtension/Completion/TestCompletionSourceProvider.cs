@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Utilities;
 using System.ComponentModel.Composition;
 
-namespace DependOnMe.VsExtension.Intellisense
+namespace DependOnMe.VsExtension.Completion
 {
     [Export(typeof(ICompletionSourceProvider))]
 	[ContentType("drt")]

@@ -8,7 +8,7 @@ using System.ComponentModel.Composition;
 
 #pragma warning disable CS0649
 
-namespace DependOnMe.VsExtension.Intellisense
+namespace DependOnMe.VsExtension.Completion
 {
     [Export(typeof(IVsTextViewCreationListener))]
 	[ContentType("drt")]

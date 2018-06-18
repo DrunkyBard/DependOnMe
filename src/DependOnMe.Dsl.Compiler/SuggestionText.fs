@@ -38,3 +38,5 @@ let testName   = Many [ "\"TEST_NAME\""; "TEST_NAME" ]
 let allBodyStr = [boolFlag1; boolFlag2; "Module"; depNameStr] 
 
 let allBody    = Many allBodyStr
+
+let headerOrUsing = Many [ testHeaderStr; "using" ]

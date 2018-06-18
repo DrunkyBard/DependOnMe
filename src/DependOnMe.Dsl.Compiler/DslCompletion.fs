@@ -57,6 +57,8 @@ let suggestRegistration pos = function
 
 let suggestTestDeclaration pos = function
     | Full(_, _, (_, endPos))            when less endPos pos   -> SuggestionText.allBody
+    | Full(_, _, (startPos, _))          
+    | Partial(startPos, _)               when less pos startPos -> SuggestionText.headerOrUsing
     | Partial(_, endPos)                 when less endPos pos   -> SuggestionText.testName
     | TestDeclaration.Error((startPos, _), _) when less pos startPos  -> SuggestionText.testHeader
     | TestDeclaration.Error((_, endPos), errToken) when pos == endPos && checkSuggestion SuggestionText.testHeaderStr errToken -> SuggestionText.testHeader
@@ -83,6 +85,8 @@ let suggestBetween pos firstTerm secondTerm =
         | BoolFlag2Term(BoolFlag2.Error(_) as t), _  -> suggestBoolFlag2 pos t
         | TestDeclarationTerm(Partial(_) as t),   _ 
         | TestDeclarationTerm(TestDeclaration.Error(_) as t), _ -> suggestTestDeclaration pos t
+        | UsingTerm(Using.Iqn(_) as t), _
+        | UsingTerm(Using.Orphan(_) as t), _ -> suggestUsing pos t
         | _, RegistrationTerm(ClassError(_) as t)
         | _, RegistrationTerm(ModuleError(_) as t)   -> suggestRegistration pos t
         | _, BoolFlag1Term(BoolFlag1.Error(_) as t)  -> suggestBoolFlag1 pos t

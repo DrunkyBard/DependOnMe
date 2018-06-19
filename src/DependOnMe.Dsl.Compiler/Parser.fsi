@@ -6,7 +6,6 @@ type token =
   | SNAME of (string)
   | IQN of (string)
   | FQN of (string)
-  | DEPENDENCIES
   | MODULE
   | QUOT
   | FALSE
@@ -22,7 +21,6 @@ type tokenId =
     | TOKEN_SNAME
     | TOKEN_IQN
     | TOKEN_FQN
-    | TOKEN_DEPENDENCIES
     | TOKEN_MODULE
     | TOKEN_QUOT
     | TOKEN_FALSE

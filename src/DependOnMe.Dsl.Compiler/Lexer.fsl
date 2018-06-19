@@ -20,7 +20,6 @@ let space = " "
 let arrow = "->"
 let quot = "\""
 let module = "Module"
-let dependencies = "dependencies"
 let dot = "."
 let true = "True"
 let false = "False"
@@ -51,7 +50,6 @@ rule lex = parse
     | false        { FALSE }
     | quot         { QUOT }
     | module       { MODULE }
-    | dependencies { DEPENDENCIES }
     | using        { USING }
     | fqn          { FQN(lexeme lexbuf) }
     | iqn          { IQN(lexeme lexbuf) }

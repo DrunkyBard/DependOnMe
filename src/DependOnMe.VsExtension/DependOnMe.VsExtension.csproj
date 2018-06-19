@@ -49,6 +49,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Coloring\ColorProvider.cs" />
+    <Compile Include="Coloring\TermClassifier.cs" />
+    <Compile Include="Coloring\TermDefinitions.cs" />
     <Compile Include="ContentType\FileAndContentTypeDefinitions.cs" />
     <Compile Include="Completion\TestCompletionCommandHandler.cs" />
     <Compile Include="Completion\TestCompletionHandlerProvider.cs" />
@@ -206,6 +209,7 @@
       <Name>DependOnMe.Dsl.Compiler</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

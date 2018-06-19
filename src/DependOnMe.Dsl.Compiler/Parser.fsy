@@ -54,7 +54,6 @@ let useValidUsings usings =
 %token FALSE
 %token QUOT
 %token MODULE
-%token DEPENDENCIES
 %token <string> FQN
 %token <string> IQN
 %token <string> SNAME
@@ -310,7 +309,6 @@ any:
     | FALSE        { posRangeAndToken parseState }
     | QUOT         { posRangeAndToken parseState }
     | MODULE       { posRangeAndToken parseState }
-    | DEPENDENCIES { posRangeAndToken parseState }
     | FQN          { posRangeAndToken parseState }
     | IQN          { posRangeAndToken parseState }
     | SNAME        { posRangeAndToken parseState }

@@ -91,6 +91,8 @@
     <None Include="TestDslFile.drt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="Classification.fs" />
+    <Compile Include="TextColoring.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

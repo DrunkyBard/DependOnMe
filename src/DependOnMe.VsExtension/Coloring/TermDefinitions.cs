@@ -45,7 +45,7 @@ namespace DependOnMe.VsExtension.Coloring
         {
             public KeywordFormat()
             {
-                ForegroundColor = Colors.Cyan;
+                ForegroundColor = Colors.DodgerBlue;
             }
         }
 
@@ -74,7 +74,7 @@ namespace DependOnMe.VsExtension.Coloring
         {
             public DependencyFormat()
             {
-                ForegroundColor = Colors.MediumSpringGreen;
+                ForegroundColor = Colors.MediumSeaGreen;
             }
         }
 

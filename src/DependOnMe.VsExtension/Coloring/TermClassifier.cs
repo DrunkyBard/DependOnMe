@@ -1,62 +1,34 @@
 ﻿using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
+using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace DependOnMe.VsExtension.Coloring
 {
-    public class TermClassifier : IClassifier
+    internal sealed class TermClassifier : IClassifier
     {
-        private readonly IClassificationTypeRegistryService _classificationTypeRegistry;
+        private readonly ITagAggregator<TermTag> _tagger;
+        private readonly IClassificationTypeRegistryService _classificationRegistry;
 
-        internal TermClassifier(IClassificationTypeRegistryService registry)
+        internal TermClassifier(ITagAggregator<TermTag> tagger, IClassificationTypeRegistryService classificationRegistry)
         {
-            _classificationTypeRegistry = registry;
+            _tagger = tagger;
+            _classificationRegistry = classificationRegistry;
         }
 
         public event EventHandler<ClassificationChangedEventArgs> ClassificationChanged;
 
-        /// <summary>
-        /// Classify the given spans, which, for diff files, classifies
-        /// a line at a time.
-        /// </summary>
-        /// <param name="span">The span of interest in this projection buffer.</param>
-        /// <returns>The list of <see cref="ClassificationSpan"/> as contributed by the source buffers.</returns>
-        public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span)
-        {
-            var snapshot = span.Snapshot;
-            if (snapshot.Length == 0)
-            {
-                return Enumerable.Empty<ClassificationSpan>().ToList();
-            }
-
-            var spans = new List<ClassificationSpan>();
-            var startLine = span.Start.GetContainingLine().LineNumber;
-            var endLine = span.End.GetContainingLine().LineNumber;
-            var classifiers = Enumerable
-                .Range(startLine, endLine - startLine)
-                .SelectMany(lineNumber =>
+        public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span) => 
+            _tagger
+                .GetTags(span)
+                .Select(tagSpan =>
                 {
-                    var line = snapshot.GetLineFromLineNumber(lineNumber);
-                    var text = line.Snapshot.GetText();
-                    
-                    return TextColoring
-                        .colorLine(text, line.Start.Position)
-                        //.colorLine(text, 0)
-                        .Select(c =>
-                        {
-                            var classifier = _classificationTypeRegistry.GetClassificationType(c.Classifier);
-                            var newSpan    = new Span(c.StartPos, c.Length);
-                            var snapSpan   = new SnapshotSpan(line.Snapshot, newSpan);
+                    var todoSpan           = tagSpan.Span.GetSpans(span.Snapshot).First();
+                    var classificationType = _classificationRegistry.GetClassificationType(tagSpan.Tag.Classifier);
 
-                            return new ClassificationSpan(snapSpan, classifier);
-                        }).ToArray();
-                }).ToArray();
-
-            spans.AddRange(classifiers);
-
-            return spans;
-        }
+                    return new ClassificationSpan(todoSpan, classificationType);
+                }).ToList();
     }
 }

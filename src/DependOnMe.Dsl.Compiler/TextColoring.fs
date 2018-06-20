@@ -21,13 +21,13 @@ let readLexems (lexbuf: LexBuffer<char>) (offset: int) =
 
     let rec readLexemsInternal acc = function
         | TESTHEADER 
-        | ARROW      
         | BF1        
         | BF2        
         | TRUE       
         | FALSE      
         | MODULE     
         | USING      -> ((colorWithOffset Classification.Keyword) :: acc, lex lexbuf) ||> readLexemsInternal
+        | ARROW      
         | EQ         
         | QUOT       -> ((colorWithOffset Classification.Sign)    :: acc, lex lexbuf) ||> readLexemsInternal
         | FQN(_)     

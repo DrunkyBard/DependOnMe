@@ -52,6 +52,8 @@
     <Compile Include="Coloring\ColorProvider.cs" />
     <Compile Include="Coloring\TermClassifier.cs" />
     <Compile Include="Coloring\TermDefinitions.cs" />
+    <Compile Include="Coloring\TermTagger.cs" />
+    <Compile Include="Coloring\TermTaggerProvider.cs" />
     <Compile Include="ContentType\FileAndContentTypeDefinitions.cs" />
     <Compile Include="Completion\TestCompletionCommandHandler.cs" />
     <Compile Include="Completion\TestCompletionHandlerProvider.cs" />

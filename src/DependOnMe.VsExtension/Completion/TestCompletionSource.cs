@@ -1,4 +1,4 @@
-﻿using Microsoft.FSharp.Text.Lexing;
+﻿using Microsoft.FSharp.Text.Lexing; //TODO: remove FsLex dependency
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
@@ -22,7 +22,7 @@ namespace DependOnMe.VsExtension.Completion
 
 		public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
 		{
-	        var completions = new List<Microsoft.VisualStudio.Language.Intellisense.Completion>(4);
+            var completions = new List<Microsoft.VisualStudio.Language.Intellisense.Completion>();
 		    var navigator = _sourceProvider.NavigatorService.GetTextStructureNavigator(_textBuffer);
 		    var fileName = GetFileName();
             var dte = (EnvDTE.DTE)_provider.GetService(typeof(EnvDTE.DTE));

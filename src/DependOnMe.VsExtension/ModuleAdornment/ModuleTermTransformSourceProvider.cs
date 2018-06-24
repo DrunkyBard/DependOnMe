@@ -22,8 +22,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
     [Export(typeof(IWpfTextViewCreationListener))]
     [ContentType("drt")]
-    [TextViewRole(PredefinedTextViewRoles.Document)]
-    [TextViewRole(PredefinedTextViewRoles.EmbeddedPeekTextView)]
+    [TextViewRole(PredefinedTextViewRoles.Editable)]
+    //[TextViewRole(PredefinedTextViewRoles.EmbeddedPeekTextView)]
     internal sealed class TextAdornment1TextViewCreationListener : IWpfTextViewCreationListener
     {
         [Export(typeof(AdornmentLayerDefinition))]
@@ -33,7 +33,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
         [Export(typeof(AdornmentLayerDefinition))]
         [Name("DrtModuleBtnTermAdornment")]
-        [Order(After = PredefinedAdornmentLayers.Text)]
+        [Order(After = PredefinedAdornmentLayers.Caret)]
         private AdornmentLayerDefinition _buttonAdornmentLayer;
 
         [Import]

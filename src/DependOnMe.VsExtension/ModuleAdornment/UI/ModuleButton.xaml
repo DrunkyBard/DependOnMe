@@ -17,7 +17,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ToggleButton}">
                         <Grid>
-                            <Rectangle Cursor="Arrow" ForceCursor="True" x:Name="rect1" RenderTransformOrigin="0.5, 0.5" Fill="#686868" >
+                            <Rectangle Cursor="Arrow" ForceCursor="True" x:Name="BtnRect" RenderTransformOrigin="0.5, 0.5" Fill="#686868" >
                                 <Rectangle.RenderTransform>
                                     <RotateTransform Angle="45"/>
                                 </Rectangle.RenderTransform>
@@ -28,26 +28,26 @@
                             <Border x:Name="Slider" Background="LightGray" Width="30" Height="30" HorizontalAlignment="Left" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>-->
                         </Grid>
                         <ControlTemplate.Triggers>
-                            <EventTrigger RoutedEvent="Rectangle.Loaded" SourceName="rect1">
-                                <SkipStoryboardToFill BeginStoryboardName="checkedSB" />
-                                <SkipStoryboardToFill BeginStoryboardName="uncheckedSB" />
+                            <EventTrigger RoutedEvent="Rectangle.Loaded" SourceName="BtnRect">
+                                <SkipStoryboardToFill BeginStoryboardName="CheckedSB" />
+                                <SkipStoryboardToFill BeginStoryboardName="UncheckedSB" />
                             </EventTrigger>
                             <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="true">
                                 <DataTrigger.EnterActions>
-                                    <BeginStoryboard x:Name="checkedSB">
+                                    <BeginStoryboard x:Name="CheckedSB">
                                         <Storyboard>
                                             <DoubleAnimation
-                                                Storyboard.TargetName="rect1"
+                                                Storyboard.TargetName="BtnRect"
                                                 Storyboard.TargetProperty="(Rectangle.RenderTransform).(RotateTransform.Angle)"
                                                 To="90" Duration="0:0:0.1" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </DataTrigger.EnterActions>
                                 <DataTrigger.ExitActions>
-                                    <BeginStoryboard x:Name="uncheckedSB">
+                                    <BeginStoryboard x:Name="UncheckedSB">
                                         <Storyboard>
                                             <DoubleAnimation
-                                                Storyboard.TargetName="rect1"
+                                                Storyboard.TargetName="BtnRect"
                                                 Storyboard.TargetProperty="(Rectangle.RenderTransform).(RotateTransform.Angle)"
                                                 To="45" Duration="0:0:0.1" />
                                         </Storyboard>

@@ -7,6 +7,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment.UI
         public string Dependency { get; set; }
 
         public string Implementation { get; set; }
+
+        public string Arrow => "->";
     }
 
     public sealed class DependenciesViewModel

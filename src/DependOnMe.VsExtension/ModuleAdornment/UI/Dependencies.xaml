@@ -7,26 +7,48 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance ui:DependenciesViewModel, IsDesignTimeCreatable=True}" 
-             Name="DepUserControl">
-    <DataGrid Name="DgDownloadsInfo" Width="150" Height="150" ItemsSource="{Binding Path=Dependencies}" HeadersVisibility="Row"
-              AutoGenerateColumns="False" CanUserAddRows="False"
-              CanUserDeleteRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False"
-              CanUserResizeRows="False" CanUserSortColumns="False" SelectionMode="Single"
-              MouseLeftButtonDown="OnToolbarClicked" 
-              MouseLeftButtonUp="OnToolbarReleased" 
-              MouseMove="OnToolbarMoving">
-        <DataGrid.RenderTransform>
+             Visibility="Collapsed">
+    <StackPanel>
+        <StackPanel.RenderTransform>
             <TransformGroup>
                 <ScaleTransform/>
                 <SkewTransform/>
                 <RotateTransform/>
                 <TranslateTransform x:Name="LocalTranslateTransform"/>
             </TransformGroup>
-        </DataGrid.RenderTransform>
-
-        <DataGrid.Columns>
-            <DataGridTextColumn Width="*" Binding="{Binding Path=Dependency}" Header="Dependency" IsReadOnly="True" />
-            <DataGridTextColumn Width="*" Binding="{Binding Path=Implementation}"  Header="Implementation" IsReadOnly="True" />
-        </DataGrid.Columns>
-    </DataGrid>
+        </StackPanel.RenderTransform>
+        <StatusBar Name="ModuleHeader" Height="Auto" Width="Auto"
+                   MouseLeftButtonDown="HeaderClickDown" 
+                   MouseLeftButtonUp="HeaderClickUp" 
+                   MouseMove="HeaderMove">statusbar</StatusBar>
+            <DataGrid Name="DgDownloadsInfo"  ItemsSource="{Binding Path=Dependencies}" 
+                  Height="Auto" Width="Auto" HeadersVisibility="Row"
+                  AutoGenerateColumns="False" CanUserAddRows="False"
+                  CanUserDeleteRows="False"   CanUserReorderColumns="False" CanUserResizeColumns="False"
+                  CanUserResizeRows="False"   CanUserSortColumns="False"    SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="Auto" Binding="{Binding Path=Dependency}" Header="Dependency" IsReadOnly="True" >
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Width="Auto" Binding="{Binding Path=Arrow}" Header="Dependency" IsReadOnly="True" >
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Width="Auto" Binding="{Binding Path=Implementation}" Header="Implementation" IsReadOnly="True" >
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </StackPanel>
 </UserControl>

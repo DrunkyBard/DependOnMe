@@ -4,10 +4,10 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
 using Microsoft.VisualStudio.Text.Tagging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace DependOnMe.VsExtension.ModuleAdornment
 {
@@ -17,16 +17,16 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             new Regex(@"MODULE (?<moduleName>\w+(?:[\w|\d]*\.\w[\w|\d]*)*)",
                 RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
-		private readonly IAdornmentLayer _layer;
+        private static readonly IReadOnlyCollection<ModuleMatch> EmptyMatch = new List<ModuleMatch>().AsReadOnly();
+
 		private readonly IAdornmentLayer _btnLayer;
 
 
         private readonly IWpfTextView _view;
         private readonly ITagAggregator<ModuleTermTag> _tagger;
 
-        private readonly Brush _brush;
-
-        private readonly Pen _pen;
+        private readonly Dictionary<int, List<(string moduleName, Dependencies dep, ModuleButton modBtn)>> _lineAdornments
+            = new Dictionary<int, List<(string, Dependencies, ModuleButton)>>();
 
         public ModuleTermAdornment(IWpfTextView view, ITagAggregator<ModuleTermTag> tagger)
         {
@@ -35,20 +35,11 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                 throw new ArgumentNullException(nameof(view));
             }
 
-            _layer = view.GetAdornmentLayer("DrtModuleTermAdornment");
             _btnLayer = view.GetAdornmentLayer("DrtModuleBtnTermAdornment");
 
             _view = view;
             _tagger = tagger;
             _view.LayoutChanged += OnLayoutChanged;
-
-            _brush = new SolidColorBrush(Color.FromArgb(0x20, 0x00, 0x00, 0xff));
-            _brush.Freeze();
-
-            var penBrush = new SolidColorBrush(Color.FromRgb(76, 76, 79));
-            penBrush.Freeze();
-            _pen = new Pen(penBrush, 2);
-            _pen.Freeze();
         }
 
         internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
@@ -59,81 +50,123 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             }
         }
 
-        private (bool success, int position, int length, string modName) MatchFileNamePattern(string line)
+        private struct ModuleMatch
         {
-            var match = ModuleTermRegex.Match(line);
+            public readonly int Position;
+            public readonly int Length;
+            public readonly string ModuleName;
 
-            if (!match.Success)
+            public ModuleMatch(int position, int length, string moduleName)
             {
-                return (false, 0, 0, null);
+                Position   = position;
+                Length     = length;
+                ModuleName = moduleName;
+            }
+        }
+
+        private IReadOnlyCollection<ModuleMatch> MatchFileNamePattern(string line)
+        {
+            var regExMatches = ModuleTermRegex.Matches(line);
+
+            if (regExMatches.Count == 0)
+            {
+                return EmptyMatch;
             }
 
-            var moduleName = match.Groups["moduleName"].Value;
+            var matches = new List<ModuleMatch>();
 
-            if (string.IsNullOrWhiteSpace(moduleName))
+            foreach (Match regExMatch in regExMatches)
             {
-                return (false, 0, 0, null);
+                var moduleName = regExMatch.Groups["moduleName"].Value;
+
+                if (string.IsNullOrWhiteSpace(moduleName))
+                {
+                    continue;
+                }
+
+                matches.Add(new ModuleMatch(regExMatch.Index, regExMatch.Length, moduleName));
             }
 
-            return (true, match.Index, match.Length, moduleName);
+            return matches.AsReadOnly();
         }
 
         private void CreateVisuals(ITextViewLine line)
         {
-            IWpfTextViewLineCollection textViewLines = _view.TextViewLines;
+            var matches    = MatchFileNamePattern(line.Extent.GetText());
+            var lineNumber = line.Snapshot.GetLineNumberFromPosition(line.Start);
 
-            var match = MatchFileNamePattern(line.Extent.GetText());
-
-            if (!match.success)
+            if (matches.Count == 0)
             {
+                _lineAdornments.Remove(lineNumber);
+
                 return;
             }
 
-
-            //SnapshotSpan span     = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(match.position, match.position + match.length));
-            var span = new SnapshotSpan(line.Snapshot, new Span(line.Start.Position + match.position, match.length));
-
-            var tag = _tagger.GetTags(span).First();
-            var tagSpan = tag.Span.GetSpans(span.Snapshot)[0];
-            var geometry = textViewLines.GetMarkerGeometry(tagSpan);
-
-            if (geometry != null)
+            if (_lineAdornments.TryGetValue(lineNumber, out var adornmentDefs))
             {
-                //var drawing = new GeometryDrawing(_brush, _pen, geometry);
-                //drawing.Freeze();
+                adornmentDefs
+                    .RemoveAll(x => !matches.Any(y => x.moduleName.Equals(y.ModuleName, StringComparison.OrdinalIgnoreCase)));
+                var existingAdornments = adornmentDefs
+                    .Join(
+                        matches,
+                        x => x.moduleName,
+                        x => x.ModuleName,
+                        (tuple, match) => (tuple, match),
+                        StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+                var newModules = matches
+                    .Where(x => !adornmentDefs.Any(y => x.ModuleName.Equals(y.moduleName, StringComparison.OrdinalIgnoreCase)))
+                    .ToArray();
 
-                //var drawingImage = new DrawingImage(drawing);
-                //drawingImage.Freeze();
+                foreach (var (tuple, match) in existingAdornments)
+                {
+                    _btnLayer.RemoveAdornment(tuple.dep);
+                    _btnLayer.RemoveAdornment(tuple.modBtn);
+                    Render(tuple.dep, tuple.modBtn, line, match);
+                }
 
-                //var image = new Image { Source = drawingImage };
-                var depView = new Dependencies();
-                var btn = new ModuleButton(10,10, depView);
-                //var btn = new ModuleButton
-                //{
-                //    Height = line.Height,
-                //    Width  = line.Height
-                //};
+                foreach (var moduleMatch in newModules)
+                {
+                    var depView = new Dependencies();
+                    var btnView = new ModuleButton(10, 10, depView);
+                    Render(depView, btnView, line, moduleMatch);
+                    adornmentDefs.Add((moduleMatch.ModuleName, depView, btnView));
+                }
+            }
+            else
+            {
+                var newAdornments = new List<(string moduleName, Dependencies dep, ModuleButton modBtn)>();
 
+                foreach (var moduleMatch in matches)
+                {
+                    var depView = new Dependencies();
+                    var btnView = new ModuleButton(10, 10, depView);
+                    Render(depView, btnView, line, moduleMatch);
+                    newAdornments.Add((moduleMatch.ModuleName, depView, btnView));
+                }
 
-
-                //Canvas.SetLeft(btn, geometry.Bounds.Right + 0.1);
-                //Canvas.SetTop (btn, geometry.Bounds.Top);
-
-                // Align the image with the top of the bounds of the text geometry
-                //Canvas.SetLeft(image, geometry.Bounds.Left);
-                //Canvas.SetTop(image, geometry.Bounds.Top);
-
-                Canvas.SetLeft(btn, geometry.Bounds.Left);
-                Canvas.SetTop(btn, geometry.Bounds.Top-10);
-
-                Canvas.SetLeft(depView, geometry.Bounds.Right);
-                Canvas.SetTop(depView, geometry.Bounds.Bottom);
-
-                //_layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, tagSpan, null, image, null);
-                _btnLayer.AddAdornment(AdornmentPositioningBehavior.TextRelative, tagSpan, null, btn, null);
-                _btnLayer.AddAdornment(AdornmentPositioningBehavior.OwnerControlled, tagSpan, null, depView, null);
+                _lineAdornments.Add(lineNumber, newAdornments);
             }
         }
 
+        private void Render(Dependencies depView, ModuleButton btnView, ITextViewLine line, ModuleMatch moduleMatch)
+        {
+            var textViewLines = _view.TextViewLines;
+            var span = new SnapshotSpan(line.Snapshot, new Span(line.Start.Position + moduleMatch.Position, moduleMatch.Length));
+
+            var tag = _tagger.GetTags(span).First();
+            var tagSpan = tag.Span.GetSpans(span.Snapshot)[0];
+
+            var geometry = textViewLines.GetMarkerGeometry(tagSpan);
+
+            Canvas.SetLeft(btnView, geometry.Bounds.Left);
+            Canvas.SetTop(btnView, geometry.Bounds.Top - 10);
+
+            Canvas.SetLeft(depView, geometry.Bounds.Right);
+            Canvas.SetTop(depView, geometry.Bounds.Bottom);
+
+            _btnLayer.AddAdornment(AdornmentPositioningBehavior.TextRelative, tagSpan, null, btnView, null);
+            _btnLayer.AddAdornment(AdornmentPositioningBehavior.OwnerControlled, tagSpan, null, depView, null);
+        }
     }
 }

@@ -5,9 +5,9 @@ namespace DependOnMe.VsExtension.ModuleAdornment.UI
 {
     public partial class ModuleButton : UserControl
 	{
-	    private readonly Dependencies _view;
+	    private readonly ModuleTree _view;
 
-	    public ModuleButton(double btnHeight, double btnWidth, Dependencies view)
+	    public ModuleButton(double btnHeight, double btnWidth, ModuleTree view)
 	    {
 	        _view = view;
 	        InitializeComponent();

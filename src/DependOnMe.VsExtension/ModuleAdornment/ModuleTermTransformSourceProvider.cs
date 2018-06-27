@@ -5,25 +5,9 @@ using System.ComponentModel.Composition;
 
 namespace DependOnMe.VsExtension.ModuleAdornment
 {
-    //[Export(typeof(ILineTransformSourceProvider))]
-    //[ContentType("drt")]
-    //[TextViewRole(PredefinedTextViewRoles.Document)]
-    //public sealed class ModuleTermTransformSourceProvider : ILineTransformSourceProvider
-    //{
-    //    [Export(typeof(AdornmentLayerDefinition))]
-    //    [Name("DrtModuleTermAdornment")]
-    //    [Order(After = PredefinedAdornmentLayers.Outlining, Before = PredefinedAdornmentLayers.Selection)]
-    //    [TextViewRole(PredefinedTextViewRoles.Document)]
-    //    public AdornmentLayerDefinition ModuleTermLayer;
-
-    //    public ILineTransformSource Create(IWpfTextView textView)
-    //        => textView.Properties.GetOrCreateSingletonProperty(() => new LineXpsViewer(textView));
-    //}
-
     [Export(typeof(IWpfTextViewCreationListener))]
     [ContentType("drt")]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
-    //[TextViewRole(PredefinedTextViewRoles.EmbeddedPeekTextView)]
     internal sealed class TextAdornment1TextViewCreationListener : IWpfTextViewCreationListener
     {
         [Export(typeof(AdornmentLayerDefinition))]

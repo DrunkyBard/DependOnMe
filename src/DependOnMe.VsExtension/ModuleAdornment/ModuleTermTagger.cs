@@ -26,9 +26,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     continue;
                 }
                 
-                //var nSpan = span.Snapshot.CreateTrackingSpan(new Span(span.Start.Position + match.Index, match.Length), SpanTrackingMode.EdgePositive);
                 var modSpan = new SnapshotSpan(span.Snapshot, new Span(span.Start.Position + match.Index, match.Length));
-                //var modSpan = nSpan.GetSpan(nSpan.TextBuffer.CurrentSnapshot);
                 var termTag = new ModuleTermTag(0, 10, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
 
                 yield return new TagSpan<ModuleTermTag>(modSpan, termTag);

@@ -1,18 +1,24 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace DependOnMe.VsExtension.ModuleAdornment.UI
 {
-    public sealed class DependencyViewModel
+    public sealed class PlainDependency
     {
         public string Dependency { get; set; }
 
         public string Implementation { get; set; }
-
-        public string Arrow => "->";
     }
 
-    public sealed class DependenciesViewModel
+    public sealed class DependencyModule
     {
-        public ObservableCollection<DependencyViewModel> Dependencies { get; set; }
+        public DependencyModule(
+            ObservableCollection<PlainDependency> plainDependencies,
+            ObservableCollection<DependencyModule> innerModules) 
+            => Dependencies  = new ObservableCollection<object>(plainDependencies.Concat(innerModules.Cast<object>()));
+
+        public string ModuleName { get; set; }
+
+        public ObservableCollection<object> Dependencies { get; set; }
     }
 }

@@ -25,8 +25,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
         private readonly IWpfTextView _view;
         private readonly ITagAggregator<ModuleTermTag> _tagger;
 
-        private readonly Dictionary<int, List<(string moduleName, Dependencies dep, ModuleButton modBtn)>> _lineAdornments
-            = new Dictionary<int, List<(string, Dependencies, ModuleButton)>>();
+        private readonly Dictionary<int, List<(string moduleName, ModuleTree dep, ModuleButton modBtn)>> _lineAdornments
+            = new Dictionary<int, List<(string, ModuleTree, ModuleButton)>>();
 
         public ModuleTermAdornment(IWpfTextView view, ITagAggregator<ModuleTermTag> tagger)
         {
@@ -127,7 +127,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
                 foreach (var moduleMatch in newModules)
                 {
-                    var depView = new Dependencies();
+                    var depView = new ModuleTree();
                     var btnView = new ModuleButton(10, 10, depView);
                     Render(depView, btnView, line, moduleMatch);
                     adornmentDefs.Add((moduleMatch.ModuleName, depView, btnView));
@@ -135,11 +135,11 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             }
             else
             {
-                var newAdornments = new List<(string moduleName, Dependencies dep, ModuleButton modBtn)>();
+                var newAdornments = new List<(string moduleName, ModuleTree dep, ModuleButton modBtn)>();
 
                 foreach (var moduleMatch in matches)
                 {
-                    var depView = new Dependencies();
+                    var depView = new ModuleTree();
                     var btnView = new ModuleButton(10, 10, depView);
                     Render(depView, btnView, line, moduleMatch);
                     newAdornments.Add((moduleMatch.ModuleName, depView, btnView));
@@ -149,7 +149,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             }
         }
 
-        private void Render(Dependencies depView, ModuleButton btnView, ITextViewLine line, ModuleMatch moduleMatch)
+        private void Render(ModuleTree depView, ModuleButton btnView, ITextViewLine line, ModuleMatch moduleMatch)
         {
             var textViewLines = _view.TextViewLines;
             var span = new SnapshotSpan(line.Snapshot, new Span(line.Start.Position + moduleMatch.Position, moduleMatch.Length));

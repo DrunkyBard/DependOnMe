@@ -63,13 +63,14 @@
     <Compile Include="ModuleAdornment\ModuleTermTagger.cs" />
     <Compile Include="ModuleAdornment\ModuleTermTaggerProvider.cs" />
     <Compile Include="ModuleAdornment\ModuleTermTransformSourceProvider.cs" />
-    <Compile Include="ModuleAdornment\UI\Dependencies.xaml.cs">
-      <DependentUpon>Dependencies.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ModuleAdornment\UI\DependencyViewModel.cs" />
+    <Compile Include="ModuleAdornment\UI\DependencyModuleConverter.cs" />
     <Compile Include="ModuleAdornment\UI\ModuleButton.xaml.cs">
       <DependentUpon>ModuleButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ModuleAdornment\UI\ModuleTree.xaml.cs">
+      <DependentUpon>ModuleTree.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ModuleAdornment\UI\DependencyViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -228,11 +229,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="ModuleAdornment\UI\Dependencies.xaml">
+    <Page Include="ModuleAdornment\UI\ModuleButton.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ModuleAdornment\UI\ModuleButton.xaml">
+    <Page Include="ModuleAdornment\UI\ModuleTree.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

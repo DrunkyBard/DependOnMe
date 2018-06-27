@@ -3,16 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ui="clr-namespace:DependOnMe.VsExtension.ModuleAdornment.UI"
         mc:Ignorable="d">
 
     <UserControl.Resources>
         <Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}" x:Key="SwitchToggleButton">
-            <!--<Setter Property="BorderBrush" Value="#686868"/>
-            <Setter Property="Background" Value="#686868"/>
-            <Setter Property="Foreground" Value="#686868"/>-->
-            <!--<Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="100"/>-->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ToggleButton}">
@@ -22,10 +16,6 @@
                                     <RotateTransform Angle="45"/>
                                 </Rectangle.RenderTransform>
                             </Rectangle>
-                            <!--<Border x:Name="BackBorder" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>
-                            <TextBlock x:Name="Off" Margin="30,0,0,0" VerticalAlignment="Center"  HorizontalAlignment="Center"><Run Text="OFF"/></TextBlock>
-                            <TextBlock x:Name="On" Margin="0,0,30,0" VerticalAlignment="Center"  HorizontalAlignment="Center"><Run Text="ON"/></TextBlock>
-                            <Border x:Name="Slider" Background="LightGray" Width="30" Height="30" HorizontalAlignment="Left" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>-->
                         </Grid>
                         <ControlTemplate.Triggers>
                             <EventTrigger RoutedEvent="Rectangle.Loaded" SourceName="BtnRect">
@@ -63,8 +53,5 @@
 
     <Grid VerticalAlignment="Top" HorizontalAlignment="Left">
         <ToggleButton Name="RectBtn" Style="{StaticResource SwitchToggleButton}" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-        <!--<ToggleButton Name="RectBtn" Style="{StaticResource SwitchToggleButton}" />-->
-
-        <!--<ui:Dependencies x:Name="DepView" Visibility="Collapsed"/>-->
     </Grid>
 </UserControl>

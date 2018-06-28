@@ -33,26 +33,26 @@ let suggestBoolFlag pos term =
         | _ -> SuggestionText.allBody
 
 let suggestBoolFlag1 pos = function
-    | BoolFlag1.Flag(_, _, _, (_, endPos)) when less endPos pos -> SuggestionText.allBody 
-    | BoolFlag1.Error(err) -> suggestBoolFlag pos err
+    | BoolFlag1Term.Flag(_, _, _, (_, endPos), _) when less endPos pos -> SuggestionText.allBody 
+    | BoolFlag1Term.Error(err) -> suggestBoolFlag pos err
     | _ -> SuggestionText.None
 
 let suggestBoolFlag2 pos = function
-    | BoolFlag2.Flag(_, _, _, (_, endPos)) when less endPos pos -> SuggestionText.allBody 
-    | BoolFlag2.Error(err) -> suggestBoolFlag pos err
+    | BoolFlag2Term.Flag(_, _, _, (_, endPos), _) when less endPos pos -> SuggestionText.allBody 
+    | BoolFlag2Term.Error(err) -> suggestBoolFlag pos err
     | _ -> SuggestionText.None
 
 let suggestRegistration pos = function
-    | Class(_, _, _, _, (_, endPos)) 
-    | Module(_, _, (_, endPos))            when less endPos pos     -> SuggestionText.allBody
-    | ClassError(ArrowBetween(posRange))   when pos <=> posRange    -> SuggestionText.arrow
-    | ClassError(ArrowAfter(errPos))       when lessEq errPos pos   -> SuggestionText.arrow
-    | ClassError(OrphanArrow(startPos, _)) when lessEq pos startPos -> SuggestionText.depName
-    | ClassError(OrphanArrow(_, endPos))   when lessEq endPos pos   -> SuggestionText.implName
-    | ClassError(DepName(startPos, _))     when lessEq pos startPos -> SuggestionText.depName
-    | ClassError(DepName(_, endPos))       when lessEq endPos pos   -> SuggestionText.allBody
-    | ClassError(ImplName(errPos))         when lessEq errPos pos   -> SuggestionText.implName
-    | ModuleError(Name(errPos))            when less errPos pos     -> SuggestionText.moduleName
+    | RegistrationTerm.Class(_, _, _, _, (_, endPos)) 
+    | RegistrationTerm.Module(_, _, (_, endPos))            when less endPos pos     -> SuggestionText.allBody
+    | RegistrationTerm.ClassError(ArrowBetween(posRange))   when pos <=> posRange    -> SuggestionText.arrow
+    | RegistrationTerm.ClassError(ArrowAfter(errPos))       when lessEq errPos pos   -> SuggestionText.arrow
+    | RegistrationTerm.ClassError(OrphanArrow(startPos, _)) when lessEq pos startPos -> SuggestionText.depName
+    | RegistrationTerm.ClassError(OrphanArrow(_, endPos))   when lessEq endPos pos   -> SuggestionText.implName
+    | RegistrationTerm.ClassError(DepName(startPos, _))     when lessEq pos startPos -> SuggestionText.depName
+    | RegistrationTerm.ClassError(DepName(_, endPos))       when lessEq endPos pos   -> SuggestionText.allBody
+    | RegistrationTerm.ClassError(ImplName(errPos))         when lessEq errPos pos   -> SuggestionText.implName
+    | RegistrationTerm.ModuleError(Name(errPos))            when less errPos pos     -> SuggestionText.moduleName
     | _ -> SuggestionText.None
 
 let suggestTestDeclaration pos = function
@@ -81,16 +81,16 @@ let suggestBetween pos firstTerm secondTerm =
     match firstTerm, secondTerm with
         | RegistrationTerm(ClassError(_) as t),   _ 
         | RegistrationTerm(ModuleError(_) as t),  _  -> suggestRegistration pos t
-        | BoolFlag1Term(BoolFlag1.Error(_) as t), _  -> suggestBoolFlag1 pos t
-        | BoolFlag2Term(BoolFlag2.Error(_) as t), _  -> suggestBoolFlag2 pos t
+        | BoolFlag1Term(BoolFlag1Term.Error(_) as t), _  -> suggestBoolFlag1 pos t
+        | BoolFlag2Term(BoolFlag2Term.Error(_) as t), _  -> suggestBoolFlag2 pos t
         | TestDeclarationTerm(Partial(_) as t),   _ 
         | TestDeclarationTerm(TestDeclaration.Error(_) as t), _ -> suggestTestDeclaration pos t
         | UsingTerm(Using.Iqn(_) as t), _
         | UsingTerm(Using.Orphan(_) as t), _ -> suggestUsing pos t
         | _, RegistrationTerm(ClassError(_) as t)
         | _, RegistrationTerm(ModuleError(_) as t)   -> suggestRegistration pos t
-        | _, BoolFlag1Term(BoolFlag1.Error(_) as t)  -> suggestBoolFlag1 pos t
-        | _, BoolFlag2Term(BoolFlag2.Error(_) as t)  -> suggestBoolFlag2 pos t
+        | _, BoolFlag1Term(BoolFlag1Term.Error(_) as t)  -> suggestBoolFlag1 pos t
+        | _, BoolFlag2Term(BoolFlag2Term.Error(_) as t)  -> suggestBoolFlag2 pos t
         | _, TestDeclarationTerm(Partial(_) as t)
         | _, TestDeclarationTerm(TestDeclaration.Error(_) as t) -> suggestTestDeclaration pos t
         | _, _ -> SuggestionText.allBody

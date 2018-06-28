@@ -32,24 +32,24 @@ type BoolFlagType =
 
 type ErrorTerm = Error of PosRange
 
-type BoolFlag1 = 
-    | Flag  of bool * PosRange * Position * PosRange // boolean value X bool flag term position X equal term position X boolean value position
-    | Error of BoolFlagMissingPart                   // missing part X error position
+type BoolFlag1Term = 
+    | Flag  of bool * PosRange * Position * PosRange * PosRange // boolean value X bool flag term position X equal term position X boolean value position X whole term pos
+    | Error of BoolFlagMissingPart                              // missing part X error position
 
-type BoolFlag2 = 
-    | Flag  of bool * PosRange * Position * PosRange // boolean value X bool flag term position X equal term position X boolean value position
-    | Error of BoolFlagMissingPart                   // missing part X error position
+type BoolFlag2Term = 
+    | Flag  of bool * PosRange * Position * PosRange * PosRange // boolean value X bool flag term position X equal term position X boolean value position X whole term pos
+    | Error of BoolFlagMissingPart                              // missing part X error position
 
-type Registration = 
+type RegistrationTerm = 
     | Class       of string * string * PosRange * PosRange * PosRange // dependency X implementation X dependency position X arrow term position X implementation position
     | Module      of string * PosRange * PosRange                     // module name X MODULE terminal position X module name position
     | ClassError  of ClassRegMissingPart  
     | ModuleError of ModuleRegMissingPart
 
 type Declaration = 
-    | Registration of Registration list
-    | BoolFlag1    of BoolFlag1
-    | BoolFlag2    of BoolFlag2
+    | Registration of RegistrationTerm list
+    | BoolFlag1    of BoolFlag1Term
+    | BoolFlag2    of BoolFlag2Term
     | Error        of ErrorTerm
 
 //type DependencyTest = 
@@ -62,6 +62,40 @@ type Declaration =
 //        TestRange: PosRange;
 //    }
 
+type BoolFlag1 = 
+    {
+        Value: bool;
+        BoolFlagPosition: PosRange;
+        EqualTermPosition: Position;
+        ValuePosition: PosRange;
+        WholePosition: PosRange;
+    }
+    
+type BoolFlag2 = 
+    {
+        Value: bool;
+        BoolFlagPosition: PosRange;
+        EqualTermPosition: Position;
+        ValuePosition: PosRange;
+        WholePosition: PosRange;
+    }
+
+type ClassRegistration =
+    {
+        Dependency: string;
+        Implementation: string;
+        DependencyPosition: PosRange;
+        ArrowTermPosition: PosRange;
+        ImplementationPosition: PosRange;
+    }
+
+type ModuleRegistration = 
+    {
+        Name: string;
+        ModuleTermPosition: PosRange;
+        NamePosition: PosRange;
+    }
+
 type Using = 
     | Fqn    of string * PosRange
     | Iqn    of string * PosRange
@@ -73,15 +107,15 @@ type TestDeclaration =
     | Error   of PosRange * string
 
 type DependencyTest = 
-    | Test of TestDeclaration * BoolFlag1 list * BoolFlag2 list * Registration list * PosRange // whole test pos range
+    | Test of TestDeclaration * BoolFlag1 list * BoolFlag2 list * ClassRegistration list * ModuleRegistration list * PosRange // whole test pos range
     | Empty
 
 // ---------------------
 
 type IndexTerm =
-    | RegistrationTerm    of Registration
-    | BoolFlag1Term       of BoolFlag1
-    | BoolFlag2Term       of BoolFlag2
+    | RegistrationTerm    of RegistrationTerm
+    | BoolFlag1Term       of BoolFlag1Term
+    | BoolFlag2Term       of BoolFlag2Term
     | TestDeclarationTerm of TestDeclaration
     | UsingTerm           of Using
     | Error               of ErrorTerm * ((PosRange * string) list)

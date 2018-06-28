@@ -75,8 +75,9 @@
     <Compile Include="TextDistance.fs" />
     <Compile Include="DslAst.fs" />
     <Compile Include="Positioning.fs" />
-    <Compile Include="Compilation.fs" />
     <Compile Include="Errors.fs" />
+    <Compile Include="Compilation.fs" />
+    <Compile Include="Semantic.fs" />
     <Compile Include="PositionSet.fs" />
     <FsYacc Include="Parser.fsy">
       <OtherFlags>--module Parser -v</OtherFlags>

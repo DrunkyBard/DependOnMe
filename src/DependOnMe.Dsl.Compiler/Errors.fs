@@ -12,6 +12,7 @@ type ProdError(startPos: Position, endPos: Position, message: string) =
     member __.Message = message
 
     member __.PosRange with get() = (startPos, endPos) |> PosRange
+
 [<Struct>]
 type TermError(pos: Position, message: string) =
     member __.Pos = pos

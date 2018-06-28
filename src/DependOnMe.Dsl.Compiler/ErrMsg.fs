@@ -14,3 +14,5 @@ let MissingNamespace = "Using token was declared, but namespace is not"
 let TestHeaderExpected = "TestHeader token expected"
 let BoolFlagTokenExpected = "BoolFlag1 or BoolFlag2 token expected"
 let OrphanArrow = "Unexpected '->' token"
+let DuplicatedDependency name = sprintf "Duplicated dependency registration: %s" name
+let DuplicatedModule name = sprintf "Duplicated module registration: %s" name

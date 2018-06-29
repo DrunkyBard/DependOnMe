@@ -2,7 +2,7 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
         <Identity Id="DependOnMe.VsExtension.164e0703-2d1d-449c-b07b-5fef1f950fb9" Version="1.0" Language="en-US" Publisher="Sattar Imamov" />
-        <DisplayName>DependOnMe1.VsExtension</DisplayName>
+        <DisplayName>DependOnMe39.VsExtension</DisplayName>
         <Description>Empty VSIX Project.</Description>
     </Metadata>
     <Installation>
@@ -11,6 +11,7 @@
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+        <Dependency d:Source="Installed" Id="Microsoft.VisualStudio.MPF.15.0" DisplayName="Visual Studio MPF 15.0" Version="[15.0,16.0)" />
     </Dependencies>
     <Prerequisites>
         <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" DisplayName="Visual Studio core editor" />

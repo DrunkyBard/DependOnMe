@@ -5,7 +5,7 @@ open Lexer
 open Parser
 open Microsoft.FSharp.Text.Lexing
 open TextUtilities
-
+open Errors
 
 type TermColor = { Classifier: string; StartPos: int; Length: int; }
 
@@ -34,6 +34,9 @@ let readLexems (lexbuf: LexBuffer<char>) (offset: int) =
         | IQN(_)     
         | SNAME(_)   -> ((colorWithOffset Classification.Default) :: acc, lex lexbuf) ||> readLexemsInternal
         | EOF        -> acc
+
+    let errLogger = ErrorLogger()
+    Lexer.errorLogger <- errLogger
     
     readLexemsInternal [] (lex lexbuf) |> List.rev
 

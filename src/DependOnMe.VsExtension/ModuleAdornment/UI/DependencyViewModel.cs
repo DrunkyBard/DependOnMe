@@ -14,11 +14,19 @@ namespace DependOnMe.VsExtension.ModuleAdornment.UI
     {
         public DependencyModule(
             ObservableCollection<PlainDependency> plainDependencies,
-            ObservableCollection<DependencyModule> innerModules) 
-            => Dependencies  = new ObservableCollection<object>(plainDependencies.Concat(innerModules.Cast<object>()));
+            ObservableCollection<DependencyModule> innerModules,
+            string moduleName)
+        {
+            Dependencies = new ObservableCollection<object>(plainDependencies.Concat(innerModules.Cast<object>()));
+            ModuleName = moduleName;
+        }
 
-        public string ModuleName { get; set; }
+        public DependencyModule(string moduleName) 
+            : this(new ObservableCollection<PlainDependency>(), new ObservableCollection<DependencyModule>(), moduleName)
+        { }
 
-        public ObservableCollection<object> Dependencies { get; set; }
+        public string ModuleName { get; }
+
+        public ObservableCollection<object> Dependencies { get; }
     }
 }

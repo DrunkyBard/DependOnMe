@@ -1,30 +1,27 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace DependOnMe.VsExtension.ModuleAdornment.UI
 {
-    public partial class ModuleTree : UserControl
+    public partial class ModuleTree
 	{
 		public ModuleTree()
 		{
 		    InitializeComponent();
 		    var viewModel = new DependencyModule(
-		            new ObservableCollection<PlainDependency>(new[]
-		            {
-		                new PlainDependency{Dependency = "A"},
-		                new PlainDependency{Dependency = "B"},
-		                new PlainDependency{Dependency = "C"},
-		            }),
-		            new ObservableCollection<DependencyModule>(new[]
-		            {
-		                new DependencyModule(
-		                    new ObservableCollection<PlainDependency>(new [] {new PlainDependency{Dependency = "SubDep"}}), 
-		                    new ObservableCollection<DependencyModule>()) {ModuleName = "Mod1"},
-		            }))
-		        { ModuleName = "MAIN_MODULE" };
-
+		        new ObservableCollection<PlainDependency>(new[]
+		        {
+		            new PlainDependency {Dependency = "A"},
+		            new PlainDependency {Dependency = "B"},
+		            new PlainDependency {Dependency = "C"},
+		        }),
+		        new ObservableCollection<DependencyModule>(new[]
+		        {
+		            new DependencyModule(
+		                new ObservableCollection<PlainDependency>(new[] {new PlainDependency {Dependency = "SubDep"}}),
+		                new ObservableCollection<DependencyModule>(), "Mod1"),
+		        }), "MAIN_MODULE");
 
 		    DataContext = viewModel;
         }

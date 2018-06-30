@@ -8,7 +8,10 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 {
     internal sealed class ModuleTermTag : SpaceNegotiatingAdornmentTag
     {
+        public readonly string ModuleName;
+
         public ModuleTermTag(
+            string moduleName,
             double width, 
             double topSpace, 
             double baseline, 
@@ -17,7 +20,9 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             PositionAffinity affinity, 
             object identityTag, 
             object providerTag) : base(width, topSpace, baseline, textHeight, bottomSpace, affinity, identityTag, providerTag)
-        { }
+        {
+            ModuleName = moduleName;
+        }
     }
 
     [Export(typeof(ITaggerProvider))]

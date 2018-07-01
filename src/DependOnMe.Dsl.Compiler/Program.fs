@@ -3,12 +3,11 @@ open Microsoft.FSharp.Text.Lexing
 open Lexer
 open Parser
 open TestDslAst
-open ModuleDslAst
 open CommonDslAst
 open TextUtilities
 open Errors
 open System
-open Compilation
+open CompilationUnit
 open System.Collections.Generic
 open System.Collections.Generic
 open Microsoft.FSharp.Text.Parsing
@@ -37,7 +36,7 @@ let main argv =
     let errLogger = ErrorLogger()
     Lexer.errorLogger  <- errLogger
     Parser.errorLogger <- errLogger
-    let cUnit = (lex, lexbuf) ||> parseDrt
+    let cUnit = (lex, lexbuf) ||> Parser.parseDrt
     let ooo = Semantic.checkDuplicates cUnit.Declarations.Head
     
     let logger = Parser.errorLogger

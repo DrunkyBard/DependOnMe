@@ -10,7 +10,7 @@ open CommonDslAst
 open ModuleDslAst
 open TextUtilities
 open Common
-open Compilation
+open CompilationUnit
 open System.Collections.Generic
 open Errors
 open Positioning

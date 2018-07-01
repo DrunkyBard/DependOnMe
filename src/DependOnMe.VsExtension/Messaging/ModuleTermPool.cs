@@ -13,7 +13,15 @@ namespace DependOnMe.VsExtension.Messaging
 
         public bool Contains(string moduleName) => _availableModules.ContainsKey(moduleName);
 
-        public void Release(string moduleName)  => _availableModules.TryRemove(moduleName, out _);
+        public (bool success, DependencyModule releasedModule) TryRelease(string moduleName)
+        {
+            if (_availableModules.TryRemove(moduleName, out var module))
+            {
+                return (true, module);
+            }
+
+            return (false, null);
+        }
 
         public void Clean() => _availableModules.Clear();
     }

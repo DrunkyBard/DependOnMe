@@ -8,7 +8,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
     [Export(typeof(IWpfTextViewCreationListener))]
     [ContentType("drt")]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
-    internal sealed class TextAdornment1TextViewCreationListener : IWpfTextViewCreationListener
+    internal sealed class TextAdornmentTextViewCreationListener : IWpfTextViewCreationListener
     {
         [Export(typeof(AdornmentLayerDefinition))]
         [Name("DrtModuleTermAdornment")]

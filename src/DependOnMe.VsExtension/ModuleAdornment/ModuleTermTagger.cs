@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Text;
+﻿using DependOnMe.VsExtension.Messaging;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
@@ -16,19 +17,26 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
         public IEnumerable<ITagSpan<ModuleTermTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
+            var availableModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var span in spans)
             {
-                var text = span.GetText();
-                var match = ModuleTermRegex.Match(text);
+                var text       = span.GetText();
+                var match      = ModuleTermRegex.Match(text);
+                var moduleName = match.Groups["moduleName"].Value;
 
                 if (!match.Success || 
-                    string.IsNullOrWhiteSpace(match.Groups["moduleName"].Value))
+                    string.IsNullOrWhiteSpace(moduleName) ||
+                    availableModules.Contains(moduleName) ||
+                    !ModuleHub.Instance.ModulePool.Contains(moduleName))
                 {
                     continue;
                 }
-                
+
+                availableModules.Add(moduleName);
+
                 var modSpan = new SnapshotSpan(span.Snapshot, new Span(span.Start.Position + match.Index, match.Length));
-                var termTag = new ModuleTermTag(match.Groups["moduleName"].Value, 0, 10, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
+                var termTag = new ModuleTermTag(moduleName, 0, 10, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
 
                 yield return new TagSpan<ModuleTermTag>(modSpan, termTag);
             }

@@ -78,8 +78,9 @@
     <Compile Include="DslAst.Module.fs" />
     <Compile Include="Positioning.fs" />
     <Compile Include="Errors.fs" />
-    <Compile Include="Compilation.fs" />
+    <Compile Include="CompilationUnit.fs" />
     <Compile Include="Semantic.fs" />
+    <Compile Include="Semantic.CompilationTable.fs" />
     <Compile Include="PositionSet.fs" />
     <FsYacc Include="Parser.fsy">
       <OtherFlags>--module Parser -v</OtherFlags>
@@ -107,6 +108,7 @@
     </None>
     <Compile Include="Classification.fs" />
     <Compile Include="TextColoring.fs" />
+    <Compile Include="Compilation.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

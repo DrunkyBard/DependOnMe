@@ -3,6 +3,9 @@
 open TextUtilities
 open TestDslAst
 open Errors
+open System.Collections.Concurrent
+open CompilationUnit
+open System
 
 let listDuplications errMsg (positions: PosRange list) = 
     let rec innerCheck acc = function

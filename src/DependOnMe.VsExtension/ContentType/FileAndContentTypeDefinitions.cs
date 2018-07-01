@@ -10,11 +10,21 @@ namespace DependOnMe.VsExtension.ContentType
 		[Export]
 		[Name("drt")]
 		[BaseDefinition("text")]
-		internal static ContentTypeDefinition HidingContentTypeDefinition;
+		internal static ContentTypeDefinition DependencyTestContentTypeDefinition;
 
 		[Export]
 		[FileExtension(".drt")]
 		[ContentType("drt")]
-        internal static FileExtensionToContentTypeDefinition HiddenFileExtensionDefinition;
+        internal static FileExtensionToContentTypeDefinition DependencyTestFileExtensionDefinition;
+
+	    [Export]
+		[Name("drm")]
+		[BaseDefinition("text")]
+		internal static ContentTypeDefinition DependencyModuleContentTypeDefinition;
+
+		[Export]
+		[FileExtension(".drm")]
+		[ContentType("drm")]
+        internal static FileExtensionToContentTypeDefinition DependencyModuleFileExtensionDefinition;
 	}
 }

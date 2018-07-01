@@ -2,7 +2,9 @@
 open Microsoft.FSharp.Text.Lexing
 open Lexer
 open Parser
-open DslAst
+open TestDslAst
+open ModuleDslAst
+open CommonDslAst
 open TextUtilities
 open Errors
 open System
@@ -31,14 +33,14 @@ let main argv =
     //Lexer.errorLogger  <- errLogger
     //Parser.errorLogger <- errLogger
     //let lexems = readLexems lexbuf
+
     let errLogger = ErrorLogger()
     Lexer.errorLogger  <- errLogger
     Parser.errorLogger <- errLogger
-    let cUnit = (lex, lexbuf) ||> start
+    let cUnit = (lex, lexbuf) ||> parseDrt
     let ooo = Semantic.checkDuplicates cUnit.Declarations.Head
     
     let logger = Parser.errorLogger
-    let idx = Parser.index
     let testIdx = Parser.testIndex
     let findPos: Position = 
         { 

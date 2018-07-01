@@ -1,0 +1,248 @@
+﻿%{
+open System
+open CommonDslAst
+open ModuleDslAst
+open TextUtilities
+open Common
+open Compilation
+open System.Collections.Generic
+open Errors
+open Positioning
+open DataStructures
+open Navigation
+
+let mutable errorLogger = Unchecked.defaultof<ErrorLogger>
+
+let reportRangeI posRange msg = reportRange posRange msg errorLogger
+
+let reportPointI pos msg = reportPoint pos msg errorLogger
+
+let testIndex   = PositionSet<ModuleIndexTerm>()
+
+let addTestIdx posRange term = testIndex.Insert(PositionIndex(posRange, term))
+
+let separateRegistrations registrations = 
+    let rec separateRec classRegs moduleRegs = function
+        | RegistrationTerm.Class(a, b, c, d, e)::t  -> 
+            let classReg = 
+                {
+                    Dependency = a;
+                    Implementation = b;
+                    DependencyPosition = c;
+                    ArrowTermPosition = d;
+                    ImplementationPosition = e;
+                } 
+            (classReg::classRegs, moduleRegs, t) |||> separateRec
+        | RegistrationTerm.Module(a, b, c)::t -> 
+            let moduleReg = 
+                {
+                    Name = a;
+                    ModuleTermPosition = b;
+                    NamePosition = c;
+                }
+            (classRegs, moduleReg::moduleRegs, t) |||> separateRec
+        | _::t -> (classRegs, moduleRegs, t) |||> separateRec
+        | [] -> (classRegs, moduleRegs)
+
+    separateRec [] [] registrations
+
+let separateModule lexems = 
+    let rec separateRec (classRegistrations:  ClassRegistration list) (moduleRegistrations:  ModuleRegistration list) = function
+        | ModuleBody.Registration(r)::t -> 
+            let classRegs, moduleRegs = separateRegistrations r
+            (List.append classRegs classRegistrations, List.append moduleRegs moduleRegistrations, t) |||> separateRec
+        | any::t -> (classRegistrations, moduleRegistrations, t) |||> separateRec
+        | []     -> (classRegistrations, moduleRegistrations)
+
+    separateRec [] [] lexems
+
+let useValidUsings usings =
+    let rec useValid usings acc = 
+        match usings with 
+            | Using.Fqn(s, _)::t -> (t, s::acc) ||> useValid
+            | Using.Iqn(_)::t 
+            | Using.Orphan(_)::t -> (t, acc) ||> useValid
+            | [] -> acc
+    useValid usings []
+%}
+
+%token MODULEHEADER
+%token ARROW
+%token QUOT
+%token MODULE
+%token <string> FQN
+%token <string> IQN
+%token <string> SNAME
+%token USING
+%token EOF
+
+%start parseModule
+%type <ModuleCompilationUnit> parseModule
+
+%%
+
+parseModule:
+    | moduleCompilationUnit EOF { $1 }
+    | EOF { {ModuleCompilationUnit.Usings = []; Declarations = []; Errors = [] } }
+
+moduleHeader:
+    | MODULEHEADER SNAME { ModuleHeader.Full($2, posRange parseState 1, posRange parseState 2) }
+    | MODULEHEADER       
+        { 
+            (endPos parseState 1, ErrMsg.TestNameIsNotDefined) ||> reportPointI
+            ModuleHeader.Partial(posRange parseState 1)
+        }
+    | any 
+        { 
+            let errPos, errToken = $1
+            let term = ModuleHeader.Error(errPos, errToken)
+            (errPos, ErrMsg.TestHeaderExpected) ||> reportRangeI
+            //(errPos, ModuleHeaderTerm term)  ||> addTestIdx
+            
+            term
+        }
+
+moduleCompilationUnit:
+    | usings modules {
+                       {ModuleCompilationUnit.Usings = useValidUsings $1; Declarations = $2; Errors = errorLogger.Diagnostics; }
+                     }
+    | modules        {
+                       {ModuleCompilationUnit.Usings = []; Declarations = $1; Errors = errorLogger.Diagnostics; } 
+                     }
+
+modules:
+    | moduleBody modules { $1::$2 }
+    | moduleBody         { [$1] }
+
+moduleBody:
+    | moduleHeader moduleExpressionSet
+        {
+            (posRange parseState 1, $1 |> ModuleHeaderTerm) ||> addTestIdx
+            let classRegistrations, moduleRegistrations = separateModule $2
+            ModuleDeclaration.Module($1, classRegistrations, moduleRegistrations, posRangeOut parseState 1 2)
+        }
+
+moduleBodyExpression:
+    | registrationSet { ModuleBody.Registration($1 |> List.rev) }
+    | errorExprBody   { 
+                        let pos  = posRange parseState 1
+                        let term = pos |> ErrorTerm.Error
+                        (pos, (term, $1) |> ModuleIndexTerm.Error) ||> addTestIdx
+                        term |> ModuleBody.Error
+                      }
+
+moduleExpressionSet:
+    | moduleExpressionSet moduleBodyExpression  { $2::$1 |> List.rev }
+    | moduleBodyExpression  { [$1] }
+
+usings:
+    | using usings { $1::$2 }
+    | using        { [ $1 ] }
+
+using:
+    | USING SNAME { 
+                    let term = Using.Fqn($2, posRangeOut parseState 1 2)
+                    (posRangeOut parseState 1 2, UsingTerm term) ||> addTestIdx
+                    term
+                  }
+    | USING IQN   {
+                    let term = Using.Iqn($2, posRangeOut parseState 1 2)
+                    (posRangeOut parseState 1 2, UsingTerm term) ||> addTestIdx
+                    term
+                  }
+    | USING FQN   {
+                    let term = Using.Fqn($2, posRangeOut parseState 1 2)
+                    (posRangeOut parseState 1 2, UsingTerm term) ||> addTestIdx
+                    (posRange parseState 2, ErrMsg.IncompleteName $2) ||> reportRangeI
+                    term
+                  }
+    | USING       {
+                    let term = Using.Orphan(posRange parseState 1)
+                    (posRange parseState 1, UsingTerm term) ||> addTestIdx
+                    (endPos parseState 1, ErrMsg.MissingNamespace) ||> reportPointI
+                    term
+                  }
+
+registrationSet:
+    | registration {
+                     (posRange parseState 1, $1 |> RegistrationTerm) ||> addTestIdx
+                     [$1]
+                   }
+    | registrationSet registration 
+                   { 
+                     (posRange parseState 2, $2 |> RegistrationTerm) ||> addTestIdx
+                     $2::$1 
+                   }
+
+registration:
+    | name ARROW name   { RegistrationTerm.Class($1, $3, posRange parseState 1, posRange parseState 2, posRange parseState 3) }
+    | MODULE SNAME      { RegistrationTerm.Module($2, posRange parseState 1, posRange parseState 2) }
+	| errorRegistration { $1 }
+
+name:
+    | SNAME { $1 }
+    | FQN   { $1 } 
+    | IQN   { 
+              let lexbuf = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+              (posRange parseState 1, ErrMsg.IncompleteName (new string(lexbuf.Lexeme))) ||> reportRangeI
+              $1
+            }
+
+errorRegistration:
+    | name       {
+                   (endPos parseState 1, ErrMsg.ArrowMissing) ||> reportPointI
+                   RegistrationTerm.ClassError(ClassRegMissingPart.ArrowAfter(endPos parseState 1)) 
+                 }
+	| name name  { 
+                   (endPos parseState 1, ErrMsg.ArrowMissing) ||> reportPointI
+                   RegistrationTerm.ClassError(ClassRegMissingPart.ArrowBetween(posRangeIn parseState 1 2)) 
+                 }
+	| name ARROW { 
+                   (endPos parseState 2, ErrMsg.FqnMissing) ||> reportPointI
+                   RegistrationTerm.ClassError(ClassRegMissingPart.ImplName(endPos parseState 2))
+                 }
+    | ARROW name { 
+                   (endPos parseState 1, ErrMsg.FqnMissing) ||> reportPointI
+                   RegistrationTerm.ClassError(ClassRegMissingPart.DepName(posRangeOut parseState 1 2))
+                 }
+    | ARROW      {
+                   (startPos parseState 1, ErrMsg.OrphanArrow) ||> reportPointI
+                   RegistrationTerm.ClassError(ClassRegMissingPart.OrphanArrow(posRange parseState 1))
+                 }  
+	| MODULE     { 
+                   (endPos parseState 1, ErrMsg.FqnMissing) ||> reportPointI
+                   RegistrationTerm.ModuleError(ModuleRegMissingPart.Name(endPos parseState 1))
+                 }
+
+errorExprBody:
+    | errorExprBody recover { $2::$1 }
+    | recover               { [ $1 ] }
+
+errToken:
+    | SNAME { 
+                let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+                let posRange = (lexbuf.StartPos, lexbuf.EndPos)
+                let errToken = new string(lexbuf.Lexeme)
+                (posRange, ErrMsg.UnexpectedToken errToken) ||>reportRangeI
+                (posRange, errToken)
+            }    
+
+recover:
+    | error
+        {
+            let lexbuf   = parseState.ParserLocalStore.["LexBuffer"] :?> LexBuffer<char>
+            let posRange = (lexbuf.StartPos, lexbuf.EndPos)
+            let errToken = new string(lexbuf.Lexeme)
+            (posRange, ErrMsg.UnexpectedToken errToken) ||>reportRangeI
+            (posRange, errToken)
+        }
+
+any:
+    | MODULEHEADER { posRangeAndToken parseState }
+    | ARROW        { posRangeAndToken parseState }
+    | QUOT         { posRangeAndToken parseState }
+    | MODULE       { posRangeAndToken parseState }
+    | FQN          { posRangeAndToken parseState }
+    | IQN          { posRangeAndToken parseState }
+    | SNAME        { posRangeAndToken parseState }
+

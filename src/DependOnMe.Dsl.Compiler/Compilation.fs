@@ -3,15 +3,23 @@
 open System.Collections.Generic
 open Microsoft.FSharp.Text.Lexing
 open TextUtilities
-open DslAst
+open TestDslAst
+open ModuleDslAst
 open Errors
 
 type Using = string
 
-type CompilationUnit =
+type TestCompilationUnit =
     {
         Usings: Using list;
         Declarations: DependencyTest list;
+        Errors: CompilationError list
+    }
+
+type ModuleCompilationUnit =
+    {
+        Usings: Using list;
+        Declarations: ModuleDeclaration list;
         Errors: CompilationError list
     }
 
@@ -35,7 +43,7 @@ type Semantic() =
             |> List.map (fun (posRange, c) -> mapToError posRange c)
 
     let checkDuplicates = function
-        | DependencyTest.Test(Full(_, _, _), boolFlags1, boolFlags2, classRegs, moduleRegs, _) -> 
+        | DependencyTest.Test(TestHeader.Full(_, _, _), boolFlags1, boolFlags2, classRegs, moduleRegs, _) -> 
             let duplicatedClasses = selectDuplicated classRegs  (fun _ -> "")  (fun c -> c.Dependency) (fun c -> c.DependencyPosition)
             let duplicatedModules = selectDuplicated moduleRegs (fun _ -> "") (fun c -> c.Name) (fun c -> c.NamePosition)
             let bool1Duplications = ("", boolFlags1 |> List.map (fun c -> c.WholePosition)) ||> listDuplications

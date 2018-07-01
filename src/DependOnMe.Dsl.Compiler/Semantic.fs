@@ -1,7 +1,7 @@
 ﻿module Semantic
 
 open TextUtilities
-open DslAst
+open TestDslAst
 open Errors
 
 let listDuplications errMsg (positions: PosRange list) = 

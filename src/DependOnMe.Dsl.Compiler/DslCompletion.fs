@@ -1,6 +1,7 @@
 ﻿module DslCompletion
 
-open DslAst
+open TestDslAst
+open CommonDslAst
 open Errors
 open TextDistance
 open Lexer
@@ -60,8 +61,8 @@ let suggestTestDeclaration pos = function
     | Full(_, _, (startPos, _))          
     | Partial(startPos, _)               when less pos startPos -> SuggestionText.headerOrUsing
     | Partial(_, endPos)                 when less endPos pos   -> SuggestionText.testName
-    | TestDeclaration.Error((startPos, _), _) when less pos startPos  -> SuggestionText.testHeader
-    | TestDeclaration.Error((_, endPos), errToken) when pos == endPos && checkSuggestion SuggestionText.testHeaderStr errToken -> SuggestionText.testHeader
+    | HeaderError((startPos, _), _)      when less pos startPos  -> SuggestionText.testHeader
+    | HeaderError((_, endPos), errToken) when pos == endPos && checkSuggestion SuggestionText.testHeaderStr errToken -> SuggestionText.testHeader
     | _ -> SuggestionText.None
 
 let rec suggestForErrorDeclaration pos = function
@@ -79,24 +80,23 @@ let suggestUsing pos = function
 
 let suggestBetween pos firstTerm secondTerm = 
     match firstTerm, secondTerm with
-        | RegistrationTerm(ClassError(_) as t),   _ 
-        | RegistrationTerm(ModuleError(_) as t),  _  -> suggestRegistration pos t
-        | BoolFlag1Term(BoolFlag1Term.Error(_) as t), _  -> suggestBoolFlag1 pos t
-        | BoolFlag2Term(BoolFlag2Term.Error(_) as t), _  -> suggestBoolFlag2 pos t
-        | TestDeclarationTerm(Partial(_) as t),   _ 
-        | TestDeclarationTerm(TestDeclaration.Error(_) as t), _ -> suggestTestDeclaration pos t
-        | UsingTerm(Using.Iqn(_) as t), _
-        | UsingTerm(Using.Orphan(_) as t), _ -> suggestUsing pos t
-        | _, RegistrationTerm(ClassError(_) as t)
-        | _, RegistrationTerm(ModuleError(_) as t)   -> suggestRegistration pos t
-        | _, BoolFlag1Term(BoolFlag1Term.Error(_) as t)  -> suggestBoolFlag1 pos t
-        | _, BoolFlag2Term(BoolFlag2Term.Error(_) as t)  -> suggestBoolFlag2 pos t
-        | _, TestDeclarationTerm(Partial(_) as t)
-        | _, TestDeclarationTerm(TestDeclaration.Error(_) as t) -> suggestTestDeclaration pos t
+        | IndexTerm.RegistrationTerm(ClassError(_) as t),   _ 
+        | IndexTerm.RegistrationTerm(ModuleError(_) as t),  _  -> suggestRegistration pos t
+        | IndexTerm.BoolFlag1Term(BoolFlag1Term.Error(_) as t), _  -> suggestBoolFlag1 pos t
+        | IndexTerm.BoolFlag2Term(BoolFlag2Term.Error(_) as t), _  -> suggestBoolFlag2 pos t
+        | IndexTerm.TestHeaderTerm(Partial(_) as t),   _ 
+        | IndexTerm.TestHeaderTerm(HeaderError(_) as t), _ -> suggestTestDeclaration pos t
+        | IndexTerm.UsingTerm(Using.Iqn(_) as t), _
+        | IndexTerm.UsingTerm(Using.Orphan(_) as t), _ -> suggestUsing pos t
+        | _, IndexTerm.RegistrationTerm(ClassError(_) as t)
+        | _, IndexTerm.RegistrationTerm(ModuleError(_) as t)   -> suggestRegistration pos t
+        | _, IndexTerm.BoolFlag1Term(BoolFlag1Term.Error(_) as t)  -> suggestBoolFlag1 pos t
+        | _, IndexTerm.BoolFlag2Term(BoolFlag2Term.Error(_) as t)  -> suggestBoolFlag2 pos t
+        | _, IndexTerm.TestHeaderTerm(Partial(_) as t)
+        | _, IndexTerm.TestHeaderTerm(HeaderError(_) as t) -> suggestTestDeclaration pos t
         | _, _ -> SuggestionText.allBody
 
 let suggestFrom fileName src pos = 
-    Parser.index.Clear()
     Parser.testIndex.Clear()
     //let testContent = File.ReadAllText fileName
     let lexbuf = LexBuffer<char>.FromString src
@@ -104,17 +104,17 @@ let suggestFrom fileName src pos =
     let errLogger = ErrorLogger()
     Lexer.errorLogger <- errLogger
     Parser.errorLogger <- errLogger
-    let ast = (lex, lexbuf) ||> start 
+    let ast = (lex, lexbuf) ||> parseDrt 
     let index = Parser.testIndex
     
     let suggestion = 
         match index.Find(pos) with
-            | CaretTermPosition.Inside(RegistrationTerm(t))    -> suggestRegistration pos t
-            | CaretTermPosition.Inside(BoolFlag1Term(t))       -> suggestBoolFlag1 pos t
-            | CaretTermPosition.Inside(BoolFlag2Term(t))       -> suggestBoolFlag2 pos t
-            | CaretTermPosition.Inside(TestDeclarationTerm(t)) -> suggestTestDeclaration pos t
-            | CaretTermPosition.Inside(UsingTerm(t))           -> suggestUsing pos t
-            | CaretTermPosition.Inside(Error(_, errors))       -> suggestForErrorDeclaration pos errors
+            | CaretTermPosition.Inside(IndexTerm.RegistrationTerm(t)) -> suggestRegistration pos t
+            | CaretTermPosition.Inside(IndexTerm.BoolFlag1Term(t))    -> suggestBoolFlag1 pos t
+            | CaretTermPosition.Inside(IndexTerm.BoolFlag2Term(t))    -> suggestBoolFlag2 pos t
+            | CaretTermPosition.Inside(IndexTerm.TestHeaderTerm(t))   -> suggestTestDeclaration pos t
+            | CaretTermPosition.Inside(IndexTerm.UsingTerm(t))        -> suggestUsing pos t
+            | CaretTermPosition.Inside(IndexTerm.Error(_, errors))    -> suggestForErrorDeclaration pos errors
             | CaretTermPosition.Between(firstTerm, secondTerm) -> suggestBetween pos firstTerm secondTerm
 
     match suggestion with 

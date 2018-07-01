@@ -73,7 +73,9 @@
     <Compile Include="ErrMsg.fs" />
     <Compile Include="TextUtilities.fs" />
     <Compile Include="TextDistance.fs" />
-    <Compile Include="DslAst.fs" />
+    <Compile Include="DslAst.CommonTerms.fs" />
+    <Compile Include="DslAst.Test.fs" />
+    <Compile Include="DslAst.Module.fs" />
     <Compile Include="Positioning.fs" />
     <Compile Include="Errors.fs" />
     <Compile Include="Compilation.fs" />
@@ -85,11 +87,22 @@
     <FsLex Include="Lexer.fsl">
       <OtherFlags>--unicode</OtherFlags>
     </FsLex>
+    <FsYacc Include="ModuleParser.fsy">
+      <OtherFlags>--module ModuleParser -v</OtherFlags>
+    </FsYacc>
+    <FsLex Include="ModuleLexer.fsl">
+      <OtherFlags>--unicode</OtherFlags>
+    </FsLex>
     <Compile Include="Parser.fs" />
     <Compile Include="Lexer.fs" />
+    <Compile Include="ModuleParser.fs" />
+    <Compile Include="ModuleLexer.fs" />
     <Compile Include="SuggestionText.fs" />
     <Compile Include="DslCompletion.fs" />
     <None Include="TestDslFile.drt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ModuleDslFile.drm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="Classification.fs" />

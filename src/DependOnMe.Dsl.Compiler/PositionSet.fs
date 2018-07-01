@@ -2,16 +2,16 @@
 
 open System
 open Positioning
-open DslAst
+open CommonDslAst
 open System.Collections.Generic
 open Microsoft.FSharp.Text.Lexing
 
-type CaretTermPosition =
-    | Inside  of IndexTerm
-    | Between of IndexTerm * IndexTerm
+type 'a CaretTermPosition =
+    | Inside  of 'a
+    | Between of 'a * 'a
 
-type PositionSet() = 
-    let positions = ResizeArray<PositionIndex>() //TODO: need uniqueness support
+type 'a PositionSet() = 
+    let positions = ResizeArray<'a PositionIndex>() //TODO: need uniqueness support
                                                  //TODO: get rid of sorting during every method call
 
     let (|Earlier|Later|Inside|) (pos: Position, termStart: Position, termEnd: Position) =
@@ -31,7 +31,7 @@ type PositionSet() =
                     | Later -> failwith "Precondition failed: position cannot be later then term end position"
                     | Inside -> InsideSecond
 
-    member __.Insert(idx: PositionIndex) = positions.Add(idx)
+    member __.Insert(idx) = positions.Add(idx)
 
     member __.Positions with get() = positions
 
@@ -40,7 +40,7 @@ type PositionSet() =
     member __.Find(pos) = //TODO: handle empty index
         let sortedPositions = Array.sortWith (fun i j -> PosIndexComparer.Instance.Compare(i, j)) (positions.ToArray()) 
 
-        let choose (idx1: PositionIndex) (idx2: PositionIndex) =
+        let choose (idx1: 'a PositionIndex) (idx2: 'a PositionIndex) =
             let s1, e1 = idx1.Range
             let s2, e2 = idx2.Range
 
@@ -70,7 +70,7 @@ type PositionSet() =
         matchPosition 0 (sortedPositions.Length - 1)
 
     member __.RemoveBetween(startPos: Position, endPos: Position) =
-        let sortedPositions = Array.sortWith (fun i j -> PosIndexComparer.Instance.Compare(i, j)) (positions.ToArray()) |> ResizeArray
+        let sortedPositions = Array.sortWith (fun i j -> PosIndexComparer<'a>.Instance.Compare(i, j)) (positions.ToArray()) |> ResizeArray
 
         let rec findPosition min max pos =
             if min < 0 || max = sortedPositions.Count then None

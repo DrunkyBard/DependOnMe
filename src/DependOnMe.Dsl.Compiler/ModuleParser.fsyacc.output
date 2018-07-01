@@ -1,0 +1,686 @@
+        Output file describing compiled parser placed in ModuleParser.fs and ModuleParser.fsi
+------------------------
+states = 
+state 0:  items:    _startparseModule ->  . parseModule
+  actions:    action 'EOF' (noprec):   shift 4
+    action 'USING' (noprec):   shift 21
+    action 'SNAME' (noprec):   shift 47
+    action 'IQN' (noprec):   shift 46
+    action 'FQN' (noprec):   shift 45
+    action 'MODULE' (noprec):   shift 44
+    action 'QUOT' (noprec):   shift 43
+    action 'ARROW' (noprec):   shift 42
+    action 'MODULEHEADER' (noprec):   shift 5
+    action 'error' (noprec):   error
+    action '#' (noprec):   error
+    action '$$' (noprec):   error
+  immediate action: <none>  gotos:    goto parseModule: 1
+    goto moduleHeader: 13
+    goto moduleCompilationUnit: 2
+    goto modules: 10
+    goto moduleBody: 11
+    goto usings: 8
+    goto using: 19
+    goto any: 7
+state 1:  items:    _startparseModule -> parseModule . 
+  actions:    action 'EOF' (noprec):   accept
+    action 'USING' (noprec):   accept
+    action 'SNAME' (noprec):   accept
+    action 'IQN' (noprec):   accept
+    action 'FQN' (noprec):   accept
+    action 'MODULE' (noprec):   accept
+    action 'QUOT' (noprec):   accept
+    action 'ARROW' (noprec):   accept
+    action 'MODULEHEADER' (noprec):   accept
+    action 'error' (noprec):   accept
+    action '#' (noprec):   accept
+    action '$$' (noprec):   accept
+  immediate action:   accept  gotos:state 2:  items:    parseModule -> moduleCompilationUnit . 'EOF'
+  actions:    action 'EOF' (noprec):   shift 3
+    action 'USING' (noprec):   error
+    action 'SNAME' (noprec):   error
+    action 'IQN' (noprec):   error
+    action 'FQN' (noprec):   error
+    action 'MODULE' (noprec):   error
+    action 'QUOT' (noprec):   error
+    action 'ARROW' (noprec):   error
+    action 'MODULEHEADER' (noprec):   error
+    action 'error' (noprec):   error
+    action '#' (noprec):   error
+    action '$$' (noprec):   error
+  immediate action: <none>  gotos:state 3:  items:    parseModule -> moduleCompilationUnit 'EOF' . 
+  actions:    action 'EOF' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'USING' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'SNAME' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'IQN' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'FQN' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'MODULE' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'QUOT' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'ARROW' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'MODULEHEADER' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action 'error' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action '#' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+    action '$$' (noprec):   reduce parseModule --> moduleCompilationUnit 'EOF'
+  immediate action:   reduce parseModule --> moduleCompilationUnit 'EOF'  gotos:state 4:  items:    parseModule -> 'EOF' . 
+  actions:    action 'EOF' (noprec):   reduce parseModule --> 'EOF'
+    action 'USING' (noprec):   reduce parseModule --> 'EOF'
+    action 'SNAME' (noprec):   reduce parseModule --> 'EOF'
+    action 'IQN' (noprec):   reduce parseModule --> 'EOF'
+    action 'FQN' (noprec):   reduce parseModule --> 'EOF'
+    action 'MODULE' (noprec):   reduce parseModule --> 'EOF'
+    action 'QUOT' (noprec):   reduce parseModule --> 'EOF'
+    action 'ARROW' (noprec):   reduce parseModule --> 'EOF'
+    action 'MODULEHEADER' (noprec):   reduce parseModule --> 'EOF'
+    action 'error' (noprec):   reduce parseModule --> 'EOF'
+    action '#' (noprec):   reduce parseModule --> 'EOF'
+    action '$$' (noprec):   reduce parseModule --> 'EOF'
+  immediate action:   reduce parseModule --> 'EOF'  gotos:state 5:  items:    moduleHeader -> 'MODULEHEADER' . 'SNAME'
+    moduleHeader -> 'MODULEHEADER' . 
+    any -> 'MODULEHEADER' . 
+  actions:    action 'EOF' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action 'USING' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action 'SNAME' (noprec):   shift 6
+    action 'IQN' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action 'FQN' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action 'MODULE' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action 'QUOT' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action 'ARROW' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action 'MODULEHEADER' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action 'error' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action '#' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+    action '$$' (noprec):   reduce moduleHeader --> 'MODULEHEADER'
+  immediate action: <none>  gotos:state 6:  items:    moduleHeader -> 'MODULEHEADER' 'SNAME' . 
+  actions:    action 'EOF' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'USING' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'SNAME' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'IQN' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'FQN' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'MODULE' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'QUOT' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'ARROW' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'MODULEHEADER' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action 'error' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action '#' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+    action '$$' (noprec):   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'
+  immediate action:   reduce moduleHeader --> 'MODULEHEADER' 'SNAME'  gotos:state 7:  items:    moduleHeader -> any . 
+  actions:    action 'EOF' (noprec):   reduce moduleHeader --> any
+    action 'USING' (noprec):   reduce moduleHeader --> any
+    action 'SNAME' (noprec):   reduce moduleHeader --> any
+    action 'IQN' (noprec):   reduce moduleHeader --> any
+    action 'FQN' (noprec):   reduce moduleHeader --> any
+    action 'MODULE' (noprec):   reduce moduleHeader --> any
+    action 'QUOT' (noprec):   reduce moduleHeader --> any
+    action 'ARROW' (noprec):   reduce moduleHeader --> any
+    action 'MODULEHEADER' (noprec):   reduce moduleHeader --> any
+    action 'error' (noprec):   reduce moduleHeader --> any
+    action '#' (noprec):   reduce moduleHeader --> any
+    action '$$' (noprec):   reduce moduleHeader --> any
+  immediate action:   reduce moduleHeader --> any  gotos:state 8:  items:    moduleCompilationUnit -> usings . modules
+  actions:    action 'EOF' (noprec):   error
+    action 'USING' (noprec):   error
+    action 'SNAME' (noprec):   shift 47
+    action 'IQN' (noprec):   shift 46
+    action 'FQN' (noprec):   shift 45
+    action 'MODULE' (noprec):   shift 44
+    action 'QUOT' (noprec):   shift 43
+    action 'ARROW' (noprec):   shift 42
+    action 'MODULEHEADER' (noprec):   shift 5
+    action 'error' (noprec):   error
+    action '#' (noprec):   error
+    action '$$' (noprec):   error
+  immediate action: <none>  gotos:    goto moduleHeader: 13
+    goto modules: 9
+    goto moduleBody: 11
+    goto any: 7
+state 9:  items:    moduleCompilationUnit -> usings modules . 
+  actions:    action 'EOF' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'USING' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'SNAME' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'IQN' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'FQN' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'MODULE' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'QUOT' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'ARROW' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'MODULEHEADER' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action 'error' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action '#' (noprec):   reduce moduleCompilationUnit --> usings modules
+    action '$$' (noprec):   reduce moduleCompilationUnit --> usings modules
+  immediate action:   reduce moduleCompilationUnit --> usings modules  gotos:state 10:  items:    moduleCompilationUnit -> modules . 
+  actions:    action 'EOF' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'USING' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'SNAME' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'IQN' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'FQN' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'MODULE' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'QUOT' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'ARROW' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'MODULEHEADER' (noprec):   reduce moduleCompilationUnit --> modules
+    action 'error' (noprec):   reduce moduleCompilationUnit --> modules
+    action '#' (noprec):   reduce moduleCompilationUnit --> modules
+    action '$$' (noprec):   reduce moduleCompilationUnit --> modules
+  immediate action:   reduce moduleCompilationUnit --> modules  gotos:state 11:  items:    modules -> moduleBody . modules
+    modules -> moduleBody . 
+  actions:    action 'EOF' (noprec):   reduce modules --> moduleBody
+    action 'USING' (noprec):   reduce modules --> moduleBody
+    action 'SNAME' (noprec):   shift 47
+    action 'IQN' (noprec):   shift 46
+    action 'FQN' (noprec):   shift 45
+    action 'MODULE' (noprec):   shift 44
+    action 'QUOT' (noprec):   shift 43
+    action 'ARROW' (noprec):   shift 42
+    action 'MODULEHEADER' (noprec):   shift 5
+    action 'error' (noprec):   reduce modules --> moduleBody
+    action '#' (noprec):   reduce modules --> moduleBody
+    action '$$' (noprec):   reduce modules --> moduleBody
+  immediate action: <none>  gotos:    goto moduleHeader: 13
+    goto modules: 12
+    goto moduleBody: 11
+    goto any: 7
+state 12:  items:    modules -> moduleBody modules . 
+  actions:    action 'EOF' (noprec):   reduce modules --> moduleBody modules
+    action 'USING' (noprec):   reduce modules --> moduleBody modules
+    action 'SNAME' (noprec):   reduce modules --> moduleBody modules
+    action 'IQN' (noprec):   reduce modules --> moduleBody modules
+    action 'FQN' (noprec):   reduce modules --> moduleBody modules
+    action 'MODULE' (noprec):   reduce modules --> moduleBody modules
+    action 'QUOT' (noprec):   reduce modules --> moduleBody modules
+    action 'ARROW' (noprec):   reduce modules --> moduleBody modules
+    action 'MODULEHEADER' (noprec):   reduce modules --> moduleBody modules
+    action 'error' (noprec):   reduce modules --> moduleBody modules
+    action '#' (noprec):   reduce modules --> moduleBody modules
+    action '$$' (noprec):   reduce modules --> moduleBody modules
+  immediate action:   reduce modules --> moduleBody modules  gotos:state 13:  items:    moduleBody -> moduleHeader . moduleExpressionSet
+  actions:    action 'EOF' (noprec):   error
+    action 'USING' (noprec):   error
+    action 'SNAME' (noprec):   shift 33
+    action 'IQN' (noprec):   shift 35
+    action 'FQN' (noprec):   shift 34
+    action 'MODULE' (noprec):   shift 30
+    action 'QUOT' (noprec):   error
+    action 'ARROW' (noprec):   shift 37
+    action 'MODULEHEADER' (noprec):   error
+    action 'error' (noprec):   shift 41
+    action '#' (noprec):   error
+    action '$$' (noprec):   error
+  immediate action: <none>  gotos:    goto moduleBodyExpression: 18
+    goto moduleExpressionSet: 14
+    goto registrationSet: 15
+    goto registration: 25
+    goto name: 27
+    goto errorRegistration: 32
+    goto errorExprBody: 16
+    goto recover: 40
+state 14:  items:    moduleBody -> moduleHeader moduleExpressionSet . 
+    moduleExpressionSet -> moduleExpressionSet . moduleBodyExpression
+  actions:    action 'EOF' (noprec):   reduce moduleBody --> moduleHeader moduleExpressionSet
+    action 'USING' (noprec):   reduce moduleBody --> moduleHeader moduleExpressionSet
+    action 'SNAME' (noprec):   shift 33
+    action 'IQN' (noprec):   shift 35
+    action 'FQN' (noprec):   shift 34
+    action 'MODULE' (noprec):   shift 30
+    action 'QUOT' (noprec):   reduce moduleBody --> moduleHeader moduleExpressionSet
+    action 'ARROW' (noprec):   shift 37
+    action 'MODULEHEADER' (noprec):   reduce moduleBody --> moduleHeader moduleExpressionSet
+    action 'error' (noprec):   shift 41
+    action '#' (noprec):   reduce moduleBody --> moduleHeader moduleExpressionSet
+    action '$$' (noprec):   reduce moduleBody --> moduleHeader moduleExpressionSet
+  immediate action: <none>  gotos:    goto moduleBodyExpression: 17
+    goto registrationSet: 15
+    goto registration: 25
+    goto name: 27
+    goto errorRegistration: 32
+    goto errorExprBody: 16
+    goto recover: 40
+state 15:  items:    moduleBodyExpression -> registrationSet . 
+    registrationSet -> registrationSet . registration
+  actions:    action 'EOF' (noprec):   reduce moduleBodyExpression --> registrationSet
+    action 'USING' (noprec):   reduce moduleBodyExpression --> registrationSet
+    action 'SNAME' (noprec):   shift 33
+    action 'IQN' (noprec):   shift 35
+    action 'FQN' (noprec):   shift 34
+    action 'MODULE' (noprec):   shift 30
+    action 'QUOT' (noprec):   reduce moduleBodyExpression --> registrationSet
+    action 'ARROW' (noprec):   shift 37
+    action 'MODULEHEADER' (noprec):   reduce moduleBodyExpression --> registrationSet
+    action 'error' (noprec):   reduce moduleBodyExpression --> registrationSet
+    action '#' (noprec):   reduce moduleBodyExpression --> registrationSet
+    action '$$' (noprec):   reduce moduleBodyExpression --> registrationSet
+  immediate action: <none>  gotos:    goto registration: 26
+    goto name: 27
+    goto errorRegistration: 32
+state 16:  items:    moduleBodyExpression -> errorExprBody . 
+    errorExprBody -> errorExprBody . recover
+  actions:    action 'EOF' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'USING' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'SNAME' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'IQN' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'FQN' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'MODULE' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'QUOT' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'ARROW' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'MODULEHEADER' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action 'error' (noprec):   shift 41
+    action '#' (noprec):   reduce moduleBodyExpression --> errorExprBody
+    action '$$' (noprec):   reduce moduleBodyExpression --> errorExprBody
+  immediate action: <none>  gotos:    goto recover: 39
+state 17:  items:    moduleExpressionSet -> moduleExpressionSet moduleBodyExpression . 
+  actions:    action 'EOF' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'USING' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'SNAME' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'IQN' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'FQN' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'MODULE' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'QUOT' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'ARROW' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'MODULEHEADER' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action 'error' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action '#' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+    action '$$' (noprec):   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression
+  immediate action:   reduce moduleExpressionSet --> moduleExpressionSet moduleBodyExpression  gotos:state 18:  items:    moduleExpressionSet -> moduleBodyExpression . 
+  actions:    action 'EOF' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'USING' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'SNAME' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'IQN' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'FQN' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'MODULE' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'QUOT' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'ARROW' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'MODULEHEADER' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action 'error' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action '#' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+    action '$$' (noprec):   reduce moduleExpressionSet --> moduleBodyExpression
+  immediate action:   reduce moduleExpressionSet --> moduleBodyExpression  gotos:state 19:  items:    usings -> using . usings
+    usings -> using . 
+  actions:    action 'EOF' (noprec):   reduce usings --> using
+    action 'USING' (noprec):   shift 21
+    action 'SNAME' (noprec):   reduce usings --> using
+    action 'IQN' (noprec):   reduce usings --> using
+    action 'FQN' (noprec):   reduce usings --> using
+    action 'MODULE' (noprec):   reduce usings --> using
+    action 'QUOT' (noprec):   reduce usings --> using
+    action 'ARROW' (noprec):   reduce usings --> using
+    action 'MODULEHEADER' (noprec):   reduce usings --> using
+    action 'error' (noprec):   reduce usings --> using
+    action '#' (noprec):   reduce usings --> using
+    action '$$' (noprec):   reduce usings --> using
+  immediate action: <none>  gotos:    goto usings: 20
+    goto using: 19
+state 20:  items:    usings -> using usings . 
+  actions:    action 'EOF' (noprec):   reduce usings --> using usings
+    action 'USING' (noprec):   reduce usings --> using usings
+    action 'SNAME' (noprec):   reduce usings --> using usings
+    action 'IQN' (noprec):   reduce usings --> using usings
+    action 'FQN' (noprec):   reduce usings --> using usings
+    action 'MODULE' (noprec):   reduce usings --> using usings
+    action 'QUOT' (noprec):   reduce usings --> using usings
+    action 'ARROW' (noprec):   reduce usings --> using usings
+    action 'MODULEHEADER' (noprec):   reduce usings --> using usings
+    action 'error' (noprec):   reduce usings --> using usings
+    action '#' (noprec):   reduce usings --> using usings
+    action '$$' (noprec):   reduce usings --> using usings
+  immediate action:   reduce usings --> using usings  gotos:state 21:  items:    using -> 'USING' . 'SNAME'
+    using -> 'USING' . 'IQN'
+    using -> 'USING' . 'FQN'
+    using -> 'USING' . 
+  actions:    action 'EOF' (noprec):   reduce using --> 'USING'
+    action 'USING' (noprec):   reduce using --> 'USING'
+    action 'SNAME' (noprec):   shift 22
+    action 'IQN' (noprec):   shift 23
+    action 'FQN' (noprec):   shift 24
+    action 'MODULE' (noprec):   reduce using --> 'USING'
+    action 'QUOT' (noprec):   reduce using --> 'USING'
+    action 'ARROW' (noprec):   reduce using --> 'USING'
+    action 'MODULEHEADER' (noprec):   reduce using --> 'USING'
+    action 'error' (noprec):   reduce using --> 'USING'
+    action '#' (noprec):   reduce using --> 'USING'
+    action '$$' (noprec):   reduce using --> 'USING'
+  immediate action: <none>  gotos:state 22:  items:    using -> 'USING' 'SNAME' . 
+  actions:    action 'EOF' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'USING' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'SNAME' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'IQN' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'FQN' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'MODULE' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'QUOT' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'ARROW' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'MODULEHEADER' (noprec):   reduce using --> 'USING' 'SNAME'
+    action 'error' (noprec):   reduce using --> 'USING' 'SNAME'
+    action '#' (noprec):   reduce using --> 'USING' 'SNAME'
+    action '$$' (noprec):   reduce using --> 'USING' 'SNAME'
+  immediate action:   reduce using --> 'USING' 'SNAME'  gotos:state 23:  items:    using -> 'USING' 'IQN' . 
+  actions:    action 'EOF' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'USING' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'SNAME' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'IQN' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'FQN' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'MODULE' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'QUOT' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'ARROW' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'MODULEHEADER' (noprec):   reduce using --> 'USING' 'IQN'
+    action 'error' (noprec):   reduce using --> 'USING' 'IQN'
+    action '#' (noprec):   reduce using --> 'USING' 'IQN'
+    action '$$' (noprec):   reduce using --> 'USING' 'IQN'
+  immediate action:   reduce using --> 'USING' 'IQN'  gotos:state 24:  items:    using -> 'USING' 'FQN' . 
+  actions:    action 'EOF' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'USING' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'SNAME' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'IQN' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'FQN' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'MODULE' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'QUOT' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'ARROW' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'MODULEHEADER' (noprec):   reduce using --> 'USING' 'FQN'
+    action 'error' (noprec):   reduce using --> 'USING' 'FQN'
+    action '#' (noprec):   reduce using --> 'USING' 'FQN'
+    action '$$' (noprec):   reduce using --> 'USING' 'FQN'
+  immediate action:   reduce using --> 'USING' 'FQN'  gotos:state 25:  items:    registrationSet -> registration . 
+  actions:    action 'EOF' (noprec):   reduce registrationSet --> registration
+    action 'USING' (noprec):   reduce registrationSet --> registration
+    action 'SNAME' (noprec):   reduce registrationSet --> registration
+    action 'IQN' (noprec):   reduce registrationSet --> registration
+    action 'FQN' (noprec):   reduce registrationSet --> registration
+    action 'MODULE' (noprec):   reduce registrationSet --> registration
+    action 'QUOT' (noprec):   reduce registrationSet --> registration
+    action 'ARROW' (noprec):   reduce registrationSet --> registration
+    action 'MODULEHEADER' (noprec):   reduce registrationSet --> registration
+    action 'error' (noprec):   reduce registrationSet --> registration
+    action '#' (noprec):   reduce registrationSet --> registration
+    action '$$' (noprec):   reduce registrationSet --> registration
+  immediate action:   reduce registrationSet --> registration  gotos:state 26:  items:    registrationSet -> registrationSet registration . 
+  actions:    action 'EOF' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'USING' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'SNAME' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'IQN' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'FQN' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'MODULE' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'QUOT' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'ARROW' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'MODULEHEADER' (noprec):   reduce registrationSet --> registrationSet registration
+    action 'error' (noprec):   reduce registrationSet --> registrationSet registration
+    action '#' (noprec):   reduce registrationSet --> registrationSet registration
+    action '$$' (noprec):   reduce registrationSet --> registrationSet registration
+  immediate action:   reduce registrationSet --> registrationSet registration  gotos:state 27:  items:    registration -> name . 'ARROW' name
+    errorRegistration -> name . 
+    errorRegistration -> name . name
+    errorRegistration -> name . 'ARROW'
+  actions:    action 'EOF' (noprec):   reduce errorRegistration --> name
+    action 'USING' (noprec):   reduce errorRegistration --> name
+    action 'SNAME' (noprec):   shift 33
+    action 'IQN' (noprec):   shift 35
+    action 'FQN' (noprec):   shift 34
+    action 'MODULE' (noprec):   reduce errorRegistration --> name
+    action 'QUOT' (noprec):   reduce errorRegistration --> name
+    action 'ARROW' (noprec):   shift 28
+    action 'MODULEHEADER' (noprec):   reduce errorRegistration --> name
+    action 'error' (noprec):   reduce errorRegistration --> name
+    action '#' (noprec):   reduce errorRegistration --> name
+    action '$$' (noprec):   reduce errorRegistration --> name
+  immediate action: <none>  gotos:    goto name: 36
+state 28:  items:    registration -> name 'ARROW' . name
+    errorRegistration -> name 'ARROW' . 
+  actions:    action 'EOF' (noprec):   reduce errorRegistration --> name 'ARROW'
+    action 'USING' (noprec):   reduce errorRegistration --> name 'ARROW'
+    action 'SNAME' (noprec):   shift 33
+    action 'IQN' (noprec):   shift 35
+    action 'FQN' (noprec):   shift 34
+    action 'MODULE' (noprec):   reduce errorRegistration --> name 'ARROW'
+    action 'QUOT' (noprec):   reduce errorRegistration --> name 'ARROW'
+    action 'ARROW' (noprec):   reduce errorRegistration --> name 'ARROW'
+    action 'MODULEHEADER' (noprec):   reduce errorRegistration --> name 'ARROW'
+    action 'error' (noprec):   reduce errorRegistration --> name 'ARROW'
+    action '#' (noprec):   reduce errorRegistration --> name 'ARROW'
+    action '$$' (noprec):   reduce errorRegistration --> name 'ARROW'
+  immediate action: <none>  gotos:    goto name: 29
+state 29:  items:    registration -> name 'ARROW' name . 
+  actions:    action 'EOF' (noprec):   reduce registration --> name 'ARROW' name
+    action 'USING' (noprec):   reduce registration --> name 'ARROW' name
+    action 'SNAME' (noprec):   reduce registration --> name 'ARROW' name
+    action 'IQN' (noprec):   reduce registration --> name 'ARROW' name
+    action 'FQN' (noprec):   reduce registration --> name 'ARROW' name
+    action 'MODULE' (noprec):   reduce registration --> name 'ARROW' name
+    action 'QUOT' (noprec):   reduce registration --> name 'ARROW' name
+    action 'ARROW' (noprec):   reduce registration --> name 'ARROW' name
+    action 'MODULEHEADER' (noprec):   reduce registration --> name 'ARROW' name
+    action 'error' (noprec):   reduce registration --> name 'ARROW' name
+    action '#' (noprec):   reduce registration --> name 'ARROW' name
+    action '$$' (noprec):   reduce registration --> name 'ARROW' name
+  immediate action:   reduce registration --> name 'ARROW' name  gotos:state 30:  items:    registration -> 'MODULE' . 'SNAME'
+    errorRegistration -> 'MODULE' . 
+  actions:    action 'EOF' (noprec):   reduce errorRegistration --> 'MODULE'
+    action 'USING' (noprec):   reduce errorRegistration --> 'MODULE'
+    action 'SNAME' (noprec):   shift 31
+    action 'IQN' (noprec):   reduce errorRegistration --> 'MODULE'
+    action 'FQN' (noprec):   reduce errorRegistration --> 'MODULE'
+    action 'MODULE' (noprec):   reduce errorRegistration --> 'MODULE'
+    action 'QUOT' (noprec):   reduce errorRegistration --> 'MODULE'
+    action 'ARROW' (noprec):   reduce errorRegistration --> 'MODULE'
+    action 'MODULEHEADER' (noprec):   reduce errorRegistration --> 'MODULE'
+    action 'error' (noprec):   reduce errorRegistration --> 'MODULE'
+    action '#' (noprec):   reduce errorRegistration --> 'MODULE'
+    action '$$' (noprec):   reduce errorRegistration --> 'MODULE'
+  immediate action: <none>  gotos:state 31:  items:    registration -> 'MODULE' 'SNAME' . 
+  actions:    action 'EOF' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'USING' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'SNAME' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'IQN' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'FQN' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'MODULE' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'QUOT' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'ARROW' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'MODULEHEADER' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action 'error' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action '#' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+    action '$$' (noprec):   reduce registration --> 'MODULE' 'SNAME'
+  immediate action:   reduce registration --> 'MODULE' 'SNAME'  gotos:state 32:  items:    registration -> errorRegistration . 
+  actions:    action 'EOF' (noprec):   reduce registration --> errorRegistration
+    action 'USING' (noprec):   reduce registration --> errorRegistration
+    action 'SNAME' (noprec):   reduce registration --> errorRegistration
+    action 'IQN' (noprec):   reduce registration --> errorRegistration
+    action 'FQN' (noprec):   reduce registration --> errorRegistration
+    action 'MODULE' (noprec):   reduce registration --> errorRegistration
+    action 'QUOT' (noprec):   reduce registration --> errorRegistration
+    action 'ARROW' (noprec):   reduce registration --> errorRegistration
+    action 'MODULEHEADER' (noprec):   reduce registration --> errorRegistration
+    action 'error' (noprec):   reduce registration --> errorRegistration
+    action '#' (noprec):   reduce registration --> errorRegistration
+    action '$$' (noprec):   reduce registration --> errorRegistration
+  immediate action:   reduce registration --> errorRegistration  gotos:state 33:  items:    name -> 'SNAME' . 
+  actions:    action 'EOF' (noprec):   reduce name --> 'SNAME'
+    action 'USING' (noprec):   reduce name --> 'SNAME'
+    action 'SNAME' (noprec):   reduce name --> 'SNAME'
+    action 'IQN' (noprec):   reduce name --> 'SNAME'
+    action 'FQN' (noprec):   reduce name --> 'SNAME'
+    action 'MODULE' (noprec):   reduce name --> 'SNAME'
+    action 'QUOT' (noprec):   reduce name --> 'SNAME'
+    action 'ARROW' (noprec):   reduce name --> 'SNAME'
+    action 'MODULEHEADER' (noprec):   reduce name --> 'SNAME'
+    action 'error' (noprec):   reduce name --> 'SNAME'
+    action '#' (noprec):   reduce name --> 'SNAME'
+    action '$$' (noprec):   reduce name --> 'SNAME'
+  immediate action:   reduce name --> 'SNAME'  gotos:state 34:  items:    name -> 'FQN' . 
+  actions:    action 'EOF' (noprec):   reduce name --> 'FQN'
+    action 'USING' (noprec):   reduce name --> 'FQN'
+    action 'SNAME' (noprec):   reduce name --> 'FQN'
+    action 'IQN' (noprec):   reduce name --> 'FQN'
+    action 'FQN' (noprec):   reduce name --> 'FQN'
+    action 'MODULE' (noprec):   reduce name --> 'FQN'
+    action 'QUOT' (noprec):   reduce name --> 'FQN'
+    action 'ARROW' (noprec):   reduce name --> 'FQN'
+    action 'MODULEHEADER' (noprec):   reduce name --> 'FQN'
+    action 'error' (noprec):   reduce name --> 'FQN'
+    action '#' (noprec):   reduce name --> 'FQN'
+    action '$$' (noprec):   reduce name --> 'FQN'
+  immediate action:   reduce name --> 'FQN'  gotos:state 35:  items:    name -> 'IQN' . 
+  actions:    action 'EOF' (noprec):   reduce name --> 'IQN'
+    action 'USING' (noprec):   reduce name --> 'IQN'
+    action 'SNAME' (noprec):   reduce name --> 'IQN'
+    action 'IQN' (noprec):   reduce name --> 'IQN'
+    action 'FQN' (noprec):   reduce name --> 'IQN'
+    action 'MODULE' (noprec):   reduce name --> 'IQN'
+    action 'QUOT' (noprec):   reduce name --> 'IQN'
+    action 'ARROW' (noprec):   reduce name --> 'IQN'
+    action 'MODULEHEADER' (noprec):   reduce name --> 'IQN'
+    action 'error' (noprec):   reduce name --> 'IQN'
+    action '#' (noprec):   reduce name --> 'IQN'
+    action '$$' (noprec):   reduce name --> 'IQN'
+  immediate action:   reduce name --> 'IQN'  gotos:state 36:  items:    errorRegistration -> name name . 
+  actions:    action 'EOF' (noprec):   reduce errorRegistration --> name name
+    action 'USING' (noprec):   reduce errorRegistration --> name name
+    action 'SNAME' (noprec):   reduce errorRegistration --> name name
+    action 'IQN' (noprec):   reduce errorRegistration --> name name
+    action 'FQN' (noprec):   reduce errorRegistration --> name name
+    action 'MODULE' (noprec):   reduce errorRegistration --> name name
+    action 'QUOT' (noprec):   reduce errorRegistration --> name name
+    action 'ARROW' (noprec):   reduce errorRegistration --> name name
+    action 'MODULEHEADER' (noprec):   reduce errorRegistration --> name name
+    action 'error' (noprec):   reduce errorRegistration --> name name
+    action '#' (noprec):   reduce errorRegistration --> name name
+    action '$$' (noprec):   reduce errorRegistration --> name name
+  immediate action:   reduce errorRegistration --> name name  gotos:state 37:  items:    errorRegistration -> 'ARROW' . name
+    errorRegistration -> 'ARROW' . 
+  actions:    action 'EOF' (noprec):   reduce errorRegistration --> 'ARROW'
+    action 'USING' (noprec):   reduce errorRegistration --> 'ARROW'
+    action 'SNAME' (noprec):   shift 33
+    action 'IQN' (noprec):   shift 35
+    action 'FQN' (noprec):   shift 34
+    action 'MODULE' (noprec):   reduce errorRegistration --> 'ARROW'
+    action 'QUOT' (noprec):   reduce errorRegistration --> 'ARROW'
+    action 'ARROW' (noprec):   reduce errorRegistration --> 'ARROW'
+    action 'MODULEHEADER' (noprec):   reduce errorRegistration --> 'ARROW'
+    action 'error' (noprec):   reduce errorRegistration --> 'ARROW'
+    action '#' (noprec):   reduce errorRegistration --> 'ARROW'
+    action '$$' (noprec):   reduce errorRegistration --> 'ARROW'
+  immediate action: <none>  gotos:    goto name: 38
+state 38:  items:    errorRegistration -> 'ARROW' name . 
+  actions:    action 'EOF' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'USING' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'SNAME' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'IQN' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'FQN' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'MODULE' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'QUOT' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'ARROW' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'MODULEHEADER' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action 'error' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action '#' (noprec):   reduce errorRegistration --> 'ARROW' name
+    action '$$' (noprec):   reduce errorRegistration --> 'ARROW' name
+  immediate action:   reduce errorRegistration --> 'ARROW' name  gotos:state 39:  items:    errorExprBody -> errorExprBody recover . 
+  actions:    action 'EOF' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'USING' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'SNAME' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'IQN' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'FQN' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'MODULE' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'QUOT' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'ARROW' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'MODULEHEADER' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action 'error' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action '#' (noprec):   reduce errorExprBody --> errorExprBody recover
+    action '$$' (noprec):   reduce errorExprBody --> errorExprBody recover
+  immediate action:   reduce errorExprBody --> errorExprBody recover  gotos:state 40:  items:    errorExprBody -> recover . 
+  actions:    action 'EOF' (noprec):   reduce errorExprBody --> recover
+    action 'USING' (noprec):   reduce errorExprBody --> recover
+    action 'SNAME' (noprec):   reduce errorExprBody --> recover
+    action 'IQN' (noprec):   reduce errorExprBody --> recover
+    action 'FQN' (noprec):   reduce errorExprBody --> recover
+    action 'MODULE' (noprec):   reduce errorExprBody --> recover
+    action 'QUOT' (noprec):   reduce errorExprBody --> recover
+    action 'ARROW' (noprec):   reduce errorExprBody --> recover
+    action 'MODULEHEADER' (noprec):   reduce errorExprBody --> recover
+    action 'error' (noprec):   reduce errorExprBody --> recover
+    action '#' (noprec):   reduce errorExprBody --> recover
+    action '$$' (noprec):   reduce errorExprBody --> recover
+  immediate action:   reduce errorExprBody --> recover  gotos:state 41:  items:    recover -> 'error' . 
+  actions:    action 'EOF' (noprec):   reduce recover --> 'error'
+    action 'USING' (noprec):   reduce recover --> 'error'
+    action 'SNAME' (noprec):   reduce recover --> 'error'
+    action 'IQN' (noprec):   reduce recover --> 'error'
+    action 'FQN' (noprec):   reduce recover --> 'error'
+    action 'MODULE' (noprec):   reduce recover --> 'error'
+    action 'QUOT' (noprec):   reduce recover --> 'error'
+    action 'ARROW' (noprec):   reduce recover --> 'error'
+    action 'MODULEHEADER' (noprec):   reduce recover --> 'error'
+    action 'error' (noprec):   reduce recover --> 'error'
+    action '#' (noprec):   reduce recover --> 'error'
+    action '$$' (noprec):   reduce recover --> 'error'
+  immediate action:   reduce recover --> 'error'  gotos:state 42:  items:    any -> 'ARROW' . 
+  actions:    action 'EOF' (noprec):   reduce any --> 'ARROW'
+    action 'USING' (noprec):   reduce any --> 'ARROW'
+    action 'SNAME' (noprec):   reduce any --> 'ARROW'
+    action 'IQN' (noprec):   reduce any --> 'ARROW'
+    action 'FQN' (noprec):   reduce any --> 'ARROW'
+    action 'MODULE' (noprec):   reduce any --> 'ARROW'
+    action 'QUOT' (noprec):   reduce any --> 'ARROW'
+    action 'ARROW' (noprec):   reduce any --> 'ARROW'
+    action 'MODULEHEADER' (noprec):   reduce any --> 'ARROW'
+    action 'error' (noprec):   reduce any --> 'ARROW'
+    action '#' (noprec):   reduce any --> 'ARROW'
+    action '$$' (noprec):   reduce any --> 'ARROW'
+  immediate action:   reduce any --> 'ARROW'  gotos:state 43:  items:    any -> 'QUOT' . 
+  actions:    action 'EOF' (noprec):   reduce any --> 'QUOT'
+    action 'USING' (noprec):   reduce any --> 'QUOT'
+    action 'SNAME' (noprec):   reduce any --> 'QUOT'
+    action 'IQN' (noprec):   reduce any --> 'QUOT'
+    action 'FQN' (noprec):   reduce any --> 'QUOT'
+    action 'MODULE' (noprec):   reduce any --> 'QUOT'
+    action 'QUOT' (noprec):   reduce any --> 'QUOT'
+    action 'ARROW' (noprec):   reduce any --> 'QUOT'
+    action 'MODULEHEADER' (noprec):   reduce any --> 'QUOT'
+    action 'error' (noprec):   reduce any --> 'QUOT'
+    action '#' (noprec):   reduce any --> 'QUOT'
+    action '$$' (noprec):   reduce any --> 'QUOT'
+  immediate action:   reduce any --> 'QUOT'  gotos:state 44:  items:    any -> 'MODULE' . 
+  actions:    action 'EOF' (noprec):   reduce any --> 'MODULE'
+    action 'USING' (noprec):   reduce any --> 'MODULE'
+    action 'SNAME' (noprec):   reduce any --> 'MODULE'
+    action 'IQN' (noprec):   reduce any --> 'MODULE'
+    action 'FQN' (noprec):   reduce any --> 'MODULE'
+    action 'MODULE' (noprec):   reduce any --> 'MODULE'
+    action 'QUOT' (noprec):   reduce any --> 'MODULE'
+    action 'ARROW' (noprec):   reduce any --> 'MODULE'
+    action 'MODULEHEADER' (noprec):   reduce any --> 'MODULE'
+    action 'error' (noprec):   reduce any --> 'MODULE'
+    action '#' (noprec):   reduce any --> 'MODULE'
+    action '$$' (noprec):   reduce any --> 'MODULE'
+  immediate action:   reduce any --> 'MODULE'  gotos:state 45:  items:    any -> 'FQN' . 
+  actions:    action 'EOF' (noprec):   reduce any --> 'FQN'
+    action 'USING' (noprec):   reduce any --> 'FQN'
+    action 'SNAME' (noprec):   reduce any --> 'FQN'
+    action 'IQN' (noprec):   reduce any --> 'FQN'
+    action 'FQN' (noprec):   reduce any --> 'FQN'
+    action 'MODULE' (noprec):   reduce any --> 'FQN'
+    action 'QUOT' (noprec):   reduce any --> 'FQN'
+    action 'ARROW' (noprec):   reduce any --> 'FQN'
+    action 'MODULEHEADER' (noprec):   reduce any --> 'FQN'
+    action 'error' (noprec):   reduce any --> 'FQN'
+    action '#' (noprec):   reduce any --> 'FQN'
+    action '$$' (noprec):   reduce any --> 'FQN'
+  immediate action:   reduce any --> 'FQN'  gotos:state 46:  items:    any -> 'IQN' . 
+  actions:    action 'EOF' (noprec):   reduce any --> 'IQN'
+    action 'USING' (noprec):   reduce any --> 'IQN'
+    action 'SNAME' (noprec):   reduce any --> 'IQN'
+    action 'IQN' (noprec):   reduce any --> 'IQN'
+    action 'FQN' (noprec):   reduce any --> 'IQN'
+    action 'MODULE' (noprec):   reduce any --> 'IQN'
+    action 'QUOT' (noprec):   reduce any --> 'IQN'
+    action 'ARROW' (noprec):   reduce any --> 'IQN'
+    action 'MODULEHEADER' (noprec):   reduce any --> 'IQN'
+    action 'error' (noprec):   reduce any --> 'IQN'
+    action '#' (noprec):   reduce any --> 'IQN'
+    action '$$' (noprec):   reduce any --> 'IQN'
+  immediate action:   reduce any --> 'IQN'  gotos:state 47:  items:    any -> 'SNAME' . 
+  actions:    action 'EOF' (noprec):   reduce any --> 'SNAME'
+    action 'USING' (noprec):   reduce any --> 'SNAME'
+    action 'SNAME' (noprec):   reduce any --> 'SNAME'
+    action 'IQN' (noprec):   reduce any --> 'SNAME'
+    action 'FQN' (noprec):   reduce any --> 'SNAME'
+    action 'MODULE' (noprec):   reduce any --> 'SNAME'
+    action 'QUOT' (noprec):   reduce any --> 'SNAME'
+    action 'ARROW' (noprec):   reduce any --> 'SNAME'
+    action 'MODULEHEADER' (noprec):   reduce any --> 'SNAME'
+    action 'error' (noprec):   reduce any --> 'SNAME'
+    action '#' (noprec):   reduce any --> 'SNAME'
+    action '$$' (noprec):   reduce any --> 'SNAME'
+  immediate action:   reduce any --> 'SNAME'  gotos:
+startStates = 0
+------------------------

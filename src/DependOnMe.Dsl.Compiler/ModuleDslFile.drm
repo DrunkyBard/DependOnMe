@@ -1,8 +1,5 @@
 using a 
 
-DependencyTest a  
-
-  BoolFlag1 = False
-  BoolFlag2   = True 
+DependencyModule a  
   Namespace1.Interface1 -> Namespace2.Class1
   Namespace1.Interface1 -> Namespace2.Class2

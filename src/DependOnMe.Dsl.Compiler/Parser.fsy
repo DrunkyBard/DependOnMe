@@ -1,6 +1,7 @@
 ﻿%{
 open System
-open DslAst
+open TestDslAst
+open CommonDslAst
 open TextUtilities
 open Common
 open Compilation
@@ -16,10 +17,8 @@ let reportRangeI posRange msg = reportRange posRange msg errorLogger
 
 let reportPointI pos msg = reportPoint pos msg errorLogger
 
-let index = RedBlackTree<PosRange, IndexTerm>(PosRangeComparer.Instance)
-let testIndex = PositionSet()
+let testIndex   = PositionSet<IndexTerm>()
 
-let addIdx posRange term = index.Insert(posRange, term)
 let addTestIdx posRange term = testIndex.Insert(PositionIndex(posRange, term))
 
 let separateRegistrations registrations = 
@@ -49,13 +48,13 @@ let separateRegistrations registrations =
 
 let separate lexems = 
     let rec separateRec (boolFlags1: BoolFlag1 list) (boolFlags2: BoolFlag2 list) (classRegistrations:  ClassRegistration list) (moduleRegistrations:  ModuleRegistration list) = function
-        | (BoolFlag1(BoolFlag1Term.Flag(a, b, c, d, e)))::t -> 
+        | (Declaration.BoolFlag1(BoolFlag1Term.Flag(a, b, c, d, e)))::t -> 
             let bFlag = { BoolFlag1.Value = a; BoolFlagPosition = b; EqualTermPosition = c; ValuePosition = d; WholePosition = e; }
             (bFlag::boolFlags1, boolFlags2, classRegistrations, moduleRegistrations, t)  |||||> separateRec 
-        | (BoolFlag2(BoolFlag2Term.Flag(a, b, c, d, e)))::t ->
+        | (Declaration.BoolFlag2(BoolFlag2Term.Flag(a, b, c, d, e)))::t ->
             let bFlag = { BoolFlag2.Value = a; BoolFlagPosition = b; EqualTermPosition = c; ValuePosition = d; WholePosition = e; }
             (boolFlags1, bFlag::boolFlags2, classRegistrations, moduleRegistrations, t)  |||||> separateRec
-        | Registration(r)::t -> 
+        | Declaration.Registration(r)::t -> 
             let classRegs, moduleRegs = separateRegistrations r
             (boolFlags1, boolFlags2, List.append classRegs classRegistrations, List.append moduleRegs moduleRegistrations, t) |||||> separateRec
         | any::t -> (boolFlags1, boolFlags2, classRegistrations, moduleRegistrations, t) |||||> separateRec
@@ -88,32 +87,54 @@ let useValidUsings usings =
 %token USING
 %token EOF
 
-%start start
-%type <CompilationUnit> start
+%start parseDrt
+%type <TestCompilationUnit> parseDrt
 
 %%
 
-start:
-    | compilationUnit EOF { $1 }
-    | EOF { {Usings = []; Declarations = []; Errors = [] } }
+parseDrt:
+    | testCompilationUnit EOF { $1 }
+    | EOF { {TestCompilationUnit.Usings = []; Declarations = []; Errors = [] } }
 
 testHeader:
-    | TESTHEADER SNAME { TestDeclaration.Full($2, posRange parseState 1, posRange parseState 2) }
+    | TESTHEADER SNAME { TestHeader.Full($2, posRange parseState 1, posRange parseState 2) }
     | TESTHEADER       
         { 
             (endPos parseState 1, ErrMsg.TestNameIsNotDefined) ||> reportPointI
-            TestDeclaration.Partial(posRange parseState 1)
+            TestHeader.Partial(posRange parseState 1)
         }
     | any 
         { 
             let errPos, errToken = $1
-            let term = TestDeclaration.Error(errPos, errToken)
+            let term = HeaderError(errPos, errToken)
             (errPos, ErrMsg.TestHeaderExpected) ||> reportRangeI
-            (errPos, TestDeclarationTerm term)  ||> addTestIdx
+            //(errPos, TestHeaderTerm term)  ||> addTestIdx
             
             term
         }
 
+testCompilationUnit:
+    | usings tests {
+                     {TestCompilationUnit.Usings = useValidUsings $1; Declarations = $2; Errors = errorLogger.Diagnostics; }
+                   }
+    | tests        {
+                     {TestCompilationUnit.Usings = []; Declarations = $1; Errors = errorLogger.Diagnostics; } 
+                   }
+
+tests:
+    | testBody tests { $1::$2 }
+    | testBody       { [$1] }
+    
+
+   
+testBody:
+    | testHeader expressionSet
+        {
+            (posRange parseState 1, $1 |> TestHeaderTerm) ||> addTestIdx
+            let boolFlags1, boolFlags2, classRegistrations, moduleRegistrations = separate $2
+            Test($1, boolFlags1, boolFlags2, classRegistrations, moduleRegistrations, posRangeOut parseState 1 2)
+        }
+        
 usings:
     | using usings { $1::$2 }
     | using        { [ $1 ] }
@@ -142,27 +163,6 @@ using:
                     term
                   }
 
-compilationUnit:
-    | usings tests {
-                    {Usings = useValidUsings $1; Declarations = $2; Errors = errorLogger.Diagnostics; }
-                   }
-    | tests        {
-                    {Usings = []; Declarations = $1; Errors = errorLogger.Diagnostics; } 
-                   }
-
-tests:
-    | testBody tests { $1::$2 }
-    | testBody       { [$1] }
-   
-testBody:
-    | testHeader expressionSet
-        {
-            (posRange parseState 1, $1 |> TestDeclarationTerm) ||> addIdx
-            (posRange parseState 1, $1 |> TestDeclarationTerm) ||> addTestIdx
-            let boolFlags1, boolFlags2, classRegistrations, moduleRegistrations = separate $2
-            Test($1, boolFlags1, boolFlags2, classRegistrations, moduleRegistrations, posRangeOut parseState 1 2)
-        }
-
 expressionSet:
     | expressionSet bodyExpression  { $2::$1 |> List.rev }
     | bodyExpression  { [$1] }
@@ -170,34 +170,29 @@ expressionSet:
 bodyExpression:
     | boolFlag1       
                 { 
-                  (posRange parseState 1, $1 |> IndexTerm.BoolFlag1Term) ||> addIdx
                   (posRange parseState 1, $1 |> IndexTerm.BoolFlag1Term) ||> addTestIdx
                   BoolFlag1($1)
                 }
     | boolFlag2       
                 { 
-                  (posRange parseState 1, $1 |> IndexTerm.BoolFlag2Term) ||> addIdx
                   (posRange parseState 1, $1 |> IndexTerm.BoolFlag2Term) ||> addTestIdx
                   BoolFlag2($1)
                 }
-    | registrationSet { Registration($1 |> List.rev) }
+    | registrationSet { Declaration.Registration($1 |> List.rev) }
     | errorExprBody   { 
                         let pos  = posRange parseState 1
                         let term = pos |> ErrorTerm.Error
-                        (pos, (term, $1) |> IndexTerm.Error) ||> addIdx
                         (pos, (term, $1) |> IndexTerm.Error) ||> addTestIdx
                         term |> Declaration.Error
                       }
 
 registrationSet:
     | registration {
-                     (posRange parseState 1, $1 |> RegistrationTerm) ||> addIdx
                      (posRange parseState 1, $1 |> RegistrationTerm) ||> addTestIdx
                      [$1]
                    }
     | registrationSet registration 
                    { 
-                     (posRange parseState 2, $2 |> RegistrationTerm) ||> addIdx
                      (posRange parseState 2, $2 |> RegistrationTerm) ||> addTestIdx
                      $2::$1 
                    }

@@ -1,0 +1,54 @@
+﻿{
+module ModuleLexer
+
+open System
+open ModuleParser
+open Microsoft.FSharp.Text.Lexing
+open TextUtilities
+open Errors
+
+let lexeme = LexBuffer<_>.LexemeString
+let mutable errorLogger = Unchecked.defaultof<ErrorLogger>
+
+let report (lexbuf: LexBuffer<char>) msg = reportRange (lexbuf.StartPos, lexbuf.EndPos) msg errorLogger
+
+}
+
+let moduleHeader = "DependencyModule"
+let using = "using"
+let space = " "
+let arrow = "->"
+let quot = "\""
+let module = "Module"
+let dot = "."
+let char = ['a'-'z' 'A'-'Z']
+let digit = ['0'-'9']
+let charOrDigit = ['a'-'z' 'A'-'Z' '0'-'9']
+let num = digit+
+let underscore = "_"
+let fqn = char((char|num)* dot char(char|num)*)
+let iqn = (dot|charOrDigit)* dot
+let name = char(char|num|underscore)*
+let ignore = [' ' '\t' ]
+let newLine = '\n' | '\r' '\n'
+
+                   
+rule lexModule = parse
+    | ignore       { lexModule lexbuf }
+    | newLine      { newLine lexbuf; lexModule lexbuf }
+    | moduleHeader { MODULEHEADER }
+    | arrow        { ARROW }
+    | quot         { QUOT }
+    | module       { MODULE }
+    | using        { USING }
+    | fqn          { FQN(lexeme lexbuf) }
+    | iqn          { IQN(lexeme lexbuf) }
+    | name         { SNAME(lexeme lexbuf) }
+    | eof          { EOF }
+    | _            { 
+                       report lexbuf (ErrMsg.UnexpectedToken (new string(lexbuf.Lexeme)))
+                       lexModule lexbuf
+                   }
+
+
+    

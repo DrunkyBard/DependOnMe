@@ -3,7 +3,8 @@
 open Microsoft.FSharp.Text.Lexing
 open System.Runtime.CompilerServices
 open DataStructures
-open DslAst
+open TestDslAst
+open CommonDslAst
 open TextUtilities
 open System.Collections.Generic
 
@@ -45,11 +46,11 @@ type PositionComparer() =
                 | Intersection -> failwith "Ranges intersection"
                 | Inside -> failwith "Range lies inside"
                 
-type PosIndexComparer() =
+type PosIndexComparer<'a>() =
 
-    static member Instance = PosIndexComparer() :> IComparer<PositionIndex>
+    static member Instance = PosIndexComparer() :> IComparer<'a PositionIndex>
 
-    interface IComparer<PositionIndex> with
+    interface IComparer<'a PositionIndex> with
         member __.Compare(idx1, idx2) =
             let startPos1, endPos1 = idx1.Range
             let startPos2, endPos2 = idx2.Range

@@ -79,6 +79,7 @@
     <Compile Include="Positioning.fs" />
     <Compile Include="Errors.fs" />
     <Compile Include="CompilationUnit.fs" />
+    <Compile Include="DslAst.Extension.fs" />
     <Compile Include="Semantic.fs" />
     <Compile Include="Semantic.CompilationTable.fs" />
     <Compile Include="PositionSet.fs" />

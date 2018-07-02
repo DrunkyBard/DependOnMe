@@ -25,6 +25,16 @@ namespace DependOnMe.VsExtension.Messaging
         }
     }
 
+    internal struct ModuleDuplicated
+    {
+        public readonly string DuplicatedModule;
+
+        public ModuleDuplicated(string duplicatedModule)
+        {
+            DuplicatedModule = duplicatedModule;
+        }
+    }
+
     internal sealed class ModuleHub
     {
         public readonly ModuleTermPool ModulePool;
@@ -33,9 +43,13 @@ namespace DependOnMe.VsExtension.Messaging
 
         public IObservable<ModuleRemoved> RemovedModulesStream => _removeSubject.AsObservable();
 
+        public IObservable<ModuleDuplicated> DuplicatedModulesStream => _duplicatedSubject.AsObservable();
+
         private readonly Subject<ModuleCreated> _createSubject;
 
         private readonly Subject<ModuleRemoved> _removeSubject;
+
+        private readonly Subject<ModuleDuplicated> _duplicatedSubject;
 
         private static readonly Lazy<ModuleHub> HubInstance = new Lazy<ModuleHub>(() => new ModuleHub(new ModuleTermPool()));
 
@@ -43,9 +57,10 @@ namespace DependOnMe.VsExtension.Messaging
 
         private ModuleHub(ModuleTermPool modulePool)
         {
-            ModulePool    = modulePool;
-            _createSubject = new Subject<ModuleCreated>();
-            _removeSubject = new Subject<ModuleRemoved>();
+            ModulePool         = modulePool;
+            _createSubject     = new Subject<ModuleCreated>();
+            _removeSubject     = new Subject<ModuleRemoved>();
+            _duplicatedSubject = new Subject<ModuleDuplicated>();
         }
 
         public void Reset() => ModulePool.Clean();
@@ -53,5 +68,7 @@ namespace DependOnMe.VsExtension.Messaging
         public void ModuleCreated(DependencyModule module) => _createSubject.OnNext(new ModuleCreated(module));
 
         public void ModuleRemoved(DependencyModule module) => _removeSubject.OnNext(new ModuleRemoved(module));
+
+        public void ModuleDuplicated(string module)        => _duplicatedSubject.OnNext(new ModuleDuplicated(module));
     }
 }

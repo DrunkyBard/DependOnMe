@@ -1,5 +1,7 @@
-﻿using CompilationTable;
+﻿using Compilation;
+using CompilationTable;
 using DependOnMe.VsExtension.Messaging;
+using DslAst;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using System;
@@ -12,14 +14,36 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
     internal sealed class ModuleDeclarationTagger : ITagger<ModuleDeclarationTag>
     {
         private static readonly IEnumerable<ITagSpan<ModuleDeclarationTag>> EmptyTags = Enumerable.Empty<ITagSpan<ModuleDeclarationTag>>();
+        private static readonly Compiler Compiler = new Compiler();
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
-        private HashSet<string> _containingModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);        
+        private HashSet<string> _containingModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        private readonly ModuleTermPool _modulePool = ModuleHub.Instance.ModulePool;
+
+        private Extension.ValidModuleRegistration[] _previousUnits;
 
         private static readonly Regex ModuleTermRegex =
             new Regex(@"DEPENDENCYMODULE (?<moduleName>\w+(?:[\w|\d]*\.\w[\w|\d]*)*)",
                 RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+        private void ProcessNewModule(Extension.ValidModuleRegistration validModule)
+        {
+            if (CompilationUnitTable.Instance.IsModuleDefined(validModule.Name))
+            {
+                ModuleHub.Instance.ModuleDuplicated(validModule.Name);
+
+                return;
+            }
+
+            var newModule = _modulePool.Request(
+                validModule.Name,
+                validModule.ClassRegistrations.ToViewModels(),
+                validModule.ModuleRegistrations.CollectSubModules());
+
+            ModuleHub.Instance.ModuleCreated(newModule);
+        }
 
         public IEnumerable<ITagSpan<ModuleDeclarationTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
@@ -28,7 +52,24 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
                 return EmptyTags;
             }
 
-            var wholeText = spans.First().Snapshot.GetText();
+
+            var wholeText       = spans.First().Snapshot.GetText();
+            var compilationUnit = Compiler.CompileModule(wholeText).OnlyValidModules();
+
+            if (_previousUnits == null)
+            {
+                _previousUnits = compilationUnit;
+
+                foreach (var validModule in compilationUnit)
+                {
+                    ProcessNewModule(validModule);
+                }
+            }
+            else
+            {
+
+            }
+
             var foundModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (Match match in ModuleTermRegex.Matches(wholeText))

@@ -40,19 +40,23 @@ type Compiler() =
             | [] -> acc
         
         compileRec [] paths
+
+    let compileModule src file = 
+        let lexbuf = LexBuffer<char>.FromString src
+        setInitialPos lexbuf file
+        let errLogger = ErrorLogger()
+        ModuleLexer.errorLogger  <- errLogger
+        ModuleParser.errorLogger <- errLogger
+        let cUnit = (ModuleLexer.lexModule, lexbuf) ||> ModuleParser.parseModule
+        List.iter addModuleToTable cUnit.Declarations
+        cUnit
         
     let compileModules paths =
         let rec compileRec acc = function
             | file::t ->
-                let testContent = File.ReadAllText file
-                let lexbuf = LexBuffer<char>.FromString testContent
-                setInitialPos lexbuf file
-                let errLogger = ErrorLogger()
-                ModuleLexer.errorLogger  <- errLogger
-                ModuleParser.errorLogger <- errLogger
-                let cUnit = (ModuleLexer.lexModule, lexbuf) ||> ModuleParser.parseModule
+                let moduleContent = File.ReadAllText file
+                let cUnit = compileModule moduleContent file
                 let cUnit = { FilePath = file; CompilationUnit = cUnit }
-                List.iter addModuleToTable cUnit.CompilationUnit.Declarations
                 compileRec (cUnit::acc) t
             | [] -> acc
         
@@ -66,6 +70,8 @@ type Compiler() =
         let testUnits   = __.CompileTest(testPaths)
         let moduleUnits = __.CompileModule(modulePaths)
         (testUnits, moduleUnits)
+
+    member __.CompileModule(src: string) = compileModule src System.String.Empty
 
 
 

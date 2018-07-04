@@ -30,9 +30,7 @@
 
         <HierarchicalDataTemplate DataType="{x:Type local:DependencyModule}">
             <HierarchicalDataTemplate.ItemsSource>
-                <MultiBinding Converter="{StaticResource DependencyModuleConverter}">
-                    <Binding Path="Dependencies" />
-                </MultiBinding>
+                <Binding Path="Dependencies" />
             </HierarchicalDataTemplate.ItemsSource>
 
             <TextBlock Text="{Binding Path=ModuleName}" Foreground="AliceBlue" />
@@ -41,6 +39,7 @@
         <DataTemplate DataType="{x:Type local:PlainDependency}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding Path=Dependency}" VerticalAlignment="Center" Foreground="AliceBlue"/>
+                <TextBlock Text="{Binding Path=Implementation}" VerticalAlignment="Center" Foreground="AliceBlue"/>
             </StackPanel>
         </DataTemplate>
 

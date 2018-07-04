@@ -20,11 +20,30 @@ type CompilationUnitTable private() =
             | (false, _)    -> false
             | (true, count) -> failwithf "Broken invariant: reference count should be greater than zero. Current count: %A" count
 
-    static member Instance = CompilationUnitTable()
+    let tryRemove key (dict: ConcurrentDictionary<string, int>) =
+        let rec removeRec curVal =
+            if dict.TryUpdate(key, curVal - 1, curVal) then
+                if curVal - 1 = 0 then dict.TryRemove(key) |> ignore
+            else 
+                match dict.TryGetValue(key) with
+                    | (true, value) -> removeRec value
+                    | (false, _)    -> failwithf "Broken invariant: trying to remove key: %A" key
+        
+        match dict.TryGetValue(key) with
+                    | (true, value) -> removeRec value
+                    | (false, _)    -> failwithf "Broken invariant: trying to remove key: %A" key
+
+    static let inst = CompilationUnitTable()
+
+    static member Instance = inst
 
     member __.AddTest(testName: string)           = add testUnits testName
     
     member __.AddModule(moduleName: string)       = add moduleUnits moduleName
+
+    member __.RemoveTest(testName: string)        = tryRemove testName testUnits
+                    
+    member __.RemoveModule(moduleName: string)    = tryRemove moduleName moduleUnits
 
     member __.IsTestDefined(testName: string)     = hasDuplicates testUnits testName
             

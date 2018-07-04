@@ -67,6 +67,7 @@
     <Compile Include="Completion\TestCompletionSourceProvider.cs" />
     <Compile Include="ContentTypeDefinition\ContentType.cs" />
     <Compile Include="ContentTypeDefinition\FileAndContentTypeDefinitions.cs" />
+    <Compile Include="EqualityComparerFactory.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Messaging\ModuleHub.cs" />
     <Compile Include="Messaging\ModuleTermPool.cs" />

@@ -1,13 +1,13 @@
 ﻿using Compilation;
 using CompilationTable;
 using DependOnMe.VsExtension.Messaging;
-using DslAst;
+using DependOnMe.VsExtension.ModuleAdornment.UI;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
+using ModuleRegistration = DslAst.Extension.ValidModuleRegistration;
 
 namespace DependOnMe.VsExtension.ModuleDeclarationTagging
 {
@@ -18,17 +18,11 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
-        private HashSet<string> _containingModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
         private readonly ModuleTermPool _modulePool = ModuleHub.Instance.ModulePool;
 
-        private Extension.ValidModuleRegistration[] _previousUnits;
+        private ModuleRegistration[] _previousUnits;
 
-        private static readonly Regex ModuleTermRegex =
-            new Regex(@"DEPENDENCYMODULE (?<moduleName>\w+(?:[\w|\d]*\.\w[\w|\d]*)*)",
-                RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
-
-        private void ProcessNewModule(Extension.ValidModuleRegistration validModule)
+        private void ProcessNewModule(ModuleRegistration validModule)
         {
             if (CompilationUnitTable.Instance.IsModuleDefined(validModule.Name))
             {
@@ -52,7 +46,6 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
                 return EmptyTags;
             }
 
-
             var wholeText       = spans.First().Snapshot.GetText();
             var compilationUnit = Compiler.CompileModule(wholeText).OnlyValidModules();
 
@@ -67,52 +60,51 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
             }
             else
             {
+                Func<ModuleRegistration, ModuleRegistration, bool> equals = (l, r) => l.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase);
+                Func<ModuleRegistration, int> getHashCode = m => m.Name.ToUpperInvariant().GetHashCode();
+                var comparer = EqualityComparerFactory.Create(equals, getHashCode);
+                var (newModules, sameModules, removedModules) = compilationUnit.Split(_previousUnits, comparer);
 
-            }
-
-            var foundModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (Match match in ModuleTermRegex.Matches(wholeText))
-            {
-                var moduleName = match.Groups["moduleName"].Value;
-
-                if (!match.Success ||
-                    string.IsNullOrWhiteSpace(moduleName) ||
-                    CompilationUnitTable.Instance.IsModuleDefined(moduleName))
+                foreach (var validModuleRegistration in newModules)
                 {
-                    continue;
+                    ProcessNewModule(validModuleRegistration);
                 }
 
-                foundModules.Add(moduleName);
-            }
-            
-            var removedModules = _containingModules.Except(foundModules).ToArray();
-            var newModules     = foundModules.Except(_containingModules).ToArray();
-
-            foreach (var removedModule in removedModules)
-            {
-                var remove = ModuleHub.Instance.ModulePool.TryRelease(removedModule);
-
-                if (remove.success)
+                foreach (var validModuleRegistration in removedModules)
                 {
-                    ModuleHub
-                        .Instance
-                        .ModuleRemoved(remove.releasedModule);
+                    _modulePool
+                        .TryRelease(validModuleRegistration.Name)
+                        .ContinueWith(
+                            releasedModule => ModuleHub.Instance.ModuleRemoved(releasedModule),
+                            () => throw new InvalidOperationException($"Broken invariant: trying to release module \'{validModuleRegistration.Name}\' that doesnt exist"));
+                }
+
+                foreach (var sameModule in sameModules)
+                {
+                    var module = _modulePool.Request(sameModule.leftIntersection.Name);
+                    sameModule
+                        .rightIntersection
+                        .ClassRegistrations
+                        .Select(x => new PlainDependency(x.Dependency, x.Implementation))
+                        .ForEach(oldDep => module.Remove(oldDep));
+                    sameModule
+                        .leftIntersection
+                        .ClassRegistrations
+                        .Select(x => new PlainDependency(x.Dependency, x.Implementation))
+                        .ForEach(newDep => module.Add(newDep));
+                    
+                    sameModule
+                        .rightIntersection
+                        .ModuleRegistrations
+                        .ForEach(oldModule => _modulePool.TryRequest(oldModule.Name).WhenHasValueThen(m => module.Remove(m)));
+                    sameModule
+                        .leftIntersection
+                        .ModuleRegistrations
+                        .ForEach(newModule => _modulePool.TryRequest(newModule.Name).WhenHasValueThen(m => module.Add(m)));
                 }
             }
 
-            foreach (var newModuleName in newModules)
-            {
-                var newModule = ModuleHub
-                    .Instance
-                    .ModulePool
-                    .Request(newModuleName);
-                ModuleHub
-                    .Instance
-                    .ModuleCreated(newModule);
-            }
-
-            _containingModules = foundModules;
+            _previousUnits = compilationUnit;
 
             return EmptyTags;
         }

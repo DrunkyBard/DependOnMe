@@ -39,5 +39,13 @@ namespace DependOnMe.VsExtension
                 ifNone();
             }
         }
+
+        public void WhenHasValueThen(Action<T> ifSome)
+        {
+            if (IsSome)
+            {
+                ifSome(Value);
+            }
+        }
     }
 }

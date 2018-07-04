@@ -45,6 +45,12 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             foreach (ITextViewLine line in e.NewOrReformattedLines)
             {
                 var tagSpans   = _tagger.GetTags(line.ExtentAsMappingSpan).ToArray();
+
+                if (tagSpans.Length == 0)
+                {
+                    continue;
+                }
+
                 var lineNumber = line.Snapshot.GetLineNumberFromPosition(line.Start);
 
                 CreateVisuals(lineNumber, tagSpans);
@@ -57,9 +63,9 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                 .NewModulesStream
                 .Where(x => x.CreatedModule.ModuleName.Equals(tag.Tag.ModuleName, StringComparison.OrdinalIgnoreCase))
                 .Synchronize(_syncObject)
-                .Subscribe(newModule =>
+                .Subscribe(@event =>
                 {
-                    var depView    = new ModuleTree();
+                    var depView    = new ModuleTree(@event.CreatedModule);
                     var btnView    = new ModuleButton(10, 10, depView);
                     var adornments = _lineAdornments.GetOrAdd(lineNumber, _ => new List<(string moduleName, ModuleTree dep, ModuleButton modBtn)>());
 
@@ -67,18 +73,31 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     adornments.Add((tag.Tag.ModuleName, depView, btnView));
                 });
 
-        private IDisposable SubscribeOnRemovedModule(string moduleName)
+        private IDisposable SubscribeOnRemovedModule(int lineNumber, string moduleName)
             => ModuleHub
                 .Instance
                 .RemovedModulesStream
                 .Where(x => x.RemovedModule.ModuleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase))
                 .Synchronize(_syncObject)
-                .Subscribe(removedModule =>
+                .Subscribe(@event =>
                 {
-                    var subscription = _moduleSubscriptions[moduleName];
-                    _moduleSubscriptions.Remove(moduleName);
+                    var modName      = @event.RemovedModule.ModuleName;
+                    var subscription = _moduleSubscriptions[modName];
+                    _moduleSubscriptions.Remove(modName);
                     subscription.onCreate.Dispose();
                     subscription.onRemove.Dispose();
+
+                    if (_lineAdornments.TryGetValue(lineNumber, out var adornments))
+                    {
+                        adornments
+                            .Where(x => x.moduleName.Equals(modName, StringComparison.OrdinalIgnoreCase))
+                            .ForEach(x =>
+                            {
+                                _btnLayer.RemoveAdornmentsByTag(modName);
+                            });
+                        
+                        adornments.RemoveAll(x => x.moduleName.Equals(modName, StringComparison.OrdinalIgnoreCase));
+                    }
                 });
 
         private void CreateVisuals(int lineNumber, IMappingTagSpan<ModuleTermTag>[] tagSpans)
@@ -122,13 +141,19 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
                 foreach (var newModuleTag in newModuleTags)
                 {
-                    var depView = new ModuleTree();
-                    var btnView = new ModuleButton(10, 10, depView);
-                    Render(depView, btnView, newModuleTag);
-                    adornmentDefs.Add((newModuleTag.Tag.ModuleName, depView, btnView));
+                    var moduleName = newModuleTag.Tag.ModuleName;
+                    ModuleHub.Instance.ModulePool
+                        .TryRequest(moduleName)
+                        .WhenHasValueThen(module =>
+                        {
+                            var depView = new ModuleTree(module);
+                            var btnView = new ModuleButton(10, 10, depView);
+                            Render(depView, btnView, newModuleTag);
+                            adornmentDefs.Add((moduleName, depView, btnView));
+                        });
 
                     var onCreateSubscription = SubscribeOnNewModule(lineNumber, newModuleTag);
-                    var onRemoveSubscription = SubscribeOnRemovedModule(newModuleTag.Tag.ModuleName);
+                    var onRemoveSubscription = SubscribeOnRemovedModule(lineNumber, newModuleTag.Tag.ModuleName);
                     _moduleSubscriptions.Add(newModuleTag.Tag.ModuleName, (onCreateSubscription, onRemoveSubscription));
                 }
             }
@@ -138,13 +163,20 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
                 foreach (var tag in tagSpans)
                 {
-                    var depView = new ModuleTree();
-                    var btnView = new ModuleButton(10, 10, depView);
-                    Render(depView, btnView, tag);
-                    newAdornments.Add((tag.Tag.ModuleName, depView, btnView));
+                    var moduleName = tag.Tag.ModuleName;
+
+                    ModuleHub.Instance.ModulePool
+                        .TryRequest(moduleName)
+                        .WhenHasValueThen(module =>
+                        {
+                            var depView = new ModuleTree(module);
+                            var btnView = new ModuleButton(10, 10, depView);
+                            Render(depView, btnView, tag);
+                            newAdornments.Add((tag.Tag.ModuleName, depView, btnView));
+                        });
 
                     var onCreateSubscription = SubscribeOnNewModule(lineNumber, tag);
-                    var onRemoveSubscription = SubscribeOnRemovedModule(tag.Tag.ModuleName);
+                    var onRemoveSubscription = SubscribeOnRemovedModule(lineNumber, tag.Tag.ModuleName);
                     _moduleSubscriptions.Add(tag.Tag.ModuleName, (onCreateSubscription, onRemoveSubscription));
                 }
 

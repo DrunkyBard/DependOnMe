@@ -1,11 +1,13 @@
-﻿using DependOnMe.VsExtension.ContentTypeDefinition;
+﻿using Compilation;
+using DependOnMe.VsExtension.ContentTypeDefinition;
+using DependOnMe.VsExtension.Messaging;
 using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SolutionEvents = Microsoft.VisualStudio.Shell.Events.SolutionEvents;
@@ -13,8 +15,8 @@ using Task = System.Threading.Tasks.Task;
 
 namespace DependOnMe.VsExtension.Startup
 {
-    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.BackgroundLoad)]
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = false)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.None)]
     public sealed class StartupPackage : AsyncPackage
     {
         private const string FullPathProp  = "FullPath";
@@ -26,10 +28,10 @@ namespace DependOnMe.VsExtension.Startup
 
             if (isSolutionLoaded)
             {
-                HandleOpenSolution(null, null);
+                HandleOpenSolution();
             }
 
-            SolutionEvents.OnAfterOpenSolution += HandleOpenSolution;
+            SolutionEvents.OnAfterOpenSolution += (_, __) => HandleOpenSolution();
         }
 
         private async Task<bool> IsSolutionLoadedAsync()
@@ -42,17 +44,35 @@ namespace DependOnMe.VsExtension.Startup
             return value is bool isSolOpen && isSolOpen;
         }
 
-        private void HandleOpenSolution(object sender, OpenSolutionEventArgs e)
+        private void HandleOpenSolution()
         {            
             var dte = (DTE)GetGlobalService(typeof(DTE));
             var projects = dte.Solution.Projects;
             var modules  = new List<string>();
+            var compiler = new Compiler();
 
             foreach (Project myProject in projects)
             foreach (ProjectItem myProjectProjectItem in myProject.ProjectItems)
             {
                 modules.AddRange(GetModules(myProjectProjectItem));
             }
+
+            if (modules.Count == 0)
+            {
+                return;
+            }
+
+            var moduleUnits = compiler.CompileModule(modules.ToArray());
+
+            moduleUnits
+                .SelectMany(mUnit => mUnit.CompilationUnit.OnlyValidModules())
+                .ForEach(x =>
+                {
+                    ModuleHub.Instance.ModulePool.Request(
+                        x.Name,
+                        x.ClassRegistrations.ToViewModels(),
+                        x.ModuleRegistrations.CollectSubModules());
+                });
         }
 
         IEnumerable<string> GetModules(ProjectItem item)

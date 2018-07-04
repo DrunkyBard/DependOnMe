@@ -62,11 +62,11 @@ type Compiler() =
         
         compileRec [] paths
 
-    member __.CompileTest(testPaths: string list) = compileTests testPaths
+    member __.CompileTest(testPaths: string[]) = testPaths |> List.ofArray |> compileTests |> Array.ofList
     
-    member __.CompileModule(modulePaths: string list) = compileModules modulePaths
+    member __.CompileModule(modulePaths: string[]) = modulePaths |> List.ofArray |> compileModules |> Array.ofList
 
-    member __.CompileAll(testPaths: string list, modulePaths: string list) =
+    member __.CompileAll(testPaths: string[], modulePaths: string[]) =
         let testUnits   = __.CompileTest(testPaths)
         let moduleUnits = __.CompileModule(modulePaths)
         (testUnits, moduleUnits)

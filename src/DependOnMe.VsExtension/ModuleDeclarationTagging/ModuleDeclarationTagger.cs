@@ -1,5 +1,4 @@
 ﻿using Compilation;
-using CompilationTable;
 using DependOnMe.VsExtension.Messaging;
 using DependOnMe.VsExtension.ModuleAdornment.UI;
 using Microsoft.VisualStudio.Text;
@@ -24,12 +23,12 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
 
         private void ProcessNewModule(ModuleRegistration validModule)
         {
-            if (CompilationUnitTable.Instance.IsModuleDefined(validModule.Name))
-            {
-                ModuleHub.Instance.ModuleDuplicated(validModule.Name);
+            //if (CompilationUnitTable.Instance.IsModuleDefined(validModule.Name))
+            //{
+            //    ModuleHub.Instance.ModuleDuplicated(validModule.Name);
 
-                return;
-            }
+            //    return;
+            //}
 
             var newModule = _modulePool.Request(
                 validModule.Name,
@@ -51,9 +50,9 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
 
             if (_previousUnits == null)
             {
-                _previousUnits = compilationUnit;
+                _previousUnits = compilationUnit.ValidModules;
 
-                foreach (var validModule in compilationUnit)
+                foreach (var validModule in compilationUnit.ValidModules)
                 {
                     ProcessNewModule(validModule);
                 }
@@ -63,7 +62,7 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
                 Func<ModuleRegistration, ModuleRegistration, bool> equals = (l, r) => l.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase);
                 Func<ModuleRegistration, int> getHashCode = m => m.Name.ToUpperInvariant().GetHashCode();
                 var comparer = EqualityComparerFactory.Create(equals, getHashCode);
-                var (newModules, sameModules, removedModules) = compilationUnit.Split(_previousUnits, comparer);
+                var (newModules, sameModules, removedModules) = compilationUnit.ValidModules.Split(_previousUnits, comparer);
 
                 foreach (var validModuleRegistration in newModules)
                 {
@@ -104,7 +103,7 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
                 }
             }
 
-            _previousUnits = compilationUnit;
+            _previousUnits = compilationUnit.ValidModules;
 
             return EmptyTags;
         }

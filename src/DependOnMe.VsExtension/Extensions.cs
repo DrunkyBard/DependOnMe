@@ -35,8 +35,11 @@ namespace DependOnMe.VsExtension
         public static ObservableCollection<TValue> ToObservable<TValue>(this IEnumerable<TValue> source)
             => new ObservableCollection<TValue>(source);
 
-        public static Extension.ValidModuleRegistration[] OnlyValidModules(this ModuleCompilationUnit cUnit)
-            => DslAst.Extension.OnlyValidModules(cUnit);
+        public static Extension.ValidModulesContainer OnlyValidModules(this ModuleCompilationUnit cUnit)
+            => Extension.OnlyValidModules(cUnit);
+
+        public static Extension.ValidTestsContainer OnlyValidTests(this TestCompilationUnit cUnit)
+            => Extension.OnlyValidTests(cUnit);
 
         public static ObservableCollection<PlainDependency> ToViewModels(this IEnumerable<CommonDslAst.ClassRegistration> classRegistrations)
             => classRegistrations

@@ -23,23 +23,7 @@ type Compiler() =
         | DependencyTest.Test(TestHeader.Full(name, _, _), _, _, _, _, _) -> CompilationUnitTable.Instance.AddTest(name)
         | _ -> ()
 
-    let compileTests paths =
-        let rec compileRec acc = function
-            | file::t ->
-                let testContent = File.ReadAllText file
-                let lexbuf = LexBuffer<char>.FromString testContent
-                setInitialPos lexbuf file
-                let errLogger = ErrorLogger()
-                Lexer.errorLogger  <- errLogger
-                Parser.errorLogger <- errLogger
-                let cUnit = (Lexer.lex, lexbuf) ||> Parser.parseDrt
-                let cUnit = { FilePath = file; CompilationUnit = cUnit }
-                List.iter addTestToTable (cUnit.CompilationUnit.Declarations)
 
-                compileRec (cUnit::acc) t
-            | [] -> acc
-        
-        compileRec [] paths
 
     let compileModule src file = 
         let lexbuf = LexBuffer<char>.FromString src
@@ -51,12 +35,35 @@ type Compiler() =
         List.iter addModuleToTable cUnit.Declarations
         cUnit
         
+    let compileTest testContent file = 
+        let lexbuf = LexBuffer<char>.FromString testContent
+        setInitialPos lexbuf file
+        let errLogger = ErrorLogger()
+        Lexer.errorLogger  <- errLogger
+        Parser.errorLogger <- errLogger
+        let cUnit = (Lexer.lex, lexbuf) ||> Parser.parseDrt
+        List.iter addTestToTable (cUnit.Declarations)
+        cUnit
+
+    let compileTests paths =
+        let rec compileRec acc = function
+            | file::t ->
+                let testContent = File.ReadAllText file
+                let cUnit = compileTest testContent file
+                let cUnit = { FilePath = file; CompilationUnit = cUnit }
+
+                compileRec (cUnit::acc) t
+            | [] -> acc
+        
+        compileRec [] paths
+        
     let compileModules paths =
         let rec compileRec acc = function
             | file::t ->
                 let moduleContent = File.ReadAllText file
                 let cUnit = compileModule moduleContent file
                 let cUnit = { FilePath = file; CompilationUnit = cUnit }
+
                 compileRec (cUnit::acc) t
             | [] -> acc
         
@@ -71,6 +78,8 @@ type Compiler() =
         let moduleUnits = __.CompileModule(modulePaths)
         (testUnits, moduleUnits)
 
+    member __.CompileTest(src: string) = compileTest src System.String.Empty
+    
     member __.CompileModule(src: string) = compileModule src System.String.Empty
 
 

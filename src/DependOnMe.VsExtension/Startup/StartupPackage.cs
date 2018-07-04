@@ -65,7 +65,7 @@ namespace DependOnMe.VsExtension.Startup
             var moduleUnits = compiler.CompileModule(modules.ToArray());
 
             moduleUnits
-                .SelectMany(mUnit => mUnit.CompilationUnit.OnlyValidModules())
+                .SelectMany(mUnit => mUnit.CompilationUnit.OnlyValidModules().ValidModules)
                 .ForEach(x =>
                 {
                     ModuleHub.Instance.ModulePool.Request(

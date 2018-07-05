@@ -37,5 +37,9 @@ namespace DependOnMe.VsExtension.ModuleAdornment
     {
         public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
             => new ModuleTermTagger() as ITagger<T>;
+
+        //public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag
+        //    => textView.Properties.GetOrCreateSingletonProperty(() =>
+        //        new ModuleTermTagger((IWpfTextView)textView, buffer) as ITagger<T>);
     }
 }

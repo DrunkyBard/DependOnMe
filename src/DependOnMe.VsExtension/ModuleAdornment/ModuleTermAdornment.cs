@@ -25,8 +25,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
         private readonly IWpfTextView _view;
         private readonly ITagAggregator<ModuleTermTag> _tagger;
 
-        private readonly Dictionary<int, List<(string moduleName, ModuleTree dep, ModuleButton modBtn)>> _lineAdornments
-            = new Dictionary<int, List<(string, ModuleTree, ModuleButton)>>();
+        private readonly Dictionary<int, List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)>> _lineAdornments
+            = new Dictionary<int, List<(string, string, ModuleTree, ModuleButton)>>();
 
         private Dictionary<(string test, string module), (int lineNumber, IDisposable subscription)> _onCreateModuleSubscriptions 
             = new Dictionary<(string test, string module), (int lineNumber, IDisposable subscription)>(TwoStringComparer);
@@ -52,7 +52,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             _view.LayoutChanged += OnLayoutChanged;
         }
 
-        private IDisposable SubscribeOnNewModule(int lineNumber, IMappingTagSpan<ModuleTermTag> tag)
+        private IDisposable SubscribeOnNewModule(int lineNumber, IMappingTagSpan<ModuleTermTag> tag, ITextViewLine line)
             => ModuleHub
                 .Instance
                 .NewModulesStream
@@ -65,20 +65,20 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     var testModulePair = (testName, moduleName);
                     var depView        = new ModuleTree(@event.CreatedModule);
                     var btnView        = new ModuleButton(10, 10, depView);
-                    var adornments     = _lineAdornments.GetOrAdd(lineNumber, _ => new List<(string moduleName, ModuleTree dep, ModuleButton modBtn)>());
+                    var adornments     = _lineAdornments.GetOrAdd(lineNumber, _ => new List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)>());
 
                     _onCreateModuleSubscriptions[testModulePair].subscription.Dispose();
                     var success = _onCreateModuleSubscriptions.Remove(testModulePair);
                     Debug.Assert(success, $"{testName} : {moduleName} not exists in _onCreateModuleSubscriptions");
-                    var subscription = SubscribeOnRemovedModule(lineNumber, tag);
+                    var subscription = SubscribeOnRemovedModule(lineNumber, tag, line);
                     _onRemoveModuleSubscriptions.Add(testModulePair, (lineNumber, subscription));
                     //TODO: Add onDuplicate subsrciption
 
                     Render(depView, btnView, tag);
-                    adornments.Add((tag.Tag.ModuleName, depView, btnView));
+                    adornments.Add((testName, moduleName, depView, btnView));
                 });
 
-        private IDisposable SubscribeOnRemovedModule(int lineNumber, IMappingTagSpan<ModuleTermTag> tag)
+        private IDisposable SubscribeOnRemovedModule(int lineNumber, IMappingTagSpan<ModuleTermTag> tag, ITextViewLine line)
             => ModuleHub
                 .Instance
                 .RemovedModulesStream
@@ -93,7 +93,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     _onRemoveModuleSubscriptions[testModulePair].subscription.Dispose();
                     var success = _onRemoveModuleSubscriptions.Remove(testModulePair);
                     Debug.Assert(success, $"{testName} : {moduleName} not exists in _onRemoveModuleSubscriptions");
-                    var subscription = SubscribeOnNewModule(lineNumber, tag);
+                    var subscription = SubscribeOnNewModule(lineNumber, tag, line);
                     _onCreateModuleSubscriptions.Add(testModulePair, (lineNumber, subscription));
 
                     if (_lineAdornments.TryGetValue(lineNumber, out var adornments))
@@ -105,6 +105,9 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                                 _btnLayer.RemoveAdornmentsByTag(moduleName);
                             });
 
+                        //_view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
+                        //_tagger.GetTags(tag.Span);
+
                         adornments.RemoveAll(x => x.moduleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
                     }
                 });
@@ -115,15 +118,24 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             {
                 var tagSpans   = _tagger.GetTags(line.ExtentAsMappingSpan).ToArray();
                 var lineNumber = line.Snapshot.GetLineNumberFromPosition(line.Start);
-                
-                ClearAdornments(lineNumber);
+
+                //ClearAdornments(lineNumber);
+
+                if (_lineAdornments.TryGetValue(lineNumber, out var adornmentDefs))
+                {
+                    ClearAdornmentsProperly(lineNumber, tagSpans, adornmentDefs);
+                }
+                else
+                {
+                    RemoveSubscriptionOnEmptyAdornments(lineNumber);
+                }
 
                 if (tagSpans.Length == 0)
                 {
                     continue;
                 }
 
-                CreateVisuals(lineNumber, tagSpans);
+                CreateVisuals(lineNumber, tagSpans, line);
             }
         }
 
@@ -131,18 +143,6 @@ namespace DependOnMe.VsExtension.ModuleAdornment
         {
             if (_lineAdornments.TryGetValue(lineNumber, out var adornments))
             {
-                var onCreate = _onCreateModuleSubscriptions.Where(x => x.Value.lineNumber == lineNumber).ToArray();
-                onCreate.ForEach(x => x.Value.subscription.Dispose());
-                onCreate.ForEach(x => _onCreateModuleSubscriptions.Remove(x.Key));
-
-                var onRemove = _onRemoveModuleSubscriptions.Where(x => x.Value.lineNumber == lineNumber).ToArray();
-                onRemove.ForEach(x => x.Value.subscription.Dispose());
-                onRemove.ForEach(x => _onRemoveModuleSubscriptions.Remove(x.Key));
-                
-                var onDuplicate = _onDuplicateModuleSubscriptions.Where(x => x.Value.lineNumber == lineNumber).ToArray();
-                onDuplicate.ForEach(x => x.Value.subscription.Dispose());
-                onDuplicate.ForEach(x => _onDuplicateModuleSubscriptions.Remove(x.Key));
-
                 foreach (var a in adornments)
                 {                    
                     _btnLayer.RemoveAdornment(a.dep);
@@ -151,14 +151,103 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
                 _lineAdornments.Remove(lineNumber);
             }
+
+            var onCreate = _onCreateModuleSubscriptions.Where(x => x.Value.lineNumber == lineNumber).ToArray();
+            onCreate.ForEach(x => x.Value.subscription.Dispose());
+            onCreate.ForEach(x => _onCreateModuleSubscriptions.Remove(x.Key));
+
+            var onRemove = _onRemoveModuleSubscriptions.Where(x => x.Value.lineNumber == lineNumber).ToArray();
+            onRemove.ForEach(x => x.Value.subscription.Dispose());
+            onRemove.ForEach(x => _onRemoveModuleSubscriptions.Remove(x.Key));
+
+            var onDuplicate = _onDuplicateModuleSubscriptions.Where(x => x.Value.lineNumber == lineNumber).ToArray();
+            onDuplicate.ForEach(x => x.Value.subscription.Dispose());
+            onDuplicate.ForEach(x => _onDuplicateModuleSubscriptions.Remove(x.Key));
         }
 
-        private void CreateVisuals(int lineNumber, IMappingTagSpan<ModuleTermTag>[] tagSpans)
+        private void ClearAdornmentsProperly(
+            int lineNumber, 
+            IMappingTagSpan<ModuleTermTag>[] tagSpans,
+            List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)> adornmentDefs)
+        {
+            List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)> forRemoveAdornments;
+
+            if (tagSpans.Length > 0)
+            {
+                forRemoveAdornments = adornmentDefs
+                    .Where(x => !tagSpans.Any(y => x.moduleName.Equals(y.Tag.ModuleName, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+                adornmentDefs.RemoveAll(x => !tagSpans.Any(y => x.moduleName.Equals(y.Tag.ModuleName, StringComparison.OrdinalIgnoreCase)));
+
+                if (adornmentDefs.Count == 0)
+                {
+                    _lineAdornments.Remove(lineNumber);
+                }
+            }
+            else
+            {
+                forRemoveAdornments = adornmentDefs;
+                _lineAdornments.Remove(lineNumber);
+            }
+
+            foreach (var forRemoveAdornment in forRemoveAdornments)
+            {
+                _btnLayer.RemoveAdornment(forRemoveAdornment.dep);
+                _btnLayer.RemoveAdornment(forRemoveAdornment.modBtn);
+
+                var onCreate = _onCreateModuleSubscriptions
+                    .Where(x => x.Value.lineNumber == lineNumber &&
+                                x.Key.test.Equals(forRemoveAdornment.testName, StringComparison.OrdinalIgnoreCase) &&
+                                x.Key.module.Equals(forRemoveAdornment.moduleName, StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+                onCreate.ForEach(x => x.Value.subscription.Dispose());
+                onCreate.ForEach(x => _onCreateModuleSubscriptions.Remove(x.Key));
+
+                var onRemove = _onRemoveModuleSubscriptions
+                    .Where(x => x.Value.lineNumber == lineNumber &&
+                                x.Key.test.Equals(forRemoveAdornment.testName, StringComparison.OrdinalIgnoreCase) &&
+                                x.Key.module.Equals(forRemoveAdornment.moduleName, StringComparison.OrdinalIgnoreCase))
+                    .ToArray(); ;
+                onRemove.ForEach(x => x.Value.subscription.Dispose());
+                onRemove.ForEach(x => _onRemoveModuleSubscriptions.Remove(x.Key));
+
+                var onDuplicate = _onDuplicateModuleSubscriptions
+                    .Where(x => x.Value.lineNumber == lineNumber &&
+                                x.Key.test.Equals(forRemoveAdornment.testName, StringComparison.OrdinalIgnoreCase) &&
+                                x.Key.module.Equals(forRemoveAdornment.moduleName, StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+                onDuplicate.ForEach(x => x.Value.subscription.Dispose());
+                onDuplicate.ForEach(x => _onDuplicateModuleSubscriptions.Remove(x.Key));
+            }
+        }
+
+        private void RemoveSubscriptionOnEmptyAdornments(int lineNumber)
+        {
+            var onCreate = _onCreateModuleSubscriptions
+                .Where(x => x.Value.lineNumber == lineNumber)
+                .ToArray();
+            onCreate.ForEach(x => x.Value.subscription.Dispose());
+            onCreate.ForEach(x => _onCreateModuleSubscriptions.Remove(x.Key));
+
+            var onRemove = _onRemoveModuleSubscriptions
+                .Where(x => x.Value.lineNumber == lineNumber)
+                .ToArray(); ;
+            onRemove.ForEach(x => x.Value.subscription.Dispose());
+            onRemove.ForEach(x => _onRemoveModuleSubscriptions.Remove(x.Key));
+
+            var onDuplicate = _onDuplicateModuleSubscriptions
+                .Where(x => x.Value.lineNumber == lineNumber)
+                .ToArray();
+            onDuplicate.ForEach(x => x.Value.subscription.Dispose());
+            onDuplicate.ForEach(x => _onDuplicateModuleSubscriptions.Remove(x.Key));
+        }
+
+        private void CreateVisuals(int lineNumber, IMappingTagSpan<ModuleTermTag>[] tagSpans, ITextViewLine line)
         {
             if (_lineAdornments.TryGetValue(lineNumber, out var adornmentDefs))
             {
-                adornmentDefs
-                    .RemoveAll(x => !tagSpans.Any(y => x.moduleName.Equals(y.Tag.ModuleName, StringComparison.OrdinalIgnoreCase)));
+                //ClearAdornmentsProperly(lineNumber, tagSpans, adornmentDefs);
+
                 var existingAdornments = adornmentDefs
                     .Join(
                         tagSpans,
@@ -187,22 +276,22 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                             {
                                 var depView = new ModuleTree(module);
                                 var btnView = new ModuleButton(10, 10, depView);
-                                var subscription = SubscribeOnRemovedModule(lineNumber, newModuleTag);
+                                var subscription = SubscribeOnRemovedModule(lineNumber, newModuleTag, line);
                                 _onRemoveModuleSubscriptions.Add((testName, moduleName), (lineNumber, subscription));
 
                                 Render(depView, btnView, newModuleTag);
-                                adornmentDefs.Add((moduleName, depView, btnView));
+                                adornmentDefs.Add((testName, moduleName, depView, btnView));
                             },
                             () =>
                             {
-                                var subscription = SubscribeOnNewModule(lineNumber, newModuleTag);
+                                var subscription = SubscribeOnNewModule(lineNumber, newModuleTag, line);
                                 _onCreateModuleSubscriptions.Add((testName, moduleName), (lineNumber, subscription));
                             });
                 }
             }
             else
             {
-                var newAdornments = new List<(string moduleName, ModuleTree dep, ModuleButton modBtn)>();
+                var newAdornments = new List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)>();
 
                 foreach (var tag in tagSpans)
                 {
@@ -215,15 +304,15 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                             {
                                 var depView = new ModuleTree(module);
                                 var btnView = new ModuleButton(10, 10, depView);
-                                var subscription = SubscribeOnRemovedModule(lineNumber, tag);
+                                var subscription = SubscribeOnRemovedModule(lineNumber, tag, line);
                                 _onRemoveModuleSubscriptions.Add((testName, moduleName), (lineNumber, subscription));
 
                                 Render(depView, btnView, tag);
-                                newAdornments.Add((moduleName, depView, btnView));
+                                newAdornments.Add((testName, moduleName, depView, btnView));
                             },
                             () =>
                             {
-                                var subscription = SubscribeOnNewModule(lineNumber, tag);
+                                var subscription = SubscribeOnNewModule(lineNumber, tag, line);
                                 _onCreateModuleSubscriptions.Add((testName, moduleName), (lineNumber, subscription));
                             });
                 }

@@ -1,5 +1,7 @@
 ﻿using Compilation;
+using DependOnMe.VsExtension.Messaging;
 using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
@@ -10,11 +12,34 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 {
     internal sealed class ModuleTermTagger : ITagger<ModuleTermTag>
     {
+        private readonly IWpfTextView _textView;
+        private readonly ITextBuffer _buffer;
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         private static readonly Regex ModuleTermRegex =
             new Regex(@"MODULE (?<moduleName>\w+(?:[\w|\d]*\.\w[\w|\d]*)*)",
                 RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+        //public ModuleTermTagger(IWpfTextView textView, ITextBuffer buffer)
+        //{
+        //    _textView = textView;
+        //    _buffer = buffer;
+
+        //    _textView.LayoutChanged += (sender, args) =>
+        //    {
+        //        var a = 1;
+        //    };
+
+        //    _textView.BufferGraph.GraphBuffersChanged += (sender, args) =>
+        //    {
+        //        var a = 1;
+        //    };
+
+        //    _buffer.Changed += (sender, args) =>
+        //    {
+        //        var a = 1;
+        //    };
+        //}
 
         private static Compiler _compiler = new Compiler();
 
@@ -58,10 +83,24 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                 }
 
                 var modSpan = new SnapshotSpan(span.Snapshot, new Span(span.Start.Position + match.Index, match.Length));
-                var termTag = new ModuleTermTag(moduleName, containingTest.Name, 0, 10, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
+                //var termTag = new ModuleTermTag(moduleName, containingTest.Name, 0, 10, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
+                var termTag = ModuleHub
+                    .Instance
+                    .ModulePool
+                    .TryRequest(moduleName)
+                    .ContinueWith(
+                        _  => SpacedTag(containingTest.Name, moduleName, modSpan),
+                        () => NormalTag(containingTest.Name, moduleName, modSpan));
+
 
                 yield return new TagSpan<ModuleTermTag>(modSpan, termTag);
             }
         }
+
+        private ModuleTermTag SpacedTag(string testName, string moduleName, SnapshotSpan modSpan)
+            => new ModuleTermTag(moduleName, testName, 0, 10, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
+
+        private ModuleTermTag NormalTag(string testName, string moduleName, SnapshotSpan modSpan)
+            => new ModuleTermTag(moduleName, testName, 0, 0, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
     }
 }

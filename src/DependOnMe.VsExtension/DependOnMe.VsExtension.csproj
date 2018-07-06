@@ -72,6 +72,8 @@
     <Compile Include="Messaging\ModuleHub.cs" />
     <Compile Include="Messaging\ModuleTermPool.cs" />
     <Compile Include="ModuleAdornment\ModuleTermAdornment.cs" />
+    <Compile Include="ModuleAdornment\ModuleTermLineTransformSource.cs" />
+    <Compile Include="ModuleAdornment\ModuleTermLineTransformSourceProvider.cs" />
     <Compile Include="ModuleAdornment\ModuleTermTagger.cs" />
     <Compile Include="ModuleAdornment\ModuleTermTaggerProvider.cs" />
     <Compile Include="ModuleAdornment\TextAdornmentTextViewCreationListener.cs" />

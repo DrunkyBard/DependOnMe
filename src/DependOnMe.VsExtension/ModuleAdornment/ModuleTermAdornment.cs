@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Windows.Controls;
 
 namespace DependOnMe.VsExtension.ModuleAdornment
@@ -73,6 +74,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     var subscription = SubscribeOnRemovedModule(lineNumber, tag, line);
                     _onRemoveModuleSubscriptions.Add(testModulePair, (lineNumber, subscription));
                     //TODO: Add onDuplicate subsrciption
+                    UpdateView(line);
+                    //_view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
 
                     Render(depView, btnView, tag);
                     adornments.Add((testName, moduleName, depView, btnView));
@@ -105,12 +108,32 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                                 _btnLayer.RemoveAdornmentsByTag(moduleName);
                             });
 
+                        UpdateView(line);
                         //_view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
                         //_tagger.GetTags(tag.Span);
 
                         adornments.RemoveAll(x => x.moduleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
+
+                        if (adornments.Count == 0)
+                        {
+                            _lineAdornments.Remove(lineNumber);
+                        }
                     }
                 });
+
+        private void UpdateView(ITextViewLine line)
+        {
+            var ctx = SynchronizationContext.Current;
+
+            if (ctx != null)
+            {
+                ctx.Post(_ => _view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top), null);
+            }
+            else
+            {
+                _view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
+            }
+        }
 
         internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
         {
@@ -244,6 +267,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
         private void CreateVisuals(int lineNumber, IMappingTagSpan<ModuleTermTag>[] tagSpans, ITextViewLine line)
         {
+            UpdateView(line);
+
             if (_lineAdornments.TryGetValue(lineNumber, out var adornmentDefs))
             {
                 //ClearAdornmentsProperly(lineNumber, tagSpans, adornmentDefs);

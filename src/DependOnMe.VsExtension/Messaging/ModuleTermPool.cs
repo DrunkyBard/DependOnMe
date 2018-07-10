@@ -1,4 +1,4 @@
-﻿using CompilationTable;
+﻿using Compilation;
 using DependOnMe.VsExtension.ModuleAdornment.UI;
 using System;
 using System.Collections.Concurrent;
@@ -19,8 +19,6 @@ namespace DependOnMe.VsExtension.Messaging
                 throw new ArgumentNullException(nameof(moduleName));
             }
 
-            CompilationUnitTable.Instance.AddModule(moduleName);
-
             return _availableModules.GetOrAdd(moduleName, name => new DependencyModule(name));
         }
 
@@ -33,8 +31,6 @@ namespace DependOnMe.VsExtension.Messaging
             {
                 throw new ArgumentNullException(nameof(moduleName));
             }
-
-            CompilationUnitTable.Instance.AddModule(moduleName);
 
             return _availableModules.GetOrAdd(moduleName, name => new DependencyModule(plainDependencies, innerModules, moduleName));
         }
@@ -63,7 +59,7 @@ namespace DependOnMe.VsExtension.Messaging
 
             if (_availableModules.TryRemove(moduleName, out var module))
             {
-                CompilationUnitTable.Instance.RemoveModule(moduleName);
+                RefTable.Instance.RemoveDeclaration(moduleName);
 
                 return Some<DependencyModule>.Create(module);
             }

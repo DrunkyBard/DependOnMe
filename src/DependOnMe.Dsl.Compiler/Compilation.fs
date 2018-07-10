@@ -15,15 +15,15 @@ open CompilationTable
 
 type Compiler() =
 
-    let addModuleToTable = function
-        | ModuleDeclaration.Module(ModuleHeader.Full(name, _, _), _, _, _) -> CompilationUnitTable.Instance.AddModule(name)
-        | _ -> ()
+    let addModuleToTable (fileUnit: FileCompilationUnit<ModuleDeclaration>) = 
+        match fileUnit.CompilationUnit with
+            | ModuleDeclaration.Module(ModuleHeader.Full(name, _, _), _, _, _) -> RefTable.Instance.AddDeclaration(name, fileUnit)
+            | _ -> ()
         
-    let addTestToTable = function
-        | DependencyTest.Test(TestHeader.Full(name, _, _), _, _, _, _, _) -> CompilationUnitTable.Instance.AddTest(name)
-        | _ -> ()
-
-
+    let addTestToTable (fileUnit: FileCompilationUnit<DependencyTest>) = 
+        match fileUnit.CompilationUnit with
+            | DependencyTest.Test(TestHeader.Full(_, _, _), _, _, _, _, _) -> RefTable.Instance.AddRef(fileUnit)
+            | _ -> ()
 
     let compileModule src file = 
         let lexbuf = LexBuffer<char>.FromString src
@@ -32,7 +32,9 @@ type Compiler() =
         ModuleLexer.errorLogger  <- errLogger
         ModuleParser.errorLogger <- errLogger
         let cUnit = (ModuleLexer.lexModule, lexbuf) ||> ModuleParser.parseModule
-        List.iter addModuleToTable cUnit.Declarations
+        cUnit.Declarations 
+            |> List.map (fun x -> { FilePath = file; CompilationUnit = x; })
+            |> List.iter addModuleToTable
         cUnit
         
     let compileTest testContent file = 
@@ -42,7 +44,9 @@ type Compiler() =
         Lexer.errorLogger  <- errLogger
         Parser.errorLogger <- errLogger
         let cUnit = (Lexer.lex, lexbuf) ||> Parser.parseDrt
-        List.iter addTestToTable (cUnit.Declarations)
+        cUnit.Declarations 
+            |> List.map (fun x -> { FilePath = file; CompilationUnit = x; })
+            |> List.iter addTestToTable
         cUnit
 
     let compileTests paths =
@@ -78,10 +82,10 @@ type Compiler() =
         let moduleUnits = __.CompileModule(modulePaths)
         (testUnits, moduleUnits)
 
-    member __.CompileTest(src: string) = compileTest src System.String.Empty
+    member __.CompileTestOnFly(src: string, filePath: string) = compileTest src filePath
+
+    member __.CompileModuleOnFly(src: string, filePath: string) = compileModule src filePath
+
+    member __.CompileTest(src: string) = __.CompileTestOnFly(src, System.String.Empty)
     
-    member __.CompileModule(src: string) = compileModule src System.String.Empty
-
-
-
-
+    member __.CompileModule(src: string) = __.CompileModuleOnFly(src, System.String.Empty)

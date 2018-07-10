@@ -74,7 +74,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     var subscription = SubscribeOnRemovedModule(lineNumber, tag, line);
                     _onRemoveModuleSubscriptions.Add(testModulePair, (lineNumber, subscription));
                     //TODO: Add onDuplicate subsrciption
-                    UpdateView(line);
+                    UpdateView(line, lineNumber);
                     //_view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
 
                     Render(depView, btnView, tag);
@@ -108,7 +108,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                                 _btnLayer.RemoveAdornmentsByTag(moduleName);
                             });
 
-                        UpdateView(line);
+                        UpdateView(line, lineNumber);
                         //_view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
                         //_tagger.GetTags(tag.Span);
 
@@ -121,13 +121,25 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     }
                 });
 
-        private void UpdateView(ITextViewLine line)
+        //private void UpdateView(ITextViewLine line, int lineNumber)
+        private void UpdateView(ITextViewLine line, int lineNumber)
         {
             var ctx = SynchronizationContext.Current;
-
+            //var startPosition = line.Start.Position;
+            var topPosition = line.Top;
+                        
             if (ctx != null)
             {
-                ctx.Post(_ => _view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top), null);
+                ctx.Post(_ =>
+                {
+                    var rLine = _view.TextBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber);
+                    _view.DisplayTextLineContainingBufferPosition(rLine.Start, topPosition, ViewRelativePosition.Top);
+
+                    //if (line.IsValid)
+                    //{
+                    //    _view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
+                    //}
+                }, null);
             }
             else
             {
@@ -267,7 +279,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
         private void CreateVisuals(int lineNumber, IMappingTagSpan<ModuleTermTag>[] tagSpans, ITextViewLine line)
         {
-            UpdateView(line);
+            UpdateView(line, lineNumber);
 
             if (_lineAdornments.TryGetValue(lineNumber, out var adornmentDefs))
             {

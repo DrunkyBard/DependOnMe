@@ -53,7 +53,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             _view.LayoutChanged += OnLayoutChanged;
         }
 
-        private IDisposable SubscribeOnNewModule(int lineNumber, IMappingTagSpan<ModuleTermTag> tag, ITextViewLine line)
+        private IDisposable SubscribeOnNewModule(int lineNumber, IMappingTagSpan<ModuleTermTag> tag, double lineTop)
             => ModuleHub
                 .Instance
                 .NewModulesStream
@@ -71,17 +71,17 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     _onCreateModuleSubscriptions[testModulePair].subscription.Dispose();
                     var success = _onCreateModuleSubscriptions.Remove(testModulePair);
                     Debug.Assert(success, $"{testName} : {moduleName} not exists in _onCreateModuleSubscriptions");
-                    var subscription = SubscribeOnRemovedModule(lineNumber, tag, line);
+                    var subscription = SubscribeOnRemovedModule(lineNumber, tag, lineTop);
                     _onRemoveModuleSubscriptions.Add(testModulePair, (lineNumber, subscription));
                     //TODO: Add onDuplicate subsrciption
-                    UpdateView(line, lineNumber);
+                    UpdateView(lineNumber, lineTop);
                     //_view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
 
                     Render(depView, btnView, tag);
                     adornments.Add((testName, moduleName, depView, btnView));
                 });
 
-        private IDisposable SubscribeOnRemovedModule(int lineNumber, IMappingTagSpan<ModuleTermTag> tag, ITextViewLine line)
+        private IDisposable SubscribeOnRemovedModule(int lineNumber, IMappingTagSpan<ModuleTermTag> tag, double lineTop)
             => ModuleHub
                 .Instance
                 .RemovedModulesStream
@@ -96,7 +96,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     _onRemoveModuleSubscriptions[testModulePair].subscription.Dispose();
                     var success = _onRemoveModuleSubscriptions.Remove(testModulePair);
                     Debug.Assert(success, $"{testName} : {moduleName} not exists in _onRemoveModuleSubscriptions");
-                    var subscription = SubscribeOnNewModule(lineNumber, tag, line);
+                    var subscription = SubscribeOnNewModule(lineNumber, tag, lineTop);
                     _onCreateModuleSubscriptions.Add(testModulePair, (lineNumber, subscription));
 
                     if (_lineAdornments.TryGetValue(lineNumber, out var adornments))
@@ -108,7 +108,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                                 _btnLayer.RemoveAdornmentsByTag(moduleName);
                             });
 
-                        UpdateView(line, lineNumber);
+                        UpdateView(lineNumber, lineTop);
                         //_view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
                         //_tagger.GetTags(tag.Span);
 
@@ -122,28 +122,22 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                 });
 
         //private void UpdateView(ITextViewLine line, int lineNumber)
-        private void UpdateView(ITextViewLine line, int lineNumber)
+        private void UpdateView(int lineNumber, double lineTop)
         {
             var ctx = SynchronizationContext.Current;
-            //var startPosition = line.Start.Position;
-            var topPosition = line.Top;
                         
             if (ctx != null)
             {
                 ctx.Post(_ =>
                 {
-                    var rLine = _view.TextBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber);
-                    _view.DisplayTextLineContainingBufferPosition(rLine.Start, topPosition, ViewRelativePosition.Top);
-
-                    //if (line.IsValid)
-                    //{
-                    //    _view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
-                    //}
+                    var point = _view.TextBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber);
+                    _view.DisplayTextLineContainingBufferPosition(point.Start, lineTop, ViewRelativePosition.Top);
                 }, null);
             }
             else
             {
-                _view.DisplayTextLineContainingBufferPosition(line.Start, line.Top, ViewRelativePosition.Top);
+                var point = _view.TextBuffer.CurrentSnapshot.GetLineFromLineNumber(lineNumber);
+                _view.DisplayTextLineContainingBufferPosition(point.Start, lineTop, ViewRelativePosition.Top);
             }
         }
 
@@ -279,7 +273,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
         private void CreateVisuals(int lineNumber, IMappingTagSpan<ModuleTermTag>[] tagSpans, ITextViewLine line)
         {
-            UpdateView(line, lineNumber);
+            UpdateView(lineNumber, line.Top);
 
             if (_lineAdornments.TryGetValue(lineNumber, out var adornmentDefs))
             {
@@ -313,7 +307,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                             {
                                 var depView = new ModuleTree(module);
                                 var btnView = new ModuleButton(10, 10, depView);
-                                var subscription = SubscribeOnRemovedModule(lineNumber, newModuleTag, line);
+                                var subscription = SubscribeOnRemovedModule(lineNumber, newModuleTag, line.Top);
                                 _onRemoveModuleSubscriptions.Add((testName, moduleName), (lineNumber, subscription));
 
                                 Render(depView, btnView, newModuleTag);
@@ -321,7 +315,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                             },
                             () =>
                             {
-                                var subscription = SubscribeOnNewModule(lineNumber, newModuleTag, line);
+                                var subscription = SubscribeOnNewModule(lineNumber, newModuleTag, line.Top);
                                 _onCreateModuleSubscriptions.Add((testName, moduleName), (lineNumber, subscription));
                             });
                 }
@@ -341,7 +335,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                             {
                                 var depView = new ModuleTree(module);
                                 var btnView = new ModuleButton(10, 10, depView);
-                                var subscription = SubscribeOnRemovedModule(lineNumber, tag, line);
+                                var subscription = SubscribeOnRemovedModule(lineNumber, tag, line.Top);
                                 _onRemoveModuleSubscriptions.Add((testName, moduleName), (lineNumber, subscription));
 
                                 Render(depView, btnView, tag);
@@ -349,7 +343,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                             },
                             () =>
                             {
-                                var subscription = SubscribeOnNewModule(lineNumber, tag, line);
+                                var subscription = SubscribeOnNewModule(lineNumber, tag, line.Top);
                                 _onCreateModuleSubscriptions.Add((testName, moduleName), (lineNumber, subscription));
                             });
                 }

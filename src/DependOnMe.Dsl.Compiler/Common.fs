@@ -16,3 +16,9 @@ type 'a HashSet with
     member this.AddOrUpdate(item: 'a) = 
         this.Remove(item) |> ignore
         this.Add(item)    |> ignore
+
+type ('a, 'b) Dictionary with
+    member dict.AddOrUpdate(key: 'a, value: 'b, update: 'a -> 'b -> 'b) =
+        match dict.TryGetValue(key) with
+            | (true, v)  -> dict.[key] <- update key v
+            | (false, _) -> dict.Add(key, value)

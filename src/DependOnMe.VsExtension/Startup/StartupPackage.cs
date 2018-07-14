@@ -1,6 +1,8 @@
 ﻿using Compilation;
+using CompilationUnit;
 using DependOnMe.VsExtension.ContentTypeDefinition;
 using DependOnMe.VsExtension.Messaging;
+using DslAst;
 using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -65,13 +67,17 @@ namespace DependOnMe.VsExtension.Startup
             var moduleUnits = compiler.CompileModule(modules.ToArray());
 
             moduleUnits
-                .SelectMany(mUnit => mUnit.CompilationUnit.OnlyValidModules().ValidModules)
+                .SelectMany(mUnit => mUnit
+                    .CompilationUnit
+                    .OnlyValidModules()
+                    .ValidModules
+                    .Select(validModule => new FileCompilationUnit<Extension.ValidModuleRegistration>(mUnit.FilePath, validModule)))
                 .ForEach(x =>
                 {
                     ModuleHub.Instance.ModulePool.Request(
-                        x.Name,
-                        x.ClassRegistrations.ToViewModels(),
-                        x.ModuleRegistrations.CollectSubModules());
+                        x,
+                        x.CompilationUnit.ClassRegistrations.ToViewModels(),
+                        x.CompilationUnit.ModuleRegistrations.CollectSubModules());
                 });
         }
 

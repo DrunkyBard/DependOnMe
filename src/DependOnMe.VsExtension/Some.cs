@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace DependOnMe.VsExtension
 {
@@ -14,10 +16,14 @@ namespace DependOnMe.VsExtension
             Value  = value;
         }
 
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Some<T> Create(T value) => new Some<T>(value);
 
         public static Some<T> None => new Some<T>();
 
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TU ContinueWith<TU>(Func<T, TU> ifSome, Func<TU> ifNone)
         {
             if (IsSome)
@@ -28,6 +34,8 @@ namespace DependOnMe.VsExtension
             return ifNone();
         }
 
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ContinueWith(Action<T> ifSome, Action ifNone)
         {
             if (IsSome)
@@ -40,6 +48,8 @@ namespace DependOnMe.VsExtension
             }
         }
 
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WhenHasValueThen(Action<T> ifSome)
         {
             if (IsSome)

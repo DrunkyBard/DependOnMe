@@ -1,7 +1,10 @@
 ﻿using Compilation;
+using CompilationUnit;
 using DependOnMe.VsExtension.ModuleAdornment.UI;
+using DslAst;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace DependOnMe.VsExtension.Messaging
@@ -12,6 +15,28 @@ namespace DependOnMe.VsExtension.Messaging
 
         public ModuleTermPool() => _availableModules = new ConcurrentDictionary<string, DependencyModule>();
 
+        public (bool duplicated, DependencyModule module) Request(FileCompilationUnit<Extension.ValidModuleRegistration> moduleUnit)
+        {
+            if (moduleUnit == null)
+            {
+                throw new ArgumentNullException(nameof(moduleUnit));
+            }
+
+            //RefTable.Instance.AddDeclaration(moduleUnit);
+            var moduleName = moduleUnit.CompilationUnit.Name;
+
+            if (RefTable.Instance.HasDuplicates(moduleName))
+            {
+                _availableModules.TryRemove(moduleName, out _);
+
+                return (true, null);
+            }
+
+            var newModule = _availableModules.GetOrAdd(moduleName, name => new DependencyModule(name));
+
+            return (false, newModule);
+        }
+
         public DependencyModule Request(string moduleName)
         {
             if (string.IsNullOrWhiteSpace(moduleName))
@@ -19,20 +44,29 @@ namespace DependOnMe.VsExtension.Messaging
                 throw new ArgumentNullException(nameof(moduleName));
             }
 
-            return _availableModules.GetOrAdd(moduleName, name => new DependencyModule(name));
+            if (_availableModules.TryGetValue(moduleName, out var module))
+            {
+                return module;
+            }
+
+            throw new KeyNotFoundException($"Module {moduleName} is not defined");
         }
 
         public DependencyModule Request(
-            string moduleName,
+            FileCompilationUnit<Extension.ValidModuleRegistration> moduleUnit,
             ObservableCollection<PlainDependency> plainDependencies,
             ObservableCollection<DependencyModule> innerModules)
         {
-            if (string.IsNullOrWhiteSpace(moduleName))
+            if (moduleUnit == null)
             {
-                throw new ArgumentNullException(nameof(moduleName));
+                throw new ArgumentNullException(nameof(moduleUnit));
             }
+            
+            //RefTable.Instance.AddDeclaration(moduleUnit);
 
-            return _availableModules.GetOrAdd(moduleName, name => new DependencyModule(plainDependencies, innerModules, moduleName));
+            var moduleName = moduleUnit.CompilationUnit.Name;
+
+            return _availableModules.GetOrAdd(moduleName, name => new DependencyModule(plainDependencies, innerModules, name));
         }
 
         public Some<DependencyModule> TryRequest(string moduleName)
@@ -50,17 +84,17 @@ namespace DependOnMe.VsExtension.Messaging
                 ? throw new ArgumentNullException(nameof(moduleName))
                 : _availableModules.ContainsKey(moduleName);
 
-        public Some<DependencyModule> TryRelease(string moduleName)
+        public Some<DependencyModule> TryRelease(FileCompilationUnit<string> moduleUnit)
         {
-            if (string.IsNullOrWhiteSpace(moduleName))
+            if (moduleUnit == null)
             {
-                throw new ArgumentNullException(nameof(moduleName));
+                throw new ArgumentNullException(nameof(moduleUnit));
             }
 
-            if (_availableModules.TryRemove(moduleName, out var module))
-            {
-                RefTable.Instance.RemoveDeclaration(moduleName);
+            RefTable.Instance.TryRemoveDeclaration(moduleUnit);
 
+            if (_availableModules.TryRemove(moduleUnit.CompilationUnit, out var module))
+            {
                 return Some<DependencyModule>.Create(module);
             }
             

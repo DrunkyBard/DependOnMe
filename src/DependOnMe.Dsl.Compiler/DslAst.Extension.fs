@@ -70,3 +70,7 @@ let OnlyValidTests (cUnit: TestCompilationUnit) =
     let errors = cUnit.Errors |> List.choose choosePosRange |> Array.ofList
 
     { ValidTests = validTests; Errors = errors; }
+
+let TryGetName = function
+    | ModuleDeclaration.Module(ModuleHeader.Full(name, _, _), _, _, _) -> (true, name)
+    | _ -> (false, null)

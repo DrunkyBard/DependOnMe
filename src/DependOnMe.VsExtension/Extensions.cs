@@ -1,4 +1,5 @@
-﻿using CompilationUnit;
+﻿using Compilation;
+using CompilationUnit;
 using DependOnMe.VsExtension.Messaging;
 using DependOnMe.VsExtension.ModuleAdornment.UI;
 using DslAst;
@@ -41,6 +42,9 @@ namespace DependOnMe.VsExtension
         public static Extension.ValidTestsContainer OnlyValidTests(this TestCompilationUnit cUnit)
             => Extension.OnlyValidTests(cUnit);
 
+        public static (bool hasName, string name) TryGetName(this ModuleDslAst.ModuleDeclaration declaration)
+            => Extension.TryGetName(declaration).ToValueTuple();
+
         public static ObservableCollection<PlainDependency> ToViewModels(this IEnumerable<CommonDslAst.ClassRegistration> classRegistrations)
             => classRegistrations
                 .Select(cr => new PlainDependency(cr.Dependency, cr.Implementation))
@@ -48,12 +52,12 @@ namespace DependOnMe.VsExtension
 
         public static ObservableCollection<DependencyModule> CollectSubModules(this CommonDslAst.ModuleRegistration[] modules)
             => modules
-                .Select(m => ModuleHub.Instance.ModulePool.TryRequest(m.Name))
-                .Where(sm => sm.IsSome)
-                .Select(sm => sm.Value)
+                .Where(m => RefTable.Instance.HasWithoutDuplicates(m.Name))
+                .Select(m => ModuleHub.Instance.ModulePool.Request(m.Name))
                 .ToObservable();
 
-        public static (IEnumerable<T> leftUnique, IEnumerable<(T leftIntersection, T rightIntersection)> intersection, IEnumerable<T> rightUnique) Split<T>(this ICollection<T> left, ICollection<T> right, IEqualityComparer<T> comparer)
+        public static (IEnumerable<T> leftUnique, IEnumerable<(T leftIntersection, T rightIntersection)> intersection, IEnumerable<T> rightUnique) 
+            Split<T>(this ICollection<T> left, ICollection<T> right, IEqualityComparer<T> comparer)
         {
             var leftHashset  = new HashSet<T>(left, comparer);
             var rightHashset = new HashSet<T>(right, comparer);
@@ -71,6 +75,54 @@ namespace DependOnMe.VsExtension
             rightHashset.ExceptWith(intersection.Select(x => x.Item1));
 
             return (leftHashset.AsEnumerable(), intersection.AsEnumerable(), rightHashset.AsEnumerable());
+        }
+
+        public static (IReadOnlyCollection<Occurence<T>> leftUnique, IReadOnlyCollection<(Occurence<T> leftIntersection, Occurence<T> rightIntersection)> intersection, IReadOnlyCollection<Occurence<T>> rightUnique) 
+            SplitD<T>(this ICollection<T> left, ICollection<T> right, IEqualityComparer<T> comparer)
+        {
+            var leftLookup  = left
+                .GroupBy(x => x, comparer)
+                .ToDictionary(x => x.Key, x => x.ToList().AsReadOnly(), comparer);
+            var rightLookup = right
+                .GroupBy(x => x, comparer)
+                .ToDictionary(x => x.Key, x => x.ToList().AsReadOnly(), comparer);
+
+            var intersection = new List<(Occurence<T> left, Occurence<T> right)>();
+            var leftUnique   = new List<Occurence<T>>();
+
+            foreach (var leftItem in leftLookup)
+            {
+                var leftOcc = new Occurence<T>(leftItem.Key, leftItem.Value);
+
+                if (rightLookup.TryGetValue(leftItem.Key, out var rightItem))
+                {
+                    var rightOcc = new Occurence<T>(rightItem.First(), rightItem);
+                    intersection.Add((leftOcc, rightOcc));
+                }
+                else
+                {
+                    leftUnique.Add(leftOcc);
+                }
+            }
+
+            var rightUnique = rightLookup
+                .Where(x => !leftLookup.ContainsKey(x.Key))
+                .Select(x => new Occurence<T>(x.Key, x.Value))
+                .ToList().AsReadOnly();
+            
+            return (leftUnique.AsReadOnly(), intersection.AsReadOnly(), rightUnique);
+        }
+    }
+
+    public struct Occurence<T>
+    {
+        public readonly T Key;
+        public readonly IReadOnlyCollection<T> Occurences;
+
+        public Occurence(T key, IReadOnlyCollection<T> occurences)
+        {
+            Key = key;
+            Occurences = occurences;
         }
     }
 

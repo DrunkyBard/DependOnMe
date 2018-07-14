@@ -24,8 +24,11 @@ namespace DependOnMe.VsExtension.ModuleAdornment
     [TagType(typeof(ModuleTermTag))]
     internal sealed class ModuleTermTaggerProvider : ITaggerProvider
     {
+        [Import]
+        internal ITextDocumentFactoryService TextDocumentFactoryService;
+
         public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
-            => new ModuleTermTagger() as ITagger<T>;
+            => new ModuleTermTagger(TextDocumentFactoryService, buffer) as ITagger<T>;
 
         //public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag
         //    => textView.Properties.GetOrCreateSingletonProperty(() =>

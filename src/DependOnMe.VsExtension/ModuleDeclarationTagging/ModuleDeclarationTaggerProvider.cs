@@ -16,7 +16,10 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
         [Import]
         internal IBufferTagAggregatorFactoryService BufferTagAggregatorFactoryService;
 
+        [Import]
+        internal ITextDocumentFactoryService TextDocumentFactoryService;
+
         public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag 
-            => buffer.Properties.GetOrCreateSingletonProperty(() => new ModuleDeclarationTagger()) as ITagger<T>;
+            => buffer.Properties.GetOrCreateSingletonProperty(() => new ModuleDeclarationTagger(TextDocumentFactoryService, buffer)) as ITagger<T>;
     }
 }

@@ -12,12 +12,21 @@ open System.IO
 open CompilationUnit
 open Semantic
 open CompilationTable
+open DslAst.Extension
 
 type Compiler() =
 
     let addModuleToTable (fileUnit: FileCompilationUnit<ModuleDeclaration>) = 
         match fileUnit.CompilationUnit with
-            | ModuleDeclaration.Module(ModuleHeader.Full(name, _, _), _, _, _) -> RefTable.Instance.AddDeclaration(name, fileUnit)
+            | ModuleDeclaration.Module(ModuleHeader.Full(name, _, _), classRegs, moduleRegs, pos) -> 
+                let validRegistration = 
+                    {
+                        ValidModuleRegistration.Name = name;
+                        ClassRegistrations = Array.ofList classRegs;
+                        ModuleRegistrations = Array.ofList moduleRegs;
+                        Position = pos;
+                    }
+                RefTable.Instance.AddDeclaration({ FilePath = fileUnit.FilePath; CompilationUnit = validRegistration; })
             | _ -> ()
         
     let addTestToTable (fileUnit: FileCompilationUnit<DependencyTest>) = 
@@ -86,6 +95,6 @@ type Compiler() =
 
     member __.CompileModuleOnFly(src: string, filePath: string) = compileModule src filePath
 
-    member __.CompileTest(src: string) = __.CompileTestOnFly(src, System.String.Empty)
+    //member __.CompileTest(src: string) = __.CompileTestOnFly(src, System.String.Empty)
     
-    member __.CompileModule(src: string) = __.CompileModuleOnFly(src, System.String.Empty)
+    //member __.CompileModule(src: string) = __.CompileModuleOnFly(src, System.String.Empty)

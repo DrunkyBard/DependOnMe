@@ -77,7 +77,9 @@ type RefTable private() =
         match table.TryGetValue moduleName with
             | (false, _) -> 
                 match orphanRefs.TryGetValue(moduleName) with
-                    | (true, refs) -> refs.Remove(reference) |> ignore
+                    | (true, refs) -> 
+                        refs.Remove(reference) |> ignore
+                        if refs.Count = 0 then orphanRefs.Remove(moduleName) |> ignore
                     | (false, _)   -> ()
             | (true, prevRef) ->
                 prevRef.References.Remove(reference) |> ignore
@@ -114,7 +116,7 @@ type RefTable private() =
                 true
             | _ ->
                 if reference.References.Count > 0 then 
-                    let withoutCurrentFileRefs = reference.References.Where(fun x -> x.Key.FilePath.Equals(refFilePath, StringComparison.OrdinalIgnoreCase))
+                    let withoutCurrentFileRefs = reference.References.Where(fun x -> x.Key.FilePath.Equals(refFilePath, StringComparison.OrdinalIgnoreCase) |> not)
                     let refDict = withoutCurrentFileRefs.ToDictionary((fun x -> x.Key), (fun x -> x.Value), RefItemComparer.Instance)
                     orphanRefs.Add(refModuleName, refDict)
                 

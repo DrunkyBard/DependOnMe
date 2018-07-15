@@ -4,6 +4,7 @@ using DependOnMe.VsExtension.ContentTypeDefinition;
 using DependOnMe.VsExtension.Messaging;
 using DslAst;
 using EnvDTE;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -19,6 +20,7 @@ namespace DependOnMe.VsExtension.Startup
 {
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = false)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.None)]
+    [UsedImplicitly]
     public sealed class StartupPackage : AsyncPackage
     {
         private const string FullPathProp  = "FullPath";
@@ -33,7 +35,18 @@ namespace DependOnMe.VsExtension.Startup
                 HandleOpenSolution();
             }
 
-            SolutionEvents.OnAfterOpenSolution += (_, __) => HandleOpenSolution();
+            SolutionEvents.OnAfterOpenSolution  += (_, __) => HandleOpenSolution();
+            SolutionEvents.OnAfterCloseSolution += (_, __) => Cleanup();
+        }
+
+        private void Cleanup()
+        {
+            RefTable.Instance.Clean();
+            Parser.testIndex.Clear();
+            Parser.errorLogger = null;
+            ModuleParser.testIndex.Clear();
+            ModuleParser.errorLogger = null;
+            ModuleHub.Instance.ModulePool.Clean();
         }
 
         private async Task<bool> IsSolutionLoadedAsync()

@@ -9,6 +9,7 @@ open Common
 open System.Linq
 open DslAst.Extension
 open System.Diagnostics
+open System.Numerics
 
 type RefType = | ModuleRef | TestRef  
 
@@ -253,4 +254,9 @@ type RefTable private() =
     member __.HasDuplicates(moduleName) = __.HasDefinition(moduleName) && table.[moduleName].Duplications.Count > 0
 
     member __.HasWithoutDuplicates(moduleName) = __.HasDefinition(moduleName) && table.[moduleName].Duplications.Count = 0
+
+    member __.Clean() =
+        table.Clear()
+        orphanRefs.Clear()
+        invertTable.Clear()
 

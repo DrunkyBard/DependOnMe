@@ -33,7 +33,7 @@ type Compiler() =
         match fileUnit.CompilationUnit with
             | DependencyTest.Test(TestHeader.Full(_, _, _), _, _, _, _, _) -> RefTable.Instance.AddRef(fileUnit)
             | _ -> ()
-
+            
     let compileModule src file = 
         let lexbuf = LexBuffer<char>.FromString src
         setInitialPos lexbuf file

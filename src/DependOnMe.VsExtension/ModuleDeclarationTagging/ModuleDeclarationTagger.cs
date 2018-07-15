@@ -132,15 +132,25 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
                 foreach (var sameModule in sameModules)
                 {
                     var fUnit = new FileCompilationUnit<ModuleRegistration>(FilePath(), sameModule.leftIntersection.Key);
+                    _modulePool.Request(fUnit);
+                }
+
+                foreach (var sameModule in sameModules)
+                {
+                    var fUnit = new FileCompilationUnit<ModuleRegistration>(FilePath(), sameModule.leftIntersection.Key);
                     
-                    if (sameModule.leftIntersection.Occurences.Count > 1 ||
-                        RefTable.Instance.HasDuplicates(sameModule.leftIntersection.Key.Name))
+                    //if (sameModule.leftIntersection.Occurences.Count > 1 ||
+                    //    RefTable.Instance.HasDuplicates(sameModule.leftIntersection.Key.Name))
+                    //{
+                    //    continue;
+                    //}
+
+                    var (duplicated, module) = _modulePool.Request(fUnit);
+
+                    if (duplicated)
                     {
                         continue;
                     }
-
-                    var (duplicated, module) = _modulePool.Request(fUnit); 
-                    Debug.Assert(!duplicated, "Ref table has no dublicate, but module pool contains it");
 
                     var left  = sameModule.leftIntersection.Key;
                     var right = sameModule.rightIntersection.Key;

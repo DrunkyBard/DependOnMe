@@ -115,7 +115,7 @@ let suggestFrom fileName src pos =
             | CaretTermPosition.Inside(IndexTerm.TestHeaderTerm(t))   -> suggestTestDeclaration pos t
             | CaretTermPosition.Inside(IndexTerm.UsingTerm(t))        -> suggestUsing pos t
             | CaretTermPosition.Inside(IndexTerm.Error(_, errors))    -> suggestForErrorDeclaration pos errors
-            | CaretTermPosition.Between(firstTerm, secondTerm) -> suggestBetween pos firstTerm secondTerm
+            | CaretTermPosition.Between(firstTerm, secondTerm)        -> suggestBetween pos firstTerm secondTerm
 
     match suggestion with 
         | One(s)  -> [| s |]

@@ -43,6 +43,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             }
 
             var src = spans[0].Snapshot.GetText();
+            RefTable.Instance.TryRemoveTestRefs(FilePath());
             var units = _compiler.CompileTestOnFly(src, FilePath()).OnlyValidTests();
 
             foreach (var span in spans)
@@ -62,6 +63,9 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
                 bool HasModule(string moduleName) => containingTest
                     .RegisteredModules
+                    .GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
+                    .Where(x => x.Count() == 1)
+                    .Select(x => x.First())
                     .Any(regModule => regModule.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
 
                 var text       = span.GetText();

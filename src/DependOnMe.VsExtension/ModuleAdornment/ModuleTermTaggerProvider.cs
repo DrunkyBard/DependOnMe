@@ -2,11 +2,12 @@
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
+using System;
 using System.ComponentModel.Composition;
 
 namespace DependOnMe.VsExtension.ModuleAdornment
 {
-    internal sealed class ModuleTermTag : ITag
+    internal sealed class ModuleTermTag : ITag, IEquatable<ModuleTermTag>
     {
         public readonly string ModuleName;
         public readonly string TestName;
@@ -15,6 +16,46 @@ namespace DependOnMe.VsExtension.ModuleAdornment
         {
             ModuleName = moduleName;
             TestName = testName;
+        }
+
+        public bool Equals(ModuleTermTag other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(ModuleName, other.ModuleName, StringComparison.OrdinalIgnoreCase) && 
+                   string.Equals(TestName, other.TestName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj is ModuleTermTag tag && Equals(tag);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((ModuleName != null ? ModuleName.ToUpperInvariant().GetHashCode() : 0) * 397) ^ 
+                       (TestName != null ? TestName.ToUpperInvariant().GetHashCode() : 0);
+            }
         }
     }
 

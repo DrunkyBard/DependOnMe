@@ -113,7 +113,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                             .Where(x => x.moduleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase))
                             .ForEach(x =>
                             {
-                                _btnLayer.RemoveAdornmentsByTag(moduleName);
+                                _btnLayer.RemoveAdornment(x.dep);
+                                _btnLayer.RemoveAdornment(x.modBtn);
                             });
 
                         UpdateView(lineNumber, lineTop);
@@ -158,7 +159,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                             .Where(x => x.moduleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase))
                             .ForEach(x =>
                             {
-                                _btnLayer.RemoveAdornmentsByTag(moduleName);
+                                _btnLayer.RemoveAdornment(x.dep);
+                                _btnLayer.RemoveAdornment(x.modBtn);
                             });
 
                         UpdateView(lineNumber, lineTop);
@@ -198,14 +200,22 @@ namespace DependOnMe.VsExtension.ModuleAdornment
         {
             foreach (ITextViewLine line in e.NewOrReformattedLines)
             {
-                var tagSpans   = _tagger.GetTags(line.ExtentAsMappingSpan).ToArray();
                 var lineNumber = line.Snapshot.GetLineNumberFromPosition(line.Start);
+                var tagSpans   = _tagger
+                    .GetTags(line.ExtentAsMappingSpan)
+                    .GroupBy(x => x.Tag)
+                    .Select(x => x.First())
+                    .Where(x => !_lineAdornments.Any(y => y.Key != lineNumber && y.Value.Any(
+                        z => z.testName.Equals(x.Tag.TestName, StringComparison.OrdinalIgnoreCase) &&
+                             z.moduleName.Equals(x.Tag.ModuleName, StringComparison.OrdinalIgnoreCase))) )
+                    .ToArray();
 
                 //ClearAdornments(lineNumber);
 
                 if (_lineAdornments.TryGetValue(lineNumber, out var adornmentDefs))
                 {
                     ClearAdornmentsProperly(lineNumber, tagSpans, adornmentDefs);
+                    RemoveSubscriptionExcept(lineNumber, adornmentDefs.Select(x => (x.testName, x.moduleName)).ToHashSet(TwoStringComparer));
                 }
                 else
                 {
@@ -324,14 +334,33 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             onDuplicate.ForEach(x => _onDuplicateModuleSubscriptions.Remove(x.Key));
         }
 
+        private void RemoveSubscriptionExcept(int lineNumber, HashSet<(string testName, string moduleName)> exceptSubs)
+        {
+            var onCreate = _onCreateModuleSubscriptions
+                .Where(x => x.Value.lineNumber == lineNumber && !exceptSubs.Contains((x.Key.test, x.Key.module)))
+                .ToArray();
+            onCreate.ForEach(x => x.Value.subscription.Dispose());
+            onCreate.ForEach(x => _onCreateModuleSubscriptions.Remove(x.Key));
+
+            var onRemove = _onRemoveModuleSubscriptions
+                .Where(x => x.Value.lineNumber == lineNumber && !exceptSubs.Contains((x.Key.test, x.Key.module)))
+                .ToArray();
+            onRemove.ForEach(x => x.Value.subscription.Dispose());
+            onRemove.ForEach(x => _onRemoveModuleSubscriptions.Remove(x.Key));
+
+            var onDuplicate = _onDuplicateModuleSubscriptions
+                .Where(x => x.Value.lineNumber == lineNumber && !exceptSubs.Contains((x.Key.test, x.Key.module)))
+                .ToArray();
+            onDuplicate.ForEach(x => x.Value.subscription.Dispose());
+            onDuplicate.ForEach(x => _onDuplicateModuleSubscriptions.Remove(x.Key));
+        }
+
         private void CreateVisuals(int lineNumber, IMappingTagSpan<ModuleTermTag>[] tagSpans, ITextViewLine line)
         {
             UpdateView(lineNumber, line.Top);
 
             if (_lineAdornments.TryGetValue(lineNumber, out var adornmentDefs))
             {
-                //ClearAdornmentsProperly(lineNumber, tagSpans, adornmentDefs);
-
                 var existingAdornments = adornmentDefs
                     .Join(
                         tagSpans,
@@ -353,6 +382,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                 {
                     var testName   = newModuleTag.Tag.TestName;
                     var moduleName = newModuleTag.Tag.ModuleName;
+
 
                     if (RefTable.Instance.HasDuplicates(moduleName))
                     {
@@ -432,8 +462,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             Canvas.SetLeft(depView, geometry.Bounds.Right);
             Canvas.SetTop(depView, geometry.Bounds.Bottom);
             
-            _btnLayer.AddAdornment(AdornmentPositioningBehavior.TextRelative, tagSpan, tag.Tag.ModuleName, btnView, null);
-            _btnLayer.AddAdornment(AdornmentPositioningBehavior.OwnerControlled, tagSpan, tag.Tag.ModuleName, depView, null);
+            _btnLayer.AddAdornment(AdornmentPositioningBehavior.TextRelative, tagSpan, null, btnView, null);
+            _btnLayer.AddAdornment(AdornmentPositioningBehavior.OwnerControlled, tagSpan, null, depView, null);
         }
     }
 }

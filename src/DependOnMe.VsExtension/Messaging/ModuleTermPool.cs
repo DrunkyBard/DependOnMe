@@ -71,6 +71,13 @@ namespace DependOnMe.VsExtension.Messaging
 
         public Some<DependencyModule> TryRequest(string moduleName)
         {
+            if (RefTable.Instance.HasDuplicates(moduleName))
+            {
+                _availableModules.TryRemove(moduleName, out _);
+
+                return Some<DependencyModule>.None;
+            }
+
             if (_availableModules.TryGetValue(moduleName, out var module))
             {
                 return Some<DependencyModule>.Create(module);

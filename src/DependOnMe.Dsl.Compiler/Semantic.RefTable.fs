@@ -10,10 +10,13 @@ open System.Linq
 open DslAst.Extension
 open System.Diagnostics
 
+type RefType = | ModuleRef | TestRef  
+
 type internal RefItem = 
     {
         FilePath: string;
         Name: string;
+        Type: RefType
     }
 
 type internal RefRecord = 
@@ -24,7 +27,8 @@ type internal RefRecord =
     }
 
 type internal Rec =
-    static member From name (fileUnit: 'a FileCompilationUnit) = { FilePath = fileUnit.FilePath; Name = name; }
+    static member FromModule name filePath = { FilePath = filePath; Name = name; Type = ModuleRef }
+    static member FromTest name filePath   = { FilePath = filePath; Name = name; Type = TestRef }
 
 type internal RefItemComparer private() =
     static member Instance = RefItemComparer() :> IEqualityComparer<RefItem>
@@ -35,7 +39,7 @@ type internal RefItemComparer private() =
 
 type RefTable private() =    
     let table       = Dictionary<string, RefRecord>(StringComparer.OrdinalIgnoreCase)                // key - module name
-    let invertTable = Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase)          // key - file path
+    let invertTable = Dictionary<string, Dictionary<string, int>>(StringComparer.OrdinalIgnoreCase)  // key - file path
     let orphanRefs  = Dictionary<string, Dictionary<RefItem, int>>(StringComparer.OrdinalIgnoreCase) // key - module name
 
     let TryDecrease (dict: Dictionary<RefItem, int>) key =
@@ -95,7 +99,7 @@ type RefTable private() =
         let refModuleName  = reference.Declaration.Name
         let unitFilePath   = fUnit.FilePath
         let unitModuleName = fUnit.CompilationUnit
-        let remItem = Rec.From unitModuleName fUnit
+        let remItem = Rec.FromModule unitModuleName fUnit.FilePath
 
         reference.Duplications.Remove(remItem) |> ignore
 
@@ -109,7 +113,10 @@ type RefTable private() =
 
                 true
             | _ ->
-                if reference.References.Count > 0 then orphanRefs.Add(refModuleName, reference.References)
+                if reference.References.Count > 0 then 
+                    let withoutCurrentFileRefs = reference.References.Where(fun x -> x.Key.FilePath.Equals(refFilePath, StringComparison.OrdinalIgnoreCase))
+                    let refDict = withoutCurrentFileRefs.ToDictionary((fun x -> x.Key), (fun x -> x.Value), RefItemComparer.Instance)
+                    orphanRefs.Add(refModuleName, refDict)
                 
                 let success = table.Remove(refModuleName)
                 Debug.Assert(success)
@@ -124,35 +131,51 @@ type RefTable private() =
     member __.AddRef(reference: FileCompilationUnit<DependencyTest>) = 
         match reference.CompilationUnit with
             | DependencyTest.Empty -> ()
-            | Test(TestHeader.Full(name, _, _), _, _, _, _, _) -> (name, (name, reference) ||> Rec.From) ||> addRefInternal
+            | Test(TestHeader.Full(name, _, _), _, _, _, moduleRegs, _) -> 
+                let ref = (name, reference.FilePath) ||> Rec.FromTest
+                moduleRegs |> Seq.iter(fun x -> addRefInternal x.Name ref)
             | _ -> failwith "Expected only empty or full test declaration as reference"
      
-    member __.RemoveRef(reference: FileCompilationUnit<DependencyTest>) =
-        match reference.CompilationUnit with
-            | DependencyTest.Empty -> ()
-            | Test(TestHeader.Full(name, _, _), _, _, _, _, _) -> (name, (name, reference) ||> Rec.From) ||> removeRefInternal
-            | _ -> failwith "Expected only empty or full test declaration as reference"
+    //member __.RemoveRef(reference: FileCompilationUnit<DependencyTest>) =
+    //    match reference.CompilationUnit with
+    //        | DependencyTest.Empty -> ()
+    //        | Test(TestHeader.Full(name, _, _), _, _, _, _, _) -> (name, (name, reference.FilePath) ||> Rec.FromTest) ||> removeRefInternal
+    //        | _ -> failwith "Expected only empty or full test declaration as reference"
 
     member __.AddDeclaration(declaration: FileCompilationUnit<ValidModuleRegistration>) =
         let moduleName = declaration.CompilationUnit.Name
-        let recItem    = Rec.From moduleName declaration
+        let recItem    = Rec.FromModule moduleName declaration.FilePath
         let fPath      = declaration.FilePath
 
         if invertTable.ContainsKey(declaration.FilePath) then
-            let hashSet = invertTable.[fPath]
-            hashSet.Add(moduleName) |> ignore
+            let moduleDict = invertTable.[fPath]
+            moduleDict.AddOrUpdate(moduleName, 1, fun _ count -> count + 1) |> ignore
         else
-            let hashSet = HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            hashSet.Add(moduleName) |> ignore
-            invertTable.Add(fPath, hashSet) |> ignore
+            let moduleDict = Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            moduleDict.Add(moduleName, 1) |> ignore
+            invertTable.Add(fPath, moduleDict) |> ignore
 
         match table.TryGetValue moduleName with
             | (false, _)      -> 
                 match orphanRefs.TryGetValue(moduleName) with
-                    | (true, refs) -> table.Add(moduleName, (recItem, refs) ||> newRecordRefs)
+                    | (true, refs) -> 
+                        let moduleOrphans = 
+                            refs
+                                .Select(fun (ref: KeyValuePair<RefItem, int>) -> 
+                                    match ref.Key.Type with
+                                        | TestRef -> Some ref
+                                        | ModuleRef when table.ContainsKey(ref.Key.Name) -> Some ref
+                                        | ModuleRef -> None)
+                                .Where(fun s -> s.IsSome)
+                                .ToDictionary((fun s -> s.Value.Key), (fun s -> s.Value.Value), RefItemComparer.Instance)
+                                
+                        table.Add(moduleName, (recItem, moduleOrphans) ||> newRecordRefs)
                     | (false, _)   -> table.Add(moduleName, recItem |> newRecord)
                 orphanRefs.Remove(moduleName) |> ignore
             | (true, prevRef) -> prevRef.Duplications.AddOrUpdate(recItem, 1, fun _ v -> v + 1)
+
+        declaration.CompilationUnit.ModuleRegistrations
+            |> Array.iter (fun mReg -> addRefInternal mReg.Name recItem)
 
     member __.RemoveDeclaration(moduleName: string) =
         match table.TryGetValue moduleName with
@@ -163,26 +186,64 @@ type RefTable private() =
         let moduleName = declaration.CompilationUnit
         let filePath   = declaration.FilePath
 
+        orphanRefs.Keys
+        |> Seq.iter(fun modName -> 
+            let refs = orphanRefs.[modName]
+            refs.Keys 
+                    |> Seq.where (fun x -> x.FilePath.Equals(filePath, StringComparison.OrdinalIgnoreCase)) 
+                    |> Array.ofSeq
+                    |> Array.iter (fun rem -> refs.Remove(rem) |> ignore)
+
+            if refs.Count = 0 then orphanRefs.Remove(moduleName) |> ignore)
+
         if invertTable.ContainsKey(filePath) then
             let declaredModules = invertTable.[filePath]
 
-            if declaredModules.Remove(moduleName) then
-                if declaredModules.Count = 0 then invertTable.Remove(filePath) |> ignore 
-                else ()
+            match declaredModules.TryGetValue(moduleName) with
+                //| (true, 1)     -> 
+                //    declaredModules.Remove(moduleName) |> ignore
+                //    if declaredModules.Count = 0 then invertTable.Remove(filePath) |> ignore 
+                //    table.[moduleName] |> removeFileDeclarationInternal declaration
+                //| (true, count) -> 
+                | (true, count) -> 
+                    //declaredModules.[moduleName] <- count-1; false
+                    declaredModules.Remove(moduleName) |> ignore
+                    if declaredModules.Count = 0 then invertTable.Remove(filePath) |> ignore 
+                    table.[moduleName] |> removeFileDeclarationInternal declaration
+                | (false, _)    -> false
+
+            //if declaredModules.Remove(moduleName) then
+            //    if declaredModules.Count = 0 then invertTable.Remove(filePath) |> ignore 
+            //    else ()
                 
-                table.[moduleName] |> removeFileDeclarationInternal declaration //TODO: удалить по имени файла также
-            else false
+            //    table.[moduleName] |> removeFileDeclarationInternal declaration
+            //else false
         else false
+
+
 
         //match table.TryGetValue moduleName with
         //    | (false, _)      -> ()
         //    | (true, prevRef) ->  prevRef
 
+    member __.TryRemoveTestRefs(filePath) =
+        let testsToRemove = 
+            table.Values 
+            |> Seq.collect(fun x -> x.References) 
+            |> Seq.where(fun x -> x.Key.FilePath.Equals(filePath, StringComparison.OrdinalIgnoreCase)) 
+            |> Seq.map(fun x -> x.Key)
+            |> Array.ofSeq
+        
+        let orphModules  = orphanRefs |> Seq.map (fun x -> x.Key) |> Array.ofSeq
+        let tableModules = table |> Seq.map (fun x -> x.Key) |> Array.ofSeq
+        testsToRemove |> Seq.iter(fun testRef -> orphModules |> Seq.iter(fun orph -> removeRefInternal orph testRef))
+        testsToRemove |> Seq.iter(fun testRef -> tableModules |> Seq.iter(fun tRecord -> removeRefInternal tRecord testRef))
+
     member __.TryRemoveDeclarations(filePath: string) =
         match invertTable.TryGetValue(filePath) with
             | (true, declarations) -> 
                 declarations.ToArray() 
-                |> Array.iter (fun decl -> { FilePath = filePath; CompilationUnit = decl; } |> __.TryRemoveDeclaration |> ignore )
+                |> Array.iter (fun decl -> { FilePath = filePath; CompilationUnit = decl.Key; } |> __.TryRemoveDeclaration |> ignore )
             | (false, _) -> ()
 
     member __.HasDefinition(moduleName) = table.ContainsKey(moduleName)

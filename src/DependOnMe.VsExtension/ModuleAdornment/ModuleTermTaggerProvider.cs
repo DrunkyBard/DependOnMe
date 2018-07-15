@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Text;
+﻿using DependOnMe.VsExtension.ContentTypeDefinition;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
@@ -60,7 +61,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
     }
 
     [Export(typeof(ITaggerProvider))]
-    [ContentType("drt")]
+    [ContentType(ContentType.Test)]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [TagType(typeof(ModuleTermTag))]
     internal sealed class ModuleTermTaggerProvider : ITaggerProvider
@@ -70,9 +71,5 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
         public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
             => new ModuleTermTagger(TextDocumentFactoryService, buffer) as ITagger<T>;
-
-        //public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag
-        //    => textView.Properties.GetOrCreateSingletonProperty(() =>
-        //        new ModuleTermTagger((IWpfTextView)textView, buffer) as ITagger<T>);
     }
 }

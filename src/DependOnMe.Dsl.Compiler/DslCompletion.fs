@@ -121,9 +121,3 @@ let suggestFrom fileName src pos =
         | One(s)  -> [| s |]
         | Many(s) -> s |> Array.ofList
         | None    -> Array.empty 
-        
-        
-    //match suggestion with 
-    //    | One(s)  -> if checkSuggestion s writtenText then [| s |] else List.empty |> Array.ofList
-    //    | Many(s) -> List.where (fun str -> checkSuggestion str writtenText) s |> Array.ofList
-    //    | None    -> Array.empty 

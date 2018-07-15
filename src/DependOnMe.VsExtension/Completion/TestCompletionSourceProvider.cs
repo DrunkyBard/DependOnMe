@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Language.Intellisense;
+﻿using DependOnMe.VsExtension.ContentTypeDefinition;
+using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Operations;
@@ -8,7 +9,7 @@ using System.ComponentModel.Composition;
 namespace DependOnMe.VsExtension.Completion
 {
     [Export(typeof(ICompletionSourceProvider))]
-	[ContentType("drt")]
+	[ContentType(ContentType.Test)]
 	[Name("token completion")]
 	public sealed class TestCompletionSourceProvider : ICompletionSourceProvider
 	{

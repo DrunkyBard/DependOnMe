@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Editor;
+﻿using DependOnMe.VsExtension.ContentTypeDefinition;
+using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
@@ -11,7 +12,7 @@ using System.ComponentModel.Composition;
 namespace DependOnMe.VsExtension.Completion
 {
     [Export(typeof(IVsTextViewCreationListener))]
-	[ContentType("drt")]
+	[ContentType(ContentType.Test)]
 	[TextViewRole(PredefinedTextViewRoles.Editable)]
 	public sealed class TestCompletionHandlerProvider : IVsTextViewCreationListener
 	{

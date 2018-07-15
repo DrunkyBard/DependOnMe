@@ -68,10 +68,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     .Select(x => x.First())
                     .Any(regModule => regModule.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
 
-                var text       = span.GetText();
-                //var match      = ModuleTermRegex.Match(text);
-                //var moduleName = match.Groups["moduleName"].Value;
-
+                var text         = span.GetText();
                 var foundModules = ModuleTermRegex
                     .Matches(text)
                     .Cast<Match>()
@@ -91,38 +88,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                 {
                     yield return foundModule;
                 }
-
-                //var foundModule = containingTest
-                //    .RegisteredModules
-                //    .Any(regModule => regModule.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
-
-                //if (!match.Success || 
-                //    string.IsNullOrWhiteSpace(moduleName) ||
-                //    !foundModule)
-                //{
-                //    continue;
-                //}
-
-                //var modSpan = new SnapshotSpan(span.Snapshot, new Span(span.Start.Position + match.Index, match.Length));
-                ////var termTag = new ModuleTermTag(moduleName, containingTest.Name, 0, 10, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
-                ////var termTag = ModuleHub
-                ////    .Instance
-                ////    .ModulePool
-                ////    .TryRequest(moduleName)
-                ////    .ContinueWith(
-                ////        _  => SpacedTag(containingTest.Name, moduleName, modSpan),
-                ////        () => NormalTag(containingTest.Name, moduleName, modSpan));
-
-                //var termTag = new ModuleTermTag(moduleName, containingTest.Name);
-
-                //yield return new TagSpan<ModuleTermTag>(modSpan, termTag);
             }
         }
-
-        //private ModuleTermTag SpacedTag(string testName, string moduleName, SnapshotSpan modSpan)
-        //    => new ModuleTermTag(moduleName, testName, 0, 10, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
-
-        //private ModuleTermTag NormalTag(string testName, string moduleName, SnapshotSpan modSpan)
-        //    => new ModuleTermTag(moduleName, testName, 0, 0, 0, 0, 0, PositionAffinity.Successor, modSpan, this);
     }
 }

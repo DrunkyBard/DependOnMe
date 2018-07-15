@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Text;
+﻿using DependOnMe.VsExtension.ContentTypeDefinition;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
@@ -8,7 +9,7 @@ using System.ComponentModel.Composition;
 namespace DependOnMe.VsExtension.Coloring
 {
     [Export(typeof(IClassifierProvider))]
-    [ContentType("drt")]
+    [ContentType(ContentType.Test)]
     internal class ColorClassifierProvider : IClassifierProvider
     {
         [Import]

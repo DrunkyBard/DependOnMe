@@ -94,7 +94,3 @@ type Compiler() =
     member __.CompileTestOnFly(src: string, filePath: string) = compileTest src filePath
 
     member __.CompileModuleOnFly(src: string, filePath: string) = compileModule src filePath
-
-    //member __.CompileTest(src: string) = __.CompileTestOnFly(src, System.String.Empty)
-    
-    //member __.CompileModule(src: string) = __.CompileModuleOnFly(src, System.String.Empty)

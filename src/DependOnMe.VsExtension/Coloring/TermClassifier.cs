@@ -25,10 +25,10 @@ namespace DependOnMe.VsExtension.Coloring
                 .GetTags(span)
                 .Select(tagSpan =>
                 {
-                    var todoSpan           = tagSpan.Span.GetSpans(span.Snapshot).First();
+                    var termTag            = tagSpan.Span.GetSpans(span.Snapshot).First();
                     var classificationType = _classificationRegistry.GetClassificationType(tagSpan.Tag.Classifier);
 
-                    return new ClassificationSpan(todoSpan, classificationType);
+                    return new ClassificationSpan(termTag, classificationType);
                 }).ToList();
     }
 }

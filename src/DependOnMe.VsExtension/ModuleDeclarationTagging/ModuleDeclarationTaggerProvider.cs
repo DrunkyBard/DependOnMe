@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Text;
+﻿using DependOnMe.VsExtension.ContentTypeDefinition;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
@@ -7,7 +8,7 @@ using System.ComponentModel.Composition;
 namespace DependOnMe.VsExtension.ModuleDeclarationTagging
 {
     [Export(typeof(ITaggerProvider))]
-    [ContentType("drm")]
+    [ContentType(ContentType.Module)]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
     [TagType(typeof(SpaceNegotiatingAdornmentTag))]
     [TagType(typeof(ModuleDeclarationTag))]   

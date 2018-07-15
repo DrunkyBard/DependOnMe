@@ -8,23 +8,23 @@ namespace DependOnMe.VsExtension.ContentTypeDefinition
     internal static class FileAndContentTypeDefinitions
 	{
 		[Export]
-		[Name(ContentTypeDefinition.ContentType.Test)]
+		[Name(ContentType.Test)]
 		[BaseDefinition("text")]
 		internal static Microsoft.VisualStudio.Utilities.ContentTypeDefinition DependencyTestContentTypeDefinition;
 
 		[Export]
-		[FileExtension(ContentTypeDefinition.ContentType.DotTest)]
-		[ContentType(ContentTypeDefinition.ContentType.Test)]
+		[FileExtension(ContentType.DotTest)]
+		[ContentType(ContentType.Test)]
         internal static FileExtensionToContentTypeDefinition DependencyTestFileExtensionDefinition;
 
 	    [Export]
-		[Name(ContentTypeDefinition.ContentType.Module)]
+		[Name(ContentType.Module)]
 		[BaseDefinition("text")]
 		internal static Microsoft.VisualStudio.Utilities.ContentTypeDefinition DependencyModuleContentTypeDefinition;
 
 		[Export]
-		[FileExtension(ContentTypeDefinition.ContentType.DotModule)]
-		[ContentType(ContentTypeDefinition.ContentType.Module)]
+		[FileExtension(ContentType.DotModule)]
+		[ContentType(ContentType.Module)]
         internal static FileExtensionToContentTypeDefinition DependencyModuleFileExtensionDefinition;
 	}
 }

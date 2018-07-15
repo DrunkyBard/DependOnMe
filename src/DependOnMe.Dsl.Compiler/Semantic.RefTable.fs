@@ -203,31 +203,12 @@ type RefTable private() =
             let declaredModules = invertTable.[filePath]
 
             match declaredModules.TryGetValue(moduleName) with
-                //| (true, 1)     -> 
-                //    declaredModules.Remove(moduleName) |> ignore
-                //    if declaredModules.Count = 0 then invertTable.Remove(filePath) |> ignore 
-                //    table.[moduleName] |> removeFileDeclarationInternal declaration
-                //| (true, count) -> 
-                | (true, count) -> 
-                    //declaredModules.[moduleName] <- count-1; false
+                | (true, _) -> 
                     declaredModules.Remove(moduleName) |> ignore
                     if declaredModules.Count = 0 then invertTable.Remove(filePath) |> ignore 
                     table.[moduleName] |> removeFileDeclarationInternal declaration
                 | (false, _)    -> false
-
-            //if declaredModules.Remove(moduleName) then
-            //    if declaredModules.Count = 0 then invertTable.Remove(filePath) |> ignore 
-            //    else ()
-                
-            //    table.[moduleName] |> removeFileDeclarationInternal declaration
-            //else false
         else false
-
-
-
-        //match table.TryGetValue moduleName with
-        //    | (false, _)      -> ()
-        //    | (true, prevRef) ->  prevRef
 
     member __.TryRemoveTestRefs(filePath) =
         let testsToRemove = 

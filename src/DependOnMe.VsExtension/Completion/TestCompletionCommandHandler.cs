@@ -14,15 +14,17 @@ namespace DependOnMe.VsExtension.Completion
 	{
 		private readonly IOleCommandTarget _nextCommandHandler;
 		private readonly ITextView _textView;
-		private readonly TestCompletionHandlerProvider _provider;
-		private ICompletionSession _session;
+		private readonly SVsServiceProvider _provider;
+	    private readonly ICompletionBroker _completionBroker;
+	    private ICompletionSession _session;
 
-		public TestCompletionCommandHandler(IVsTextView textViewAdapter, ITextView textView, TestCompletionHandlerProvider provider)
+		public TestCompletionCommandHandler(IVsTextView textViewAdapter, ITextView textView, SVsServiceProvider provider, ICompletionBroker completionBroker)
 		{
 			_textView = textView;
 			_provider = provider;
+		    _completionBroker = completionBroker;
 
-			//add the command to the command chain
+		    //add the command to the command chain
 			textViewAdapter.AddCommandFilter(this, out _nextCommandHandler);
 		}
 
@@ -37,7 +39,7 @@ namespace DependOnMe.VsExtension.Completion
 		{
 		    ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (VsShellUtilities.IsInAutomationFunction(_provider.ServiceProvider))
+            if (VsShellUtilities.IsInAutomationFunction(_provider))
             {
                 return _nextCommandHandler.Exec(ref pguidCmdGroup, nCmdId, nCmdexecopt, pvaIn, pvaOut);
             }
@@ -112,7 +114,7 @@ namespace DependOnMe.VsExtension.Completion
 				return false;
 			}
 
-			_session = _provider.CompletionBroker.CreateCompletionSession
+			_session = _completionBroker.CreateCompletionSession
 			(_textView,
 				caretPoint.Value.Snapshot.CreateTrackingPoint(caretPoint.Value.Position, PointTrackingMode.Positive),
 				true);

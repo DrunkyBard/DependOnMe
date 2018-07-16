@@ -13,8 +13,9 @@ namespace DependOnMe.VsExtension.Completion
 {
     [Export(typeof(IVsTextViewCreationListener))]
 	[ContentType(ContentType.Test)]
+	[ContentType(ContentType.Module)]
 	[TextViewRole(PredefinedTextViewRoles.Editable)]
-	public sealed class TestCompletionHandlerProvider : IVsTextViewCreationListener
+	public sealed class CompletionHandlerProvider : IVsTextViewCreationListener
 	{
 		[Import]
 		public IVsEditorAdaptersFactoryService AdapterService;
@@ -33,7 +34,7 @@ namespace DependOnMe.VsExtension.Completion
 			    return;
 			}
 			
-			TestCompletionCommandHandler CreateCommandHandler() => new TestCompletionCommandHandler(textViewAdapter, textView, this);
+			TestCompletionCommandHandler CreateCommandHandler() => new TestCompletionCommandHandler(textViewAdapter, textView, ServiceProvider, CompletionBroker);
 
 			textView.Properties.GetOrCreateSingletonProperty(CreateCommandHandler);
 		}

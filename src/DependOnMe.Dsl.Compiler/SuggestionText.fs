@@ -11,13 +11,19 @@ let depName    = One depNameStr
 
 let implName   = One "\"ImplementationName\""
 
-let moduleName = One "\"ModuleName\""
+let moduleNameStr = "\"ModuleName\""
 
 let testHeaderStr = "DependencyTest"
+
+let moduleHeaderStr = "DependencyModule"
+
+let moduleHeader = One moduleHeaderStr
 
 let testHeader = One testHeaderStr
 
 let using      = One "using"
+
+let ns         = One "namespace"
 
 let arrow      = One "->"
 
@@ -35,8 +41,16 @@ let boolTerm   = Many [boolFlag1; boolFlag2]
 
 let testName   = Many [ "\"TEST_NAME\""; "TEST_NAME" ]
 
-let allBodyStr = [boolFlag1; boolFlag2; "Module"; depNameStr] 
+let moduleName   = Many [ "\"MODULE_NAME\""; "MODULE_NAME" ]
 
-let allBody    = Many allBodyStr
+let allTestBodyStr = [boolFlag1; boolFlag2; "Module"; depNameStr] 
 
-let headerOrUsing = Many [ testHeaderStr; "using" ]
+let allModuleBodyStr = ["Module"; depNameStr] 
+
+let allTestBody      = Many allTestBodyStr
+
+let allModuleBody    = Many allModuleBodyStr
+
+let testHeaderOrUsing = Many [ testHeaderStr; "using" ]
+
+let moduleHeaderOrUsing = Many [ moduleHeaderStr; "using" ]

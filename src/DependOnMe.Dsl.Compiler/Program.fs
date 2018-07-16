@@ -50,6 +50,6 @@ let main argv =
         }
     
     let q = testIdx.Find(findPos)
-    let suggestion = DslCompletion.suggestFrom file testContent findPos
+    let suggestion = TestDslCompletion.suggestFrom file testContent findPos
     let logger = Parser.errorLogger
     0

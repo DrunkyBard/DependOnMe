@@ -101,7 +101,8 @@
     <Compile Include="ModuleParser.fs" />
     <Compile Include="ModuleLexer.fs" />
     <Compile Include="SuggestionText.fs" />
-    <Compile Include="DslCompletion.fs" />
+    <Compile Include="TestDslCompletion.fs" />
+    <Compile Include="ModuleDslCompletion.fs" />
     <None Include="TestDslFile.drt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

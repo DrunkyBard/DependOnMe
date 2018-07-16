@@ -61,9 +61,11 @@
     <Compile Include="Coloring\TermDefinitions.cs" />
     <Compile Include="Coloring\TermTagger.cs" />
     <Compile Include="Coloring\TermTaggerProvider.cs" />
+    <Compile Include="Completion\ModuleCompletionSourceProvider.cs" />
     <Compile Include="Completion\TestCompletionCommandHandler.cs" />
-    <Compile Include="Completion\TestCompletionHandlerProvider.cs" />
-    <Compile Include="Completion\TestCompletionSource.cs" />
+    <Compile Include="Completion\CompletionHandlerProvider.cs" />
+    <Compile Include="Completion\CompletionSource.cs" />
+    <Compile Include="Completion\BaseCompletionSourceProvider.cs" />
     <Compile Include="Completion\TestCompletionSourceProvider.cs" />
     <Compile Include="ContentTypeDefinition\ContentType.cs" />
     <Compile Include="ContentTypeDefinition\FileAndContentTypeDefinitions.cs" />
@@ -103,6 +105,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="CodeJam, Version=2.1.0.0, Culture=neutral, PublicKeyToken=7662d8fd5b220919, processorArchitecture=MSIL">
+      <HintPath>..\packages\CodeJam.2.1.1\lib\net472\CodeJam.dll</HintPath>
+    </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
@@ -233,6 +238,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Design" />

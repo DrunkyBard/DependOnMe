@@ -8,11 +8,11 @@ using System.ComponentModel.Composition;
 namespace DependOnMe.VsExtension.Completion
 {
     [Export(typeof(ICompletionSourceProvider))]
-    [ContentType(ContentType.Test)]
-    [Name("Test token completion")]
-    public sealed class TestCompletionSourceProvider : BaseCompletionSourceProvider
+    [ContentType(ContentType.Module)]
+    [Name("Module token completion")]
+    public sealed class ModuleCompletionSourceProvider : BaseCompletionSourceProvider
     {
         protected override IReadOnlyCollection<string> GetSuggestions(string fileName, string src, Position position)
-            => TestDslCompletion.suggestFrom(fileName, src, position);
+            => ModuleDslCompletion.suggestFrom(fileName, src, position);
     }
 }

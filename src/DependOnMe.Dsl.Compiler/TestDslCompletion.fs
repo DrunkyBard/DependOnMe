@@ -1,17 +1,13 @@
-﻿module DslCompletion
+﻿module TestDslCompletion
 
 open TestDslAst
 open CommonDslAst
 open Errors
-open TextDistance
 open Lexer
 open Parser
 open Microsoft.FSharp.Text.Lexing
-open System.IO
 open TextUtilities
-open DataStructures
 open Navigation
-open Positioning
 open SuggestionText
 
 let checkSuggestion suggestion writtenText = 
@@ -31,42 +27,42 @@ let suggestBoolFlag pos term =
         | BoolFlagMissingPart.Value(errPos, startPos)             when pos <=> (startPos, errPos) -> SuggestionText.None
         | BoolFlagMissingPart.BoolTerm(errPos)                    when less pos errPos            -> SuggestionText.boolTerm
         | BoolFlagMissingPart.IncompleteValue(posRange, errToken) when pos <=> posRange           -> List.where (fun s -> checkSuggestion s errToken) SuggestionText.boolValueStr |> Suggestion.Many
-        | _ -> SuggestionText.allBody
+        | _ -> SuggestionText.allTestBody
 
 let suggestBoolFlag1 pos = function
-    | BoolFlag1Term.Flag(_, _, _, (_, endPos), _) when less endPos pos -> SuggestionText.allBody 
+    | BoolFlag1Term.Flag(_, _, _, (_, endPos), _) when less endPos pos -> SuggestionText.allTestBody 
     | BoolFlag1Term.Error(err) -> suggestBoolFlag pos err
     | _ -> SuggestionText.None
 
 let suggestBoolFlag2 pos = function
-    | BoolFlag2Term.Flag(_, _, _, (_, endPos), _) when less endPos pos -> SuggestionText.allBody 
+    | BoolFlag2Term.Flag(_, _, _, (_, endPos), _) when less endPos pos -> SuggestionText.allTestBody 
     | BoolFlag2Term.Error(err) -> suggestBoolFlag pos err
     | _ -> SuggestionText.None
 
 let suggestRegistration pos = function
     | RegistrationTerm.Class(_, _, _, _, (_, endPos)) 
-    | RegistrationTerm.Module(_, _, (_, endPos))            when less endPos pos     -> SuggestionText.allBody
+    | RegistrationTerm.Module(_, _, (_, endPos))            when less endPos pos     -> SuggestionText.allTestBody
     | RegistrationTerm.ClassError(ArrowBetween(posRange))   when pos <=> posRange    -> SuggestionText.arrow
     | RegistrationTerm.ClassError(ArrowAfter(errPos))       when lessEq errPos pos   -> SuggestionText.arrow
     | RegistrationTerm.ClassError(OrphanArrow(startPos, _)) when lessEq pos startPos -> SuggestionText.depName
     | RegistrationTerm.ClassError(OrphanArrow(_, endPos))   when lessEq endPos pos   -> SuggestionText.implName
     | RegistrationTerm.ClassError(DepName(startPos, _))     when lessEq pos startPos -> SuggestionText.depName
-    | RegistrationTerm.ClassError(DepName(_, endPos))       when lessEq endPos pos   -> SuggestionText.allBody
+    | RegistrationTerm.ClassError(DepName(_, endPos))       when lessEq endPos pos   -> SuggestionText.allTestBody
     | RegistrationTerm.ClassError(ImplName(errPos))         when lessEq errPos pos   -> SuggestionText.implName
     | RegistrationTerm.ModuleError(Name(errPos))            when less errPos pos     -> SuggestionText.moduleName
     | _ -> SuggestionText.None
 
 let suggestTestDeclaration pos = function
-    | Full(_, _, (_, endPos))            when less endPos pos   -> SuggestionText.allBody
+    | Full(_, _, (_, endPos))            when less endPos pos   -> SuggestionText.allTestBody
     | Full(_, _, (startPos, _))          
-    | Partial(startPos, _)               when less pos startPos -> SuggestionText.headerOrUsing
+    | Partial(startPos, _)               when less pos startPos -> SuggestionText.testHeaderOrUsing
     | Partial(_, endPos)                 when less endPos pos   -> SuggestionText.testName
     | HeaderError((startPos, _), _)      when less pos startPos  -> SuggestionText.testHeader
     | HeaderError((_, endPos), errToken) when pos == endPos && checkSuggestion SuggestionText.testHeaderStr errToken -> SuggestionText.testHeader
     | _ -> SuggestionText.None
 
 let rec suggestForErrorDeclaration pos = function
-    | (errPos, term)::_ when pos <=> errPos -> List.where (fun s -> checkSuggestion s term) SuggestionText.allBodyStr |> Suggestion.Many
+    | (errPos, term)::_ when pos <=> errPos -> List.where (fun s -> checkSuggestion s term) SuggestionText.allTestBodyStr |> Suggestion.Many
     | _::t -> suggestForErrorDeclaration pos t
     | []   -> SuggestionText.None
 
@@ -75,11 +71,14 @@ let suggestUsing pos = function
     | Fqn(_, (startPos, _)) 
     | Iqn(_, (startPos, _)) when less pos startPos -> SuggestionText.using
     | Fqn(_, (_, endPos)) 
-    | Iqn(_, (_, endPos))   when less endPos pos   -> SuggestionText.testHeader
+    | Iqn(_, (_, endPos))   when less endPos pos   -> SuggestionText.testHeaderOrUsing
+    | Orphan(_, endPos)     when less endPos pos   -> SuggestionText.ns
     | _ -> SuggestionText.None
 
 let suggestBetween pos firstTerm secondTerm = 
     match firstTerm, secondTerm with
+        | IndexTerm.UsingTerm(t), IndexTerm.UsingTerm(_)
+        | IndexTerm.UsingTerm(t), IndexTerm.TestHeaderTerm(_) -> suggestUsing pos t
         | IndexTerm.RegistrationTerm(ClassError(_) as t),   _ 
         | IndexTerm.RegistrationTerm(ModuleError(_) as t),  _  -> suggestRegistration pos t
         | IndexTerm.BoolFlag1Term(BoolFlag1Term.Error(_) as t), _  -> suggestBoolFlag1 pos t
@@ -94,7 +93,7 @@ let suggestBetween pos firstTerm secondTerm =
         | _, IndexTerm.BoolFlag2Term(BoolFlag2Term.Error(_) as t)  -> suggestBoolFlag2 pos t
         | _, IndexTerm.TestHeaderTerm(Partial(_) as t)
         | _, IndexTerm.TestHeaderTerm(HeaderError(_) as t) -> suggestTestDeclaration pos t
-        | _, _ -> SuggestionText.allBody
+        | _, _ -> SuggestionText.allTestBody
 
 let suggestFrom fileName src pos = 
     Parser.testIndex.Clear()

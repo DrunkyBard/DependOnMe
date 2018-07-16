@@ -3,6 +3,7 @@ using CompilationUnit;
 using DependOnMe.VsExtension.Messaging;
 using DependOnMe.VsExtension.ModuleAdornment.UI;
 using DslAst;
+using Microsoft.VisualStudio.Text;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -111,6 +112,21 @@ namespace DependOnMe.VsExtension
                 .ToList().AsReadOnly();
             
             return (leftUnique.AsReadOnly(), intersection.AsReadOnly(), rightUnique);
+        }
+
+        public static Some<string> TryGetFileName(this ITextBuffer buffer)
+        {
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+
+            if (buffer.Properties.TryGetProperty(typeof(ITextDocument), out ITextDocument textDocument))
+            {
+                return Some<string>.Create(textDocument.FilePath);
+            }
+
+            return Some<string>.None;
         }
     }
 

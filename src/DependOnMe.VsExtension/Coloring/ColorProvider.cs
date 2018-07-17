@@ -10,7 +10,7 @@ namespace DependOnMe.VsExtension.Coloring
 {
     [Export(typeof(IClassifierProvider))]
     [ContentType(ContentType.Test)]
-    internal class ColorClassifierProvider : IClassifierProvider
+    internal class TestColorClassifierProvider : IClassifierProvider
     {
         [Import]
         internal IClassificationTypeRegistryService ClassificationRegistry;
@@ -24,4 +24,19 @@ namespace DependOnMe.VsExtension.Coloring
                 ClassificationRegistry);
     }
 
+    [Export(typeof(IClassifierProvider))]
+    [ContentType(ContentType.Module)]
+    internal class ModuleColorClassifierProvider : IClassifierProvider
+    {
+        [Import]
+        internal IClassificationTypeRegistryService ClassificationRegistry;
+
+        [Import]
+        internal IBufferTagAggregatorFactoryService TagAggregatorFactory;
+
+        public IClassifier GetClassifier(ITextBuffer buffer) => 
+            new TermClassifier(
+                TagAggregatorFactory.CreateTagAggregator<TermTag>(buffer), 
+                ClassificationRegistry);
+    }
 }

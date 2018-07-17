@@ -9,8 +9,18 @@ namespace DependOnMe.VsExtension.Coloring
     [Export(typeof(ITaggerProvider))]
     [ContentType(ContentType.Test)]
     [TagType(typeof(TermTag))]
-    internal sealed class TermTaggerProvider : ITaggerProvider
+    internal sealed class TestTermTaggerProvider : ITaggerProvider
     {
-        public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag => new TermTagger() as ITagger<T>;
+        public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag 
+            => new TermTagger(TestTextColoring.colorLine) as ITagger<T>;
+    }
+
+    [Export(typeof(ITaggerProvider))]
+    [ContentType(ContentType.Module)]
+    [TagType(typeof(TermTag))]
+    internal sealed class ModuleTermTaggerProvider : ITaggerProvider
+    {
+        public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag 
+            => new TermTagger(ModuleTextColoring.colorLine) as ITagger<T>;
     }
 }

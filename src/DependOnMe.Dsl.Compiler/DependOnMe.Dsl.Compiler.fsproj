@@ -111,6 +111,8 @@
     </None>
     <Compile Include="Classification.fs" />
     <Compile Include="TextColoring.fs" />
+    <Compile Include="TestTextColoring.fs" />
+    <Compile Include="ModuleTextColoring.fs" />
     <Compile Include="Compilation.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

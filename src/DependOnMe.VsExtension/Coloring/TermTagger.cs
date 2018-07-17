@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Text;
+﻿using CodeJam;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
@@ -23,13 +24,20 @@ namespace DependOnMe.VsExtension.Coloring
 
     internal class TermTagger : ITagger<TermTag>
     {
+        private readonly Func<string, int, IReadOnlyCollection<TextColoring.TermColor>> _getColor;
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
+
+        public TermTagger(Func<string, int, IReadOnlyCollection<TextColoring.TermColor>> getColor)
+        {
+            Code.NotNull(getColor, nameof(getColor));
+
+            _getColor = getColor;
+        }
 
         IEnumerable<ITagSpan<TermTag>> ITagger<TermTag>.GetTags(NormalizedSnapshotSpanCollection spans) => 
             spans
                 .SelectMany(curSpan => 
-                    TextColoring
-                        .colorLine(curSpan.GetText(), curSpan.Start)
+                        _getColor(curSpan.GetText(), curSpan.Start)
                         .Select(termColor =>
                         {
                             var todoSpan = new SnapshotSpan(curSpan.Snapshot, new Span(termColor.StartPos - 1, termColor.Length));

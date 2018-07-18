@@ -18,7 +18,7 @@ type ValidModuleRegistration =
 type ValidTestRegistration =
     {
         Name: string;
-        RegisteredModules: string[];
+        RegisteredModules: ModuleRegistration[];
         Position: PosRange;
     }
 
@@ -57,8 +57,7 @@ let OnlyValidTests (cUnit: TestCompilationUnit) =
     let chooseValidTests (declaration: DependencyTest) =
         match declaration with
             | DependencyTest.Test(TestHeader.Full(name, _, _), _, _, classRegs, moduleRegs, posRange) -> 
-                let moduleNames = moduleRegs |> List.map (fun x -> x.Name) |> Array.ofList
-                { Name = name; Position = posRange; RegisteredModules = moduleNames; } |> Some
+                { Name = name; Position = posRange; RegisteredModules = moduleRegs |> Array.ofList; } |> Some
             | _ -> None
 
     let validTests = List.choose chooseValidTests (cUnit.Declarations) |> Array.ofList

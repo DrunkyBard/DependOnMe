@@ -262,7 +262,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 86 "ModuleParser.fsy"
-                                 {ModuleCompilationUnit.Usings = []; Declarations = []; Errors = [] } 
+                                 {ModuleCompilationUnit.Usings = []; Declarations = []; Errors = []; } 
                    )
 # 86 "ModuleParser.fsy"
                  : ModuleCompilationUnit));

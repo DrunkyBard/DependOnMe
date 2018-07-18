@@ -17,7 +17,6 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
         private readonly ITextDocumentFactoryService _textDocumentFactoryService;
         private readonly ITextBuffer _buffer;
         private static readonly IEnumerable<ITagSpan<ModuleDeclarationTag>> EmptyTags = Enumerable.Empty<ITagSpan<ModuleDeclarationTag>>();
-        private static readonly Compiler Compiler = new Compiler();
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
@@ -99,7 +98,7 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
             RefTable.Instance.TryRemoveDeclarations(FilePath());
 
             var wholeText       = spans.First().Snapshot.GetText();
-            var compilationUnit = Compiler.CompileModuleOnFly(wholeText, FilePath()).OnlyValidModules();
+            var compilationUnit = Compiler.Instance.CompileModuleOnFly(wholeText, FilePath()).OnlyValidModules();
 
             if (_previousUnits == null)
             {

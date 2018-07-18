@@ -19,8 +19,6 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             new Regex(@"MODULE (?<moduleName>\w+(?:[\w|\d]*\.\w[\w|\d]*)*)",
                 RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
-        private static Compiler _compiler = new Compiler();
-
         public ModuleTermTagger(ITextDocumentFactoryService textDocumentFactoryService, ITextBuffer buffer)
         {
             _textDocumentFactoryService = textDocumentFactoryService;
@@ -44,7 +42,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
             var src = spans[0].Snapshot.GetText();
             RefTable.Instance.TryRemoveTestRefs(FilePath());
-            var units = _compiler.CompileTestOnFly(src, FilePath()).OnlyValidTests();
+            var units = Compiler.Instance.CompileTestOnFly(src, FilePath()).OnlyValidTests();
 
             foreach (var span in spans)
             {
@@ -63,6 +61,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
 
                 bool HasModule(string moduleName) => containingTest
                     .RegisteredModules
+                    .Select(x => x.Name)
                     .GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
                     .Where(x => x.Count() == 1)
                     .Select(x => x.First())

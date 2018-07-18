@@ -23,6 +23,19 @@ type CompilationError =
     | Range of ProdError
     | Point of TermError
 
+type FlattenError = 
+    {
+        From: Position;
+        To: Position;
+        Message: string;
+    }
+
+type CompilationError with
+    member err.Flatten() = 
+        match err with
+            | Range(prodErr) -> { From = prodErr.StartPos; To = prodErr.EndPos; Message = prodErr.Message;  }
+            | Point(pErr)    -> { From = pErr.Pos; To = pErr.Pos; Message = pErr.Message;  }
+
 type ErrorLogger() =
     let diagnostics = ResizeArray<CompilationError>()
 

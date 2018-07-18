@@ -175,7 +175,7 @@ and _fslex_lex  _fslex_state lexbuf =
           )
   | 1 -> ( 
 # 43 "Lexer.fsl"
-                                    newLine lexbuf; lex lexbuf 
+                                    lex lexbuf 
 # 179 "Lexer.fs"
           )
   | 2 -> ( 

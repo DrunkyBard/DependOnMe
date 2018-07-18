@@ -83,7 +83,7 @@ let useValidUsings usings =
 
 parseModule:
     | moduleCompilationUnit EOF { $1 }
-    | EOF { {ModuleCompilationUnit.Usings = []; Declarations = []; Errors = [] } }
+    | EOF { {ModuleCompilationUnit.Usings = []; Declarations = []; Errors = []; } }
 
 moduleHeader:
     | MODULEHEADER SNAME { ModuleHeader.Full($2, posRange parseState 1, posRange parseState 2) }

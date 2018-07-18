@@ -40,7 +40,7 @@ let newLine = '\n' | '\r' '\n'
 
 rule lex = parse
     | ignore       { lex lexbuf }
-    | newLine      { newLine lexbuf; lex lexbuf }
+    | newLine      { lex lexbuf }
     | testHeader   { TESTHEADER }
     | arrow        { ARROW }
     | equals       { EQ }

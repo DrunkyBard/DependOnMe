@@ -6,6 +6,8 @@ open Errors
 open System.Collections.Concurrent
 open CompilationUnit
 open System
+open DslAst
+open Compilation
 
 let listDuplications errMsg (positions: PosRange list) = 
     let rec innerCheck acc = function
@@ -38,3 +40,25 @@ let checkDuplicates = function
         |> List.append bool2Duplications
     | DependencyTest.Empty
     | DependencyTest.Test(_) -> []
+
+let checkTestSemantic testUnit =
+    Extension.OnlyValidTests(testUnit).ValidTests 
+    |> Seq.collect (fun test -> test.RegisteredModules)
+    |> Seq.choose  (fun regModule -> 
+        let fromPos, toPos = fst regModule.ModuleTermPosition, snd regModule.NamePosition
+
+        if RefTable.Instance.HasDuplicates regModule.Name then 
+            Some { From = fromPos; To = toPos; Message = ErrMsg.AmbigousModule(regModule.Name); }
+        elif RefTable.Instance.HasDefinition(regModule.Name) |> not then
+            Some { From = fromPos; To = toPos; Message = ErrMsg.AmbigousModule(regModule.Name); }
+        else None)
+
+let checkModuleSemantic moduleUnit =
+    Extension.OnlyValidModules(moduleUnit).ValidModules
+    |> Seq.collect (fun m -> m.ModuleRegistrations)
+    |> Seq.choose  (fun m ->
+        let fromPos, toPos = fst m.ModuleTermPosition, snd m.NamePosition
+
+        if RefTable.Instance.HasDuplicates m.Name then
+            Some { From = fromPos; To = toPos; Message = ErrMsg.DuplicatedModule(m.Name); }
+        else None)

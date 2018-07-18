@@ -1,20 +1,16 @@
 ﻿namespace Compilation
 
-open System.Collections.Generic
 open Microsoft.FSharp.Text.Lexing
 open TextUtilities
 open TestDslAst
 open ModuleDslAst
 open Errors
-open System.Threading.Tasks
-open System.Collections.Concurrent
 open System.IO
 open CompilationUnit
-open Semantic
-open CompilationTable
 open DslAst.Extension
 
-type Compiler() =
+type Compiler private() =
+    static let inst = Compiler()
 
     let addModuleToTable (fileUnit: FileCompilationUnit<ModuleDeclaration>) = 
         match fileUnit.CompilationUnit with
@@ -81,6 +77,8 @@ type Compiler() =
             | [] -> acc
         
         compileRec [] paths
+
+    static member Instance = inst
 
     member __.CompileTest(testPaths: string[]) = testPaths |> List.ofArray |> compileTests |> Array.ofList
     

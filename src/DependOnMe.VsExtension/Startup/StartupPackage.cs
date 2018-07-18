@@ -64,7 +64,6 @@ namespace DependOnMe.VsExtension.Startup
             var dte = (DTE)GetGlobalService(typeof(DTE));
             var projects = dte.Solution.Projects;
             var modules  = new List<string>();
-            var compiler = new Compiler();
 
             foreach (Project myProject in projects)
             foreach (ProjectItem myProjectProjectItem in myProject.ProjectItems)
@@ -77,7 +76,7 @@ namespace DependOnMe.VsExtension.Startup
                 return;
             }
 
-            var moduleUnits = compiler.CompileModule(modules.ToArray());
+            var moduleUnits = Compiler.Instance.CompileModule(modules.ToArray());
 
             moduleUnits
                 .SelectMany(mUnit => mUnit

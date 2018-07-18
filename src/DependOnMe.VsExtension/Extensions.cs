@@ -1,4 +1,5 @@
-﻿using Compilation;
+﻿using CodeJam;
+using Compilation;
 using CompilationUnit;
 using DependOnMe.VsExtension.Messaging;
 using DependOnMe.VsExtension.ModuleAdornment.UI;
@@ -127,6 +128,13 @@ namespace DependOnMe.VsExtension
             }
 
             return Some<string>.None;
+        }
+
+        public static IReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T> source)
+        {
+            Code.NotNull(source, nameof(source));
+
+            return source.ToList().AsReadOnly();
         }
     }
 

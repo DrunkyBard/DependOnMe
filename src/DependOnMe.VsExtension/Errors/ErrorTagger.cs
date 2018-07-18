@@ -30,9 +30,9 @@ namespace DependOnMe.VsExtension.Errors
             Code.NotNull(compile, nameof(compile));
             Code.NotNull(checkSemantic, nameof(checkSemantic));
 
-            _textView = textView;
-            _buffer = buffer;
-            _compile = compile;
+            _textView      = textView;
+            _buffer        = buffer;
+            _compile       = compile;
             _checkSemantic = checkSemantic;
         }
 

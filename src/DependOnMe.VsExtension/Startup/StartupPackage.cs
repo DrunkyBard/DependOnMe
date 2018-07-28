@@ -7,39 +7,45 @@ using EnvDTE;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using SolutionEvents = Microsoft.VisualStudio.Shell.Events.SolutionEvents;
-using Task = System.Threading.Tasks.Task;
 
 namespace DependOnMe.VsExtension.Startup
 {
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = false)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.None)]
     [UsedImplicitly]
-    public sealed class StartupPackage : AsyncPackage
+    public sealed class StartupPackage : Package
     {
         private const string FullPathProp  = "FullPath";
         private const string ExtensionProp = "Extension";
 
-        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        protected override void Dispose(bool disposing)
         {
-            bool isSolutionLoaded = await IsSolutionLoadedAsync();
+            base.Dispose(disposing);
+
+            SolutionEvents.OnAfterOpenSolution  -= HandleOpenSolution;
+            SolutionEvents.OnAfterCloseSolution -= Cleanup;
+        }
+
+        protected override void Initialize()
+        {
+            bool isSolutionLoaded = IsSolutionLoadedAsync();
 
             if (isSolutionLoaded)
             {
-                HandleOpenSolution();
+                HandleOpenSolution(null, null);
             }
-
-            SolutionEvents.OnAfterOpenSolution  += (_, __) => HandleOpenSolution();
-            SolutionEvents.OnAfterCloseSolution += (_, __) => Cleanup();
+            
+            SolutionEvents.OnAfterOpenSolution  += HandleOpenSolution;
+            SolutionEvents.OnAfterCloseSolution += Cleanup;
         }
 
-        private void Cleanup()
+        private void Cleanup(object _, EventArgs __)
         {
             RefTable.Instance.Clean();
             Parser.testIndex.Clear();
@@ -49,17 +55,15 @@ namespace DependOnMe.VsExtension.Startup
             ModuleHub.Instance.ModulePool.Clean();
         }
 
-        private async Task<bool> IsSolutionLoadedAsync()
+        private bool IsSolutionLoadedAsync()
         {
-            await JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var solService = (IVsSolution) await GetServiceAsync(typeof(SVsSolution));
+            var solService = (IVsSolution) GetService(typeof(SVsSolution));
             ErrorHandler.ThrowOnFailure(solService.GetProperty((int)__VSPROPID.VSPROPID_IsSolutionOpen, out object value));
 
             return value is bool isSolOpen && isSolOpen;
         }
 
-        private void HandleOpenSolution()
+        private void HandleOpenSolution(object _, OpenSolutionEventArgs __)
         {            
             var dte = (DTE)GetGlobalService(typeof(DTE));
             var projects = dte.Solution.Projects;

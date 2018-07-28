@@ -16,7 +16,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         private static readonly Regex ModuleTermRegex =
-            new Regex(@"MODULE (?<moduleName>\w+(?:[\w|\d]*\.\w[\w|\d]*)*)",
+            new Regex(@"MODULE\s+(?<moduleName>\w+(?:[\w|\d]*\.\w[\w|\d]*)*)",
                 RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
         public ModuleTermTagger(ITextDocumentFactoryService textDocumentFactoryService, ITextBuffer buffer)
@@ -47,8 +47,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             foreach (var span in spans)
             {
                 var containingTest = units.ValidTests.FirstOrDefault(x =>
-                    x.Position.Item1.AbsoluteOffset < span.Start.Position &&
-                    span.End.Position < x.Position.Item2.AbsoluteOffset);
+                    x.Position.Item1.AbsoluteOffset <= span.Start.Position + 1 &&
+                    x.Position.Item2.AbsoluteOffset <= span.End.Position + 1);
 
                 var inError = units
                     .Errors

@@ -16,5 +16,5 @@ let BoolFlagTokenExpected = "BoolFlag1 or BoolFlag2 token expected"
 let OrphanArrow = "Unexpected '->' token"
 let DuplicatedDependency name = sprintf "Duplicated dependency registration: %s" name
 let DuplicatedModule name = sprintf "Duplicated module registration: %s" name
-let AmbigousModule name = sprintf "Ambigous module '%s': module defined in many places" name
+let Ambiguous name = sprintf "Ambiguous module '%s': module defined in many places" name
 let ModuleIsNotDefined name = sprintf "Module '%s' is not defined" name

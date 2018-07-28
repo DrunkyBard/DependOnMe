@@ -48,9 +48,9 @@ let checkTestSemantic testUnit =
         let fromPos, toPos = fst regModule.ModuleTermPosition, snd regModule.NamePosition
 
         if RefTable.Instance.HasDuplicates regModule.Name then 
-            Some { From = fromPos; To = toPos; Message = ErrMsg.AmbigousModule(regModule.Name); }
+            Some { From = fromPos; To = toPos; Message = ErrMsg.Ambiguous(regModule.Name); }
         elif RefTable.Instance.HasDefinition(regModule.Name) |> not then
-            Some { From = fromPos; To = toPos; Message = ErrMsg.AmbigousModule(regModule.Name); }
+            Some { From = fromPos; To = toPos; Message = ErrMsg.ModuleIsNotDefined(regModule.Name); }
         else None)
 
 let checkModuleSemantic moduleUnit =

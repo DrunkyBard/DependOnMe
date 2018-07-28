@@ -18,7 +18,7 @@ let commonChars (s1: string) (s2: string) (radius: int) =
     for i = 0 to s1.Length - 1 do
         let c = s1.[i]
         let fromIdx = Math.Max(0, i-radius)
-        let toIdx = Math.Min(s2.Length-1, i+radius)
+        let toIdx   = Math.Min(s2.Length-1, i+radius)
 
         if charContains c i s2 fromIdx toIdx radius then common.Add(c)
         
@@ -38,12 +38,12 @@ let jaroDistance (s1: string) (s2: string) =
     
     let common1 = commonChars s1 s2 radius
     let common2 = commonChars s2 s1 radius
-    let m1 = float common1.Count
-    let m2 = float common2.Count
+    let m1  = float common1.Count
+    let m2  = float common2.Count
     let s1L = float s1.Length
     let s2L = float s2.Length
-    let mL = Math.Max(m1, m2)
-    let t = float(transpositions common1 common2)
+    let mL  = Math.Max(m1, m2)
+    let t   = float(transpositions common1 common2)
 
     if mL = 0. then 0.
     else (m1/s1L + m2/s2L + (mL - t)/mL) / 3.0

@@ -59,17 +59,50 @@ namespace DependOnMe.VsExtension.CodeGeneration
 
     public sealed class TestTemplateModel
     {
-        public readonly string OutputFile;
         public readonly string NamespaceDef;
         public readonly IReadOnlyCollection<TestDefinition> Definitions;
 
-        public TestTemplateModel(string outputFile, string namespaceDef, IReadOnlyCollection<TestDefinition> definitions)
+        public TestTemplateModel(string namespaceDef, IReadOnlyCollection<TestDefinition> definitions)
         {
-            Code.NotNullNorWhiteSpace(outputFile, nameof(outputFile));
             Code.NotNullNorWhiteSpace(namespaceDef, nameof(namespaceDef));
             Code.NotNull(definitions, nameof(definitions));
 
-            OutputFile = outputFile;
+            NamespaceDef = namespaceDef;
+            Definitions = definitions;
+        }
+    }
+
+    public sealed class ModuleDefinition
+    {
+        public readonly string Name;
+        public readonly IReadOnlyCollection<DependencyRegistration> DependencyRegistrations;
+        public readonly IReadOnlyCollection<ModuleRegistration> ModuleRegistrations;
+
+        public ModuleDefinition(
+            string name,
+            IReadOnlyCollection<DependencyRegistration> dependencyRegistrations,
+            IReadOnlyCollection<ModuleRegistration> moduleRegistrations)
+        {
+            Code.NotNullNorWhiteSpace(name, nameof(name));
+            Code.NotNull(dependencyRegistrations, nameof(dependencyRegistrations));
+            Code.NotNull(moduleRegistrations, nameof(moduleRegistrations));
+
+            Name = name;
+            DependencyRegistrations = dependencyRegistrations;
+            ModuleRegistrations = moduleRegistrations;
+        }
+    }
+
+    public sealed class ModuleTemplateModel
+    {
+        public readonly string NamespaceDef;
+        public readonly IReadOnlyCollection<ModuleDefinition> Definitions;
+
+        public ModuleTemplateModel(string namespaceDef, IReadOnlyCollection<ModuleDefinition> definitions)
+        {
+            Code.NotNullNorWhiteSpace(namespaceDef, nameof(namespaceDef));
+            Code.NotNull(definitions, nameof(definitions));
+
             NamespaceDef = namespaceDef;
             Definitions = definitions;
         }

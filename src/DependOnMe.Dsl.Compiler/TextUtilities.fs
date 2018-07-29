@@ -17,6 +17,8 @@ let newLine (lexbuf: LexBuffer<char>) =
     lexbuf.EndPos <- nextLine
     ()
 
+let newLine1 (lexbuf: LexBuffer<char>) = lexbuf.EndPos <- lexbuf.EndPos.AsNewLinePos()
+
 let posRange (parseState: IParseState) productionNumber = parseState.InputRange productionNumber
 
 let startPos (parseState: IParseState) productionNumber = parseState.InputStartPosition productionNumber

@@ -18,7 +18,10 @@ type ValidModuleRegistration =
 type ValidTestRegistration =
     {
         Name: string;
+        BoolFlag1Values: BoolFlag1 list;
+        BoolFlag2Values: BoolFlag2 list;
         RegisteredModules: ModuleRegistration[];
+        ClassRegistrations: ClassRegistration[];
         Position: PosRange;
     }
 
@@ -56,8 +59,15 @@ let OnlyValidModules (cUnit: ModuleCompilationUnit) =
 let OnlyValidTests (cUnit: TestCompilationUnit) = 
     let chooseValidTests (declaration: DependencyTest) =
         match declaration with
-            | DependencyTest.Test(TestHeader.Full(name, _, _), _, _, classRegs, moduleRegs, posRange) -> 
-                { Name = name; Position = posRange; RegisteredModules = moduleRegs |> Array.ofList; } |> Some
+            | DependencyTest.Test(TestHeader.Full(name, _, _), bf1, bf2, classRegs, moduleRegs, posRange) -> 
+                { 
+                    Name               = name; 
+                    BoolFlag1Values    = bf1;
+                    BoolFlag2Values    = bf2;
+                    Position           = posRange; 
+                    RegisteredModules  = moduleRegs |> Array.ofList; 
+                    ClassRegistrations = classRegs |> Array.ofList;
+                } |> Some
             | _ -> None
 
     let validTests = List.choose chooseValidTests (cUnit.Declarations) |> Array.ofList

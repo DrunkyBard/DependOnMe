@@ -139,7 +139,7 @@ and _fslex_lexModule  _fslex_state lexbuf =
           )
   | 1 -> ( 
 # 38 "ModuleLexer.fsl"
-                                    newLine lexbuf; lexModule lexbuf 
+                                    newLine1 lexbuf; lexModule lexbuf 
 # 143 "ModuleLexer.fs"
           )
   | 2 -> ( 

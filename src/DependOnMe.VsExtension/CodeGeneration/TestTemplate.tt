@@ -3,18 +3,18 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
-
-
 using System;
 
 namespace <#= Model.NamespaceDef #>
 {
-    <# foreach(var testDef in Model.Definitions) 
-       { #>
+<# 
+   foreach(var testDef in Model.Definitions) 
+   { 
+#>
     public sealed class <#= testDef.Name #>
     {
-        private bool _boolFlag1 = <#= testDef.BoolFlag1Value #>
-        private bool _boolFlag2 = <#= testDef.BoolFlag2Value #>
+        private bool _boolFlag1 = <#= testDef.BoolFlag1Value.ToString().ToLower() #>;
+        private bool _boolFlag2 = <#= testDef.BoolFlag2Value.ToString().ToLower() #>;
 
         public void Test()
         {
@@ -23,19 +23,26 @@ namespace <#= Model.NamespaceDef #>
             Console.WriteLine("BoolFlag1: <#= testDef.BoolFlag1Value #>");
             Console.WriteLine("BoolFlag2: <#= testDef.BoolFlag2Value #>");
 
-            <# foreach(var depReg in testDef.DependencyRegistrations) 
-               { #>
-            Console.WriteLine("<#= depReg.Dependency #>  ->  <#= depReg.Implementation #>")
-            <# } #>
+<# 
+        foreach(var depReg in testDef.DependencyRegistrations) 
+        { 
+#>
+            Console.WriteLine("<#= depReg.Dependency #>  ->  <#= depReg.Implementation #>");
+<# 
+        } 
+#>
 
-            <# foreach(var moduleReg in testDef.ModuleRegistrations) 
-               { #>
-            Console.WriteLine("Module <#= moduleReg.Name #>")
-            <# } #>
+<# 
+        foreach(var moduleReg in testDef.ModuleRegistrations) 
+        { 
+#>
+            Console.WriteLine("Module <#= moduleReg.Name #>");
+<# 
+        } 
+#>
         }
     }
-
-    <# } #>
+<# 
+    } 
+#>
 }
-
-

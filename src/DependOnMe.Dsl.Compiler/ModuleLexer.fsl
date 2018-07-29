@@ -35,7 +35,7 @@ let newLine = '\n' | '\r' '\n'
                    
 rule lexModule = parse
     | ignore       { lexModule lexbuf }
-    | newLine      { newLine lexbuf; lexModule lexbuf }
+    | newLine      { newLine1 lexbuf; lexModule lexbuf }
     | moduleHeader { MODULEHEADER }
     | arrow        { ARROW }
     | quot         { QUOT }

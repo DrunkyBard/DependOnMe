@@ -18,9 +18,9 @@ namespace DependOnMe.VsExtension.CodeGeneration
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+    #line 1 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
-    public partial class TestTemplate : TestTemplateBase
+    public partial class ModuleTemplate : ModuleTemplateBase
     {
 #line hidden
         /// <summary>
@@ -30,69 +30,41 @@ namespace DependOnMe.VsExtension.CodeGeneration
         {
             this.Write("using System;\r\n\r\nnamespace ");
             
-            #line 8 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 8 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.NamespaceDef));
             
             #line default
             #line hidden
             this.Write("\r\n{\r\n");
             
-            #line 10 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 10 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
  
-   foreach(var testDef in Model.Definitions) 
-   { 
+    foreach(var moduleDef in Model.Definitions) 
+    {
 
             
             #line default
             #line hidden
             this.Write("    public sealed class ");
             
-            #line 14 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(testDef.Name));
+            #line 14 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(moduleDef.Name));
             
             #line default
             #line hidden
-            this.Write("\r\n    {\r\n        private bool _boolFlag1 = ");
+            this.Write("\r\n    {\r\n        public void Test()\r\n        {\r\n            Console.WriteLine(\"Mo" +
+                    "duleName: ");
             
-            #line 16 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(testDef.BoolFlag1Value.ToString().ToLower()));
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n        private bool _boolFlag2 = ");
-            
-            #line 17 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(testDef.BoolFlag2Value.ToString().ToLower()));
+            #line 18 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(moduleDef.Name));
             
             #line default
             #line hidden
-            this.Write(";\r\n\r\n        public void Test()\r\n        {\r\n            Console.WriteLine(\"TestNa" +
-                    "me: ");
+            this.Write("\");\r\n            \r\n");
             
-            #line 21 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(testDef.Name));
-            
-            #line default
-            #line hidden
-            this.Write("\");\r\n            \r\n            Console.WriteLine(\"BoolFlag1: ");
-            
-            #line 23 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(testDef.BoolFlag1Value));
-            
-            #line default
-            #line hidden
-            this.Write("\");\r\n            Console.WriteLine(\"BoolFlag2: ");
-            
-            #line 24 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(testDef.BoolFlag2Value));
-            
-            #line default
-            #line hidden
-            this.Write("\");\r\n\r\n");
-            
-            #line 26 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 20 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
  
-        foreach(var depReg in testDef.DependencyRegistrations) 
+        foreach(var depReg in moduleDef.DependencyRegistrations) 
         { 
 
             
@@ -100,21 +72,21 @@ namespace DependOnMe.VsExtension.CodeGeneration
             #line hidden
             this.Write("            Console.WriteLine(\"");
             
-            #line 30 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 24 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(depReg.Dependency));
             
             #line default
             #line hidden
             this.Write("  ->  ");
             
-            #line 30 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 24 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(depReg.Implementation));
             
             #line default
             #line hidden
             this.Write("\");\r\n");
             
-            #line 31 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 25 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
  
         } 
 
@@ -123,9 +95,9 @@ namespace DependOnMe.VsExtension.CodeGeneration
             #line hidden
             this.Write("\r\n");
             
-            #line 35 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 29 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
  
-        foreach(var moduleReg in testDef.ModuleRegistrations) 
+        foreach(var moduleReg in moduleDef.ModuleRegistrations) 
         { 
 
             
@@ -133,14 +105,14 @@ namespace DependOnMe.VsExtension.CodeGeneration
             #line hidden
             this.Write("            Console.WriteLine(\"Module ");
             
-            #line 39 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 33 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(moduleReg.Name));
             
             #line default
             #line hidden
             this.Write("\");\r\n");
             
-            #line 40 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 34 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
  
         } 
 
@@ -149,7 +121,7 @@ namespace DependOnMe.VsExtension.CodeGeneration
             #line hidden
             this.Write("        }\r\n    }\r\n");
             
-            #line 45 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\TestTemplate.tt"
+            #line 39 "E:\GIT_REPO\DependOnMe\src\DependOnMe.VsExtension\CodeGeneration\ModuleTemplate.tt"
  
     } 
 
@@ -168,7 +140,7 @@ namespace DependOnMe.VsExtension.CodeGeneration
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
-    public class TestTemplateBase
+    public class ModuleTemplateBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

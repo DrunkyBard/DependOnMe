@@ -54,7 +54,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     .Errors
                     .Any(err => err.Item1.AbsoluteOffset <= span.Start.Position || span.End.Position <= err.Item2.AbsoluteOffset);                
 
-                if (containingTest == null || inError)
+                //if (containingTest == null || inError)
+                if (containingTest == null)
                 {
                     continue;
                 }

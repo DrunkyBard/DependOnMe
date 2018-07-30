@@ -37,11 +37,12 @@ type Compiler private() =
         ModuleLexer.errorLogger  <- errLogger
         ModuleParser.errorLogger <- errLogger
         let cUnit = (ModuleLexer.lexModule, lexbuf) ||> ModuleParser.parseModule
+        let cUnit = { cUnit with Errors = (cUnit.Errors, Semantic.checkModuleSemantic cUnit) ||> List.append  }
         cUnit.Declarations 
             |> List.map (fun x -> { FilePath = file; CompilationUnit = x; })
             |> List.iter addModuleToTable
         cUnit
-        
+
     let compileTest testContent file = 
         let lexbuf = LexBuffer<char>.FromString testContent
         setInitialPos lexbuf file
@@ -49,6 +50,7 @@ type Compiler private() =
         Lexer.errorLogger  <- errLogger
         Parser.errorLogger <- errLogger
         let cUnit = (Lexer.lex, lexbuf) ||> Parser.parseDrt
+        let cUnit = { cUnit with Errors = (cUnit.Errors, Semantic.checkTestSemantic cUnit) ||> List.append  }
         cUnit.Declarations 
             |> List.map (fun x -> { FilePath = file; CompilationUnit = x; })
             |> List.iter addTestToTable

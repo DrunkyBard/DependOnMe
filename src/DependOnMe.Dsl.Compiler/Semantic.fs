@@ -48,10 +48,11 @@ let checkTestSemantic testUnit =
         let fromPos, toPos = fst regModule.ModuleTermPosition, snd regModule.NamePosition
 
         if RefTable.Instance.HasDuplicates regModule.Name then 
-            Some { From = fromPos; To = toPos; Message = ErrMsg.Ambiguous(regModule.Name); }
+            ProdError(fromPos, toPos, ErrMsg.Ambiguous(regModule.Name)) |> Range |> Some
         elif RefTable.Instance.HasDefinition(regModule.Name) |> not then
-            Some { From = fromPos; To = toPos; Message = ErrMsg.ModuleIsNotDefined(regModule.Name); }
+            ProdError(fromPos, toPos, ErrMsg.ModuleIsNotDefined(regModule.Name)) |> Range |> Some
         else None)
+    |> List.ofSeq
 
 let checkModuleSemantic moduleUnit =
     Extension.OnlyValidModules(moduleUnit).ValidModules
@@ -60,5 +61,6 @@ let checkModuleSemantic moduleUnit =
         let fromPos, toPos = fst m.ModuleTermPosition, snd m.NamePosition
 
         if RefTable.Instance.HasDuplicates m.Name then
-            Some { From = fromPos; To = toPos; Message = ErrMsg.DuplicatedModule(m.Name); }
+            ProdError(fromPos, toPos, ErrMsg.DuplicatedModule(m.Name)) |> Range |> Some
         else None)
+    |> List.ofSeq

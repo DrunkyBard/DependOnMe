@@ -32,7 +32,7 @@ namespace DependOnMe.VsExtension.Errors
         }
 
         private static IReadOnlyCollection<FlattenError> CheckSemantic(TestCompilationUnit unit)
-            => Semantic.checkTestSemantic(unit).AsReadOnly();
+            => Semantic.checkTestSemantic(unit).Select(x => x.Flatten()).AsReadOnly();
     }
 
     [Export(typeof(IViewTaggerProvider))]
@@ -55,6 +55,6 @@ namespace DependOnMe.VsExtension.Errors
         }
 
         private static IReadOnlyCollection<FlattenError> CheckSemantic(ModuleCompilationUnit unit)
-            => Semantic.checkModuleSemantic(unit).AsReadOnly();
+            => Semantic.checkModuleSemantic(unit).Select(x => x.Flatten()).AsReadOnly();
     }
 }

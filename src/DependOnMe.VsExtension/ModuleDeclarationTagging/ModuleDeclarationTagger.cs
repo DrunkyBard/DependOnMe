@@ -1,7 +1,11 @@
 ﻿using Compilation;
 using CompilationUnit;
+using DependOnMe.VsExtension.ContentTypeDefinition;
 using DependOnMe.VsExtension.Messaging;
 using DependOnMe.VsExtension.ModuleAdornment.UI;
+using EnvDTE;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using System;
@@ -14,6 +18,9 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
 {
     internal sealed class ModuleDeclarationTagger : ITagger<ModuleDeclarationTag>
     {
+        private const string FullPathProp  = "FullPath";
+        private const string ExtensionProp = "Extension";
+
         private readonly ITextDocumentFactoryService _textDocumentFactoryService;
         private readonly ITextBuffer _buffer;
         private static readonly IEnumerable<ITagSpan<ModuleDeclarationTag>> EmptyTags = Enumerable.Empty<ITagSpan<ModuleDeclarationTag>>();
@@ -88,9 +95,81 @@ namespace DependOnMe.VsExtension.ModuleDeclarationTagging
             ModuleHub.Instance.ModuleCreated(newModule);
         }
 
+        internal static Project GetActiveProject()
+        {
+            DTE dte = Package.GetGlobalService(typeof(SDTE)) as DTE;
+            return GetActiveProject(dte);
+        }
+
+        internal static Project GetActiveProject(DTE dte)
+        {
+            Project activeProject = null;
+
+            Array activeSolutionProjects = dte.ActiveSolutionProjects as Array;
+            if (activeSolutionProjects != null && activeSolutionProjects.Length > 0)
+            {
+                activeProject = activeSolutionProjects.GetValue(0) as Project;
+            }
+
+            return activeProject;
+        }
+
+        IEnumerable<string> GetModules(ProjectItem item)
+        {
+            if (item.ProjectItems == null)
+            {
+                yield break;
+            }
+
+            foreach (ProjectItem projItem in item.ProjectItems)
+            foreach (var contentType in GetModules(projItem))
+            {
+                yield return contentType;
+            }
+
+            var extension = string.Empty;
+            var fullPath = string.Empty;
+
+            foreach (Property itemProperty in item.Properties)
+            {
+                if (itemProperty.Name.Equals(FullPathProp))
+                {
+                    fullPath = (string)itemProperty.Value;
+                }
+
+                if (itemProperty.Name.Equals(ExtensionProp))
+                {
+                    extension = (string)itemProperty.Value;
+                }
+
+                if (!string.IsNullOrWhiteSpace(fullPath) && !string.IsNullOrWhiteSpace(extension))
+                {
+                    break;
+                }
+            }
+
+            if (extension.Equals(ContentType.DotModule))
+            {
+                yield return fullPath;
+            }
+        }
+
         public IEnumerable<ITagSpan<ModuleDeclarationTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
             if (spans.Count == 0)
+            {
+                return EmptyTags;
+            }
+
+            var proj = GetActiveProject();
+            var tests = new List<string>();
+
+            foreach (ProjectItem projItem in proj.ProjectItems)
+            {
+                tests.AddRange(GetModules(projItem));
+            }
+
+            if (!tests.Any(x => x.Equals(FilePath(), StringComparison.OrdinalIgnoreCase)))
             {
                 return EmptyTags;
             }

@@ -383,7 +383,6 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     var testName   = newModuleTag.Tag.TestName;
                     var moduleName = newModuleTag.Tag.ModuleName;
 
-
                     if (RefTable.Instance.HasDuplicates(moduleName))
                     {
                         var subscription = SubscribeOnNewModule(lineNumber, newModuleTag, line.Top);

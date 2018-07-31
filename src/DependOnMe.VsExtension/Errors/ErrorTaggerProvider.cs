@@ -26,6 +26,7 @@ namespace DependOnMe.VsExtension.Errors
 
         private static (TestCompilationUnit unit, IReadOnlyCollection<FlattenError> errors) Compile(string src, string fileName)
         {
+            RefTable.Instance.TryRemoveTestRefs(fileName);
             var unit = Compiler.Instance.CompileTestOnFly(src, fileName);
 
             return (unit, unit.Errors.Select(x => x.Flatten()).AsReadOnly());
@@ -49,6 +50,7 @@ namespace DependOnMe.VsExtension.Errors
 
         private static (ModuleCompilationUnit unit, IReadOnlyCollection<FlattenError> errors) Compile(string src, string fileName)
         {
+            RefTable.Instance.TryRemoveDeclarations(fileName);
             var unit = Compiler.Instance.CompileModuleOnFly(src, fileName);
 
             return (unit, unit.Errors.Select(x => x.Flatten()).AsReadOnly());

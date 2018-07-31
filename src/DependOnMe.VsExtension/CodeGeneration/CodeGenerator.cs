@@ -53,6 +53,7 @@ namespace DependOnMe.VsExtension.CodeGeneration
             Code.NotNull(src, nameof(src));
             Code.NotNullNorWhiteSpace(filePath, nameof(filePath));
 
+            RefTable.Instance.TryRemoveTestRefs(filePath);
             var cUnit   = Compiler.Instance.CompileTestOnFly(src, filePath);
             var cErrors = cUnit.Errors.Select(err => err.Flatten()).AsReadOnly();
 
@@ -83,6 +84,7 @@ namespace DependOnMe.VsExtension.CodeGeneration
             Code.NotNull(src, nameof(src));
             Code.NotNullNorWhiteSpace(filePath, nameof(filePath));
 
+            RefTable.Instance.TryRemoveDeclarations(filePath);
             var cUnit = Compiler.Instance.CompileModuleOnFly(src, filePath);
             var cErrors = cUnit.Errors.Select(err => err.Flatten()).AsReadOnly();
 

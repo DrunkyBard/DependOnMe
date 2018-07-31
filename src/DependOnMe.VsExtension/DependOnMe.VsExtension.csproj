@@ -8,6 +8,7 @@
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
     <UseCodebase>true</UseCodebase>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -282,6 +283,13 @@
     <ProjectReference Include="..\DependOnMe.Dsl.Compiler\DependOnMe.Dsl.Compiler.fsproj">
       <Project>{2fa74115-dbf8-4d11-9004-ea91452faea3}</Project>
       <Name>DependOnMe.Dsl.Compiler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DependOnMe.ItemTemplates\DependOnMe.ItemTemplates.csproj">
+      <Project>{37c8519e-ec00-47e2-90e9-3744bf16e84b}</Project>
+      <Name>DependOnMe.ItemTemplates</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

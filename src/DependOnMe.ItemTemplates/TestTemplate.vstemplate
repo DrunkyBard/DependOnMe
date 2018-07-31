@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>Dependency registration test</Name>
+    <Description>Dependency registration test</Description>
+    <Icon>TestTemplate.ico</Icon>
+    <ProjectType>CSharp</ProjectType>
+    <DefaultName>Test.drt</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.drt" ReplaceParameters="true">Test.drt</ProjectItem>
+    <CustomParameters>
+        <CustomParameter Name="$itemproperties$" Value="CustomTool" />
+        <CustomParameter Name="$CustomTool$" Value="DrtGenerator" />
+    </CustomParameters>
+  </TemplateContent>
+  <WizardExtension>
+      <Assembly>Microsoft.VSDesigner, Version=11.0.0.0, Culture=Neutral, PublicKeyToken=b03f5f7f11d50a3a</Assembly>
+      <FullClassName>Microsoft.VSDesigner.ProjectWizard.ItemPropertyWizard</FullClassName>
+  </WizardExtension>
+</VSTemplate>

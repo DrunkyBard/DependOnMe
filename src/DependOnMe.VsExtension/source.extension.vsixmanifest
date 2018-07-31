@@ -2,7 +2,7 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
         <Identity Id="DependOnMe.VsExtension.164e0703-2d1d-449c-b07b-5fef1f950fb9" Version="1.0" Language="en-US" Publisher="Sattar Imamov" />
-        <DisplayName>DependOnMe39.VsExtension</DisplayName>
+        <DisplayName>DependOnMeAA2.VsExtension</DisplayName>
         <Description>Empty VSIX Project.</Description>
     </Metadata>
     <Installation>
@@ -19,5 +19,6 @@
     <Assets>
         <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+        <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="DependOnMe.ItemTemplates" d:TargetPath="|DependOnMe.ItemTemplates;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates" />
     </Assets>
 </PackageManifest>

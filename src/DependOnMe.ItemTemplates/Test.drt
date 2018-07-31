@@ -1,0 +1,10 @@
+﻿using a 
+
+DependencyTest $rootnamespace$  
+  
+BoolFlag1 = False
+BoolFlag2   = True 
+Namespace1.Interface1 -> Namespace2.Class1
+Namespace1.Interface1 -> Namespace2.Class2
+Module a
+

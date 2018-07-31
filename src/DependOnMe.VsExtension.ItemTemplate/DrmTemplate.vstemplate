@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>Dependency registration module</Name>
+    <Description>Dependency registration module</Description>
+    <Icon>DrmTemplate.ico</Icon>
+    <ProjectType>CSharp</ProjectType>
+    <DefaultName>Module.drm</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$fileinputname$.drm">Module.drm</ProjectItem>
+    <CustomParameters>
+        <CustomParameter Name="$itemproperties$" Value="CustomTool" />
+        <CustomParameter Name="$CustomTool$" Value="DrtGenerator" />
+    </CustomParameters>
+  </TemplateContent>
+</VSTemplate>

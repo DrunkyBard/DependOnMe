@@ -8,4 +8,10 @@
         public const string DotModule = ".drm";
         public const string DotTest   = ".drt";
     }
+
+    internal enum DslType
+    {
+        Test,
+        Module
+    }
 }

@@ -82,13 +82,17 @@ type Compiler private() =
 
     static member Instance = inst
 
-    member __.CompileTest(testPaths: string[]) = testPaths |> List.ofArray |> compileTests |> Array.ofList
+    member __.CompileTest(testPath: string) = compileTests (testPath::[]) |> List.head
     
-    member __.CompileModule(modulePaths: string[]) = modulePaths |> List.ofArray |> compileModules |> Array.ofList
+    member __.CompileModule(modulePath: string) = compileModules (modulePath::[]) |> List.head
+
+    member __.CompileTests(testPaths: string[]) = (__.CompileTest, testPaths) ||> Array.map 
+    
+    member __.CompileModules(modulePaths: string[]) = (__.CompileModule, modulePaths) ||> Array.map
 
     member __.CompileAll(testPaths: string[], modulePaths: string[]) =
-        let testUnits   = __.CompileTest(testPaths)
-        let moduleUnits = __.CompileModule(modulePaths)
+        let testUnits   = __.CompileTests(testPaths)
+        let moduleUnits = __.CompileModules(modulePaths)
         (testUnits, moduleUnits)
 
     member __.CompileTestOnFly(src: string, filePath: string) = compileTest src filePath

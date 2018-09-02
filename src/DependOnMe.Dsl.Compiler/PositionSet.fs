@@ -12,7 +12,7 @@ type 'a CaretTermPosition =
 
 type 'a PositionSet() = 
     let positions = ResizeArray<'a PositionIndex>() //TODO: need uniqueness support
-                                                 //TODO: get rid of sorting during every method call
+                                                    //TODO: get rid of sorting during every method call
 
     let (|Earlier|Later|Inside|) (pos: Position, termStart: Position, termEnd: Position) =
         if   pos.Line < termStart.Line then Earlier

@@ -27,8 +27,8 @@ namespace DependOnMe.VsExtension.ModuleAdornment
         private readonly IWpfTextView _view;
         private readonly ITagAggregator<ModuleTermTag> _tagger;
 
-        private readonly Dictionary<int, List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)>> _lineAdornments
-            = new Dictionary<int, List<(string, string, ModuleTree, ModuleButton)>>();
+        private readonly Dictionary<int, List<(string testName, string moduleName, UI.ModuleTree dep, ModuleButton modBtn)>> _lineAdornments
+            = new Dictionary<int, List<(string, string, UI.ModuleTree, ModuleButton)>>();
 
         private Dictionary<(string test, string module), (int lineNumber, IDisposable subscription)> _onCreateModuleSubscriptions 
             = new Dictionary<(string test, string module), (int lineNumber, IDisposable subscription)>(TwoStringComparer);
@@ -64,9 +64,9 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     var testName       = tag.Tag.TestName;
                     var moduleName     = tag.Tag.ModuleName;
                     var testModulePair = (testName, moduleName);
-                    var depView        = new ModuleTree(@event.CreatedModule);
+                    var depView        = new UI.ModuleTree(@event.CreatedModule);
                     var btnView        = new ModuleButton(10, 10, depView);
-                    var adornments     = _lineAdornments.GetOrAdd(lineNumber, _ => new List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)>());
+                    var adornments     = _lineAdornments.GetOrAdd(lineNumber, _ => new List<(string testName, string moduleName, UI.ModuleTree dep, ModuleButton modBtn)>());
 
                     _onCreateModuleSubscriptions[testModulePair].subscription.Dispose();
                     var success = _onCreateModuleSubscriptions.Remove(testModulePair);
@@ -260,9 +260,9 @@ namespace DependOnMe.VsExtension.ModuleAdornment
         private void ClearAdornmentsProperly(
             int lineNumber, 
             IMappingTagSpan<ModuleTermTag>[] tagSpans,
-            List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)> adornmentDefs)
+            List<(string testName, string moduleName, UI.ModuleTree dep, ModuleButton modBtn)> adornmentDefs)
         {
-            List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)> forRemoveAdornments;
+            List<(string testName, string moduleName, UI.ModuleTree dep, ModuleButton modBtn)> forRemoveAdornments;
 
             if (tagSpans.Length > 0)
             {
@@ -391,7 +391,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     else if (RefTable.Instance.HasDefinition(moduleName))
                     {
                         var module = ModuleHub.Instance.ModulePool.Request(moduleName);
-                        var depView = new ModuleTree(module);
+                        var depView = new UI.ModuleTree(module);
                         var btnView = new ModuleButton(10, 10, depView);
                         var onRemoveSubscription = SubscribeOnRemovedModule(lineNumber, newModuleTag, line.Top);
                         _onRemoveModuleSubscriptions.Add((testName, moduleName), (lineNumber, onRemoveSubscription));
@@ -410,7 +410,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             }
             else
             {
-                var newAdornments = new List<(string testName, string moduleName, ModuleTree dep, ModuleButton modBtn)>();
+                var newAdornments = new List<(string testName, string moduleName, UI.ModuleTree dep, ModuleButton modBtn)>();
 
                 foreach (var tag in tagSpans)
                 {
@@ -425,7 +425,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
                     else if (RefTable.Instance.HasDefinition(moduleName))
                     {
                         var module = ModuleHub.Instance.ModulePool.Request(moduleName);
-                        var depView = new ModuleTree(module);
+                        var depView = new UI.ModuleTree(module);
                         var btnView = new ModuleButton(10, 10, depView);
                         var onRemoveSubscription = SubscribeOnRemovedModule(lineNumber, tag, line.Top);
                         _onRemoveModuleSubscriptions.Add((testName, moduleName), (lineNumber, onRemoveSubscription));
@@ -449,7 +449,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             }
         }
 
-        private void Render(ModuleTree depView, ModuleButton btnView, IMappingTagSpan<ModuleTermTag> tag)
+        private void Render(UI.ModuleTree depView, ModuleButton btnView, IMappingTagSpan<ModuleTermTag> tag)
         {
             var textViewLines = _view.TextViewLines;
             var tagSpan       = tag.Span.GetSpans(_view.TextBuffer)[0];

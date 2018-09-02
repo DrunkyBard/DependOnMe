@@ -134,6 +134,11 @@ testBody:
             let boolFlags1, boolFlags2, classRegistrations, moduleRegistrations = separate $2
             Test($1, boolFlags1, boolFlags2, classRegistrations, moduleRegistrations, posRangeOut parseState 1 2)
         }
+    | testHeader
+        { 
+            (posRange parseState 1, $1 |> TestHeaderTerm) ||> addTestIdx
+            Test($1, [], [], [], [], posRange parseState 1)
+        }
         
 usings:
     | using usings { $1::$2 }

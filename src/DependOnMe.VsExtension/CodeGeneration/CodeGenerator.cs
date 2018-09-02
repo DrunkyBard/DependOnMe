@@ -66,9 +66,9 @@ namespace DependOnMe.VsExtension.CodeGeneration
                 .OnlyValidTests()
                 .ValidTests
                 .Select(x => new TestDefinition(
-                    x.Name, 
-                    x.BoolFlag1Values.First().Value,
-                    x.BoolFlag2Values.First().Value,
+                    x.Name,
+                    x.BoolFlag1Values.Length > 0 && x.BoolFlag1Values.First().Value,
+                    x.BoolFlag2Values.Length > 0 && x.BoolFlag2Values.First().Value,
                     x.ClassRegistrations.Select(y => new DependencyRegistration(y.Dependency, y.Implementation)).AsReadOnly(),
                     x.RegisteredModules.Select(y => new ModuleRegistration(y.Name)).AsReadOnly()))
                 .AsReadOnly();

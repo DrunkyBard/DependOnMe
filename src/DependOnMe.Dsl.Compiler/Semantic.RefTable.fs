@@ -67,7 +67,8 @@ type RefTable private() =
         match table.TryGetValue moduleName with
             | (false, _) -> 
                 match orphanRefs.TryGetValue(moduleName) with
-                    | (true, refs) -> refs.AddOrUpdate(reference, 1, fun _ v -> v + 1)
+                    | (true, refs) -> 
+                        refs.AddOrUpdate(reference, 1, fun _ v -> v + 1)
                     | (false, _)   -> 
                         let orphans = Dictionary<RefItem, int>(RefItemComparer.Instance)
                         orphans.Add(reference, 1)
@@ -80,6 +81,7 @@ type RefTable private() =
                 match orphanRefs.TryGetValue(moduleName) with
                     | (true, refs) -> 
                         refs.Remove(reference) |> ignore
+
                         if refs.Count = 0 then orphanRefs.Remove(moduleName) |> ignore
                     | (false, _)   -> ()
             | (true, prevRef) ->
@@ -144,6 +146,11 @@ type RefTable private() =
     //        | DependencyTest.Empty -> ()
     //        | Test(TestHeader.Full(name, _, _), _, _, _, _, _) -> (name, (name, reference.FilePath) ||> Rec.FromTest) ||> removeRefInternal
     //        | _ -> failwith "Expected only empty or full test declaration as reference"
+
+    member __.GetAllModulesFrom(file: string) = 
+        match invertTable.TryGetValue(file) with
+            | (true, declarations) -> declarations.Keys.ToList().AsReadOnly()
+            | (false, _) -> Seq.empty.ToList().AsReadOnly()
 
     member __.AddDeclaration(declaration: FileCompilationUnit<ValidModuleRegistration>) =
         let moduleName = declaration.CompilationUnit.Name
@@ -210,18 +217,28 @@ type RefTable private() =
                 | (false, _)    -> false
         else false
 
-    member __.TryRemoveTestRefs(filePath) =
+    member __.TryRemoveTestRefs(filePath: string) =
         let testsToRemove = 
             table.Values 
             |> Seq.collect(fun x -> x.References) 
             |> Seq.where(fun x -> x.Key.FilePath.Equals(filePath, StringComparison.OrdinalIgnoreCase)) 
             |> Seq.map(fun x -> x.Key)
             |> Array.ofSeq
-        
-        let orphModules  = orphanRefs |> Seq.map (fun x -> x.Key) |> Array.ofSeq
-        let tableModules = table |> Seq.map (fun x -> x.Key) |> Array.ofSeq
-        testsToRemove |> Seq.iter(fun testRef -> orphModules |> Seq.iter(fun orph -> removeRefInternal orph testRef))
-        testsToRemove |> Seq.iter(fun testRef -> tableModules |> Seq.iter(fun tRecord -> removeRefInternal tRecord testRef))
+
+        if testsToRemove.Length > 0 then
+            let orphModules  = orphanRefs |> Seq.map (fun x -> x.Key) |> Array.ofSeq
+            let tableModules = table |> Seq.map (fun x -> x.Key)  |> Array.ofSeq
+            testsToRemove |> Seq.iter(fun testRef -> orphModules  |> Seq.iter(fun orph -> removeRefInternal orph testRef))
+            testsToRemove |> Seq.iter(fun testRef -> tableModules |> Seq.iter(fun tRecord -> removeRefInternal tRecord testRef))
+        else 
+            let moduleToRefs = 
+                orphanRefs
+                |> Seq.where(fun kvp -> kvp.Value.Any(fun p -> p.Key.FilePath.Equals(filePath, StringComparison.OrdinalIgnoreCase)))
+                |> Seq.map(fun kvp -> (kvp.Key, kvp.Value |> Seq.where(fun kvp1 -> kvp1.Key.FilePath.Equals(filePath, StringComparison.OrdinalIgnoreCase))))
+                |> Seq.map(fun (moduleName, v) -> (moduleName, v |> Seq.map(fun q -> q.Key) |> Array.ofSeq))
+                |> Array.ofSeq
+            
+            moduleToRefs |> Seq.iter(fun (moduleName, refs) -> refs |> Array.iter(fun ref -> removeRefInternal moduleName ref))
 
     member __.TryRemoveDeclarations(filePath: string) =
         match invertTable.TryGetValue(filePath) with

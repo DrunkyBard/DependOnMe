@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:DependOnMe.VsExtension.ModuleAdornment.UI"
+             xmlns:vsShell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:DependencyModule, IsDesignTimeCreatable=True}">
@@ -33,29 +34,37 @@
                 <Binding Path="Dependencies" />
             </HierarchicalDataTemplate.ItemsSource>
 
-            <TextBlock Text="{Binding Path=ModuleName}" Foreground="AliceBlue" />
+            <TextBlock Text="{Binding Path=ModuleName}" Foreground="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}" />
         </HierarchicalDataTemplate>
 
         <DataTemplate DataType="{x:Type local:PlainDependency}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Path=Dependency}" VerticalAlignment="Center" Foreground="AliceBlue"/>
-                <TextBlock Text="{Binding Path=Implementation}" VerticalAlignment="Center" Foreground="AliceBlue"/>
+                <TextBlock Text="{Binding Path=Dependency}"     VerticalAlignment="Center" Foreground="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                <TextBlock Text="{Binding Path=Implementation}" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
             </StackPanel>
         </DataTemplate>
 
         <Style TargetType="{x:Type TreeView}">
-            <Setter Property="Foreground" Value="#FFB3B3B3"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 
             <Style.Triggers>
                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                    <Setter Property="Background" Value="#FF383838"/>
+                    <Setter Property="Background" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowBackgroundColorKey}}"/>
                 </Trigger>
 
                 <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                    <Setter Property="Background" Value="#FF333333"/>
+                    <Setter Property="Background" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowBackgroundColorKey}}"/>
                 </Trigger>
             </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            <Setter Property="Background" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
         </Style>
     </UserControl.Resources>
     <Grid>

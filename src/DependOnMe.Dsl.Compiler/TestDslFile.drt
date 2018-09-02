@@ -1,7 +1,7 @@
 using a 
 
 DependencyTest a  
-
+  
   BoolFlag1 = False
   BoolFlag2   = True 
   Namespace1.Interface1 -> Namespace2.Class1

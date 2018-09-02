@@ -190,18 +190,19 @@ state 12:  items:    modules -> moduleBody modules .
     action '#' (noprec):   reduce modules --> moduleBody modules
     action '$$' (noprec):   reduce modules --> moduleBody modules
   immediate action:   reduce modules --> moduleBody modules  gotos:state 13:  items:    moduleBody -> moduleHeader . moduleExpressionSet
-  actions:    action 'EOF' (noprec):   error
-    action 'USING' (noprec):   error
+    moduleBody -> moduleHeader . 
+  actions:    action 'EOF' (noprec):   reduce moduleBody --> moduleHeader
+    action 'USING' (noprec):   reduce moduleBody --> moduleHeader
     action 'SNAME' (noprec):   shift 33
     action 'IQN' (noprec):   shift 35
     action 'FQN' (noprec):   shift 34
     action 'MODULE' (noprec):   shift 30
-    action 'QUOT' (noprec):   error
+    action 'QUOT' (noprec):   reduce moduleBody --> moduleHeader
     action 'ARROW' (noprec):   shift 37
-    action 'MODULEHEADER' (noprec):   error
+    action 'MODULEHEADER' (noprec):   reduce moduleBody --> moduleHeader
     action 'error' (noprec):   shift 41
-    action '#' (noprec):   error
-    action '$$' (noprec):   error
+    action '#' (noprec):   reduce moduleBody --> moduleHeader
+    action '$$' (noprec):   reduce moduleBody --> moduleHeader
   immediate action: <none>  gotos:    goto moduleBodyExpression: 18
     goto moduleExpressionSet: 14
     goto registrationSet: 15

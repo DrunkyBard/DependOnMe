@@ -121,6 +121,11 @@ moduleBody:
             let classRegistrations, moduleRegistrations = separateModule $2
             ModuleDeclaration.Module($1, classRegistrations, moduleRegistrations, posRangeOut parseState 1 2)
         }
+    | moduleHeader
+        {
+            (posRange parseState 1, $1 |> ModuleHeaderTerm) ||> addTestIdx
+            ModuleDeclaration.Module($1, [], [], posRange parseState 1)
+        }
 
 moduleBodyExpression:
     | registrationSet { ModuleBody.Registration($1 |> List.rev) }

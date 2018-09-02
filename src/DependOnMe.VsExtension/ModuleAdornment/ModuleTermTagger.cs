@@ -127,7 +127,7 @@ namespace DependOnMe.VsExtension.ModuleAdornment
             {
                 var containingTest = units.ValidTests.FirstOrDefault(x =>
                     x.Position.Item1.AbsoluteOffset <= span.Start.Position + 1 &&
-                    x.Position.Item2.AbsoluteOffset <= span.End.Position + 1);
+                    span.End.Position + 1 <= x.Position.Item2.AbsoluteOffset);
 
                 var inError = units
                     .Errors

@@ -22,3 +22,8 @@ type ('a, 'b) Dictionary with
         match dict.TryGetValue(key) with
             | (true, v)  -> dict.[key] <- update key v
             | (false, _) -> dict.Add(key, value)
+    
+    member dict.AddOrUpdateFunc(key: 'a, value: 'a -> 'b, update: 'a -> 'b -> 'b) =
+        match dict.TryGetValue(key) with
+            | (true, v)  -> dict.[key] <- update key v
+            | (false, _) -> dict.Add(key, value(key))
